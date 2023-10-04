@@ -51,10 +51,25 @@
             pageLength: -1
         });
 
-        const checkHidePassworded = $("#hide-passworded")
-        const checkMax100 = $("#max-100-only")
-        const checkIgnoreKeywords = $("#ignore-keywords")
-        const ignoreWordsTextbox = $("#ignoreWords")
+        const btnConnectSeeding = $("#join-seeding");
+        const btnConnectPopulated = $("#join-populated");
+        const checkHidePassworded = $("#hide-passworded");
+        const checkMax100 = $("#max-100-only");
+        const checkIgnoreKeywords = $("#ignore-keywords");
+        const ignoreWordsTextbox = $("#ignoreWords");
+
+        btnConnectSeeding.click(function () {
+            let randomServer = seeding.sort(() => 0.5 - Math.random())[0];
+            console.log(randomServer)
+
+            document.getElementById("connect-" + randomServer.query).click()
+        })
+        btnConnectPopulated.click(function () {
+            let randomServer = populated.sort(() => 0.5 - Math.random())[0];
+            console.log(randomServer)
+
+            document.getElementById("connect-" + randomServer.query).click()
+        })
 
         let lastUpdatedTime;
         let seeding = []
@@ -114,7 +129,7 @@
                     }
 
                     rows.push([
-                        `<a class="btn btn-outline-primary" href="steam://connect/${server.query}?appid=686810">Quick Join</a>`,
+                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="steam://connect/${server.query}?appid=686810">Quick Join</a>`,
                         {"display": `<span class="badge ${server.status}">${server.status}</span>`, "num": server.status_num},
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         {"display": `${server.players} / ${server.maxPlayers}`, "num": Number(server.players)},
@@ -126,9 +141,9 @@
                 serverTable.rows.add(rows).draw(false);
                 serverTable.columns.adjust().draw(false);
 
-                $("#join-seeding").prop("disabled", seeding.length === 0)
+                btnConnectSeeding.prop("disabled", seeding.length === 0)
                 $("#seeding-count").text(seeding.length + " servers")
-                $("#join-populated").prop("disabled", seeding.length === 0)
+                btnConnectPopulated.prop("disabled", populated.length === 0)
                 $("#populated-count").text(populated.length + " servers")
             } catch (e) {
                 console.error(e)
