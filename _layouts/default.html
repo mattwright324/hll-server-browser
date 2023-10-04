@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="description"
-          content="Quickly create custom tacmaps for Hell Let Loose. Customize visible points, add garrisons airheads and halftracks, toggle and change the active sectors, draw freely on the map, see offensive default garrisons and maximum artillery reach.">
+          content="Web server browser for Hell Let Loose. Quickly connect to any server. Continually refreshes roughly every two minutes.">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="build" content="{{ site.time | date_to_xmlschema }}">
     <title>{{ page.title }}</title>
@@ -24,7 +24,7 @@
 
     <!-- Apps -->
     <link href="./styles.css?v={{ site.time | date_to_xmlschema }}" rel="stylesheet"/>
-    <script src="./newscript.js?v={{ site.time | date_to_xmlschema }}" type="text/javascript"></script>
+    <script src="./script.js?v={{ site.time | date_to_xmlschema }}" type="text/javascript"></script>
 
     <!-- Analytics -->
     <script defer data-domain="mattw.io" src="https://plausible.io/js/plausible.js"></script>
@@ -75,14 +75,14 @@
             100 max player servers only
         </label>
     </div>
-    <div class="mb-3 col-md-3">
+    <div class="mb-3 col-md-4">
         <div class="form-check" style="margin-bottom: 5px">
             <input class="form-check-input" type="checkbox" value="" id="ignore-keywords" checked>
             <label class="form-check-label" for="ignore-keywords">
                 Ignore server names that contain
             </label>
         </div>
-        <textarea class="form-control" id="ignoreWords" rows="3" aria-describedby="help">cn, violet, event, training, test, hll official, fr only, french</textarea>
+        <textarea class="form-control" id="ignoreWords" rows="3" aria-describedby="help">cn, violet, event, training, test, hll official, french, aust, german, [fr, [ger, [pl, only, team17</textarea>
         <div id="help" class="form-text">Comma separated list of words or phrases</div>
     </div>
     <br>
