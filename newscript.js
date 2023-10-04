@@ -68,8 +68,8 @@
             }
         }, 100)
 
-        // let socket = io('https://hell-let-loose-servers.herokuapp.com/');
-        let socket = io('localhost:3000');
+        let socket = io('https://hell-let-loose-servers.herokuapp.com/');
+        // let socket = io('localhost:3000');
 
         socket.on("list-update", function (message) {
             console.log(message)
