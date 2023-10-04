@@ -1,0 +1,307 @@
+body {
+    background-repeat: repeat;
+    font-weight: 350 !important;
+}
+
+a[href] {
+    text-decoration: none;
+}
+
+#canvas-container {
+    width: 100% !important;
+    resize: vertical !important;
+    overflow: auto !important;
+}
+
+body {
+    position: relative;
+}
+
+.accordion-button {
+    padding: 8px 8px;
+    font-size: 22px;
+}
+
+html.dark .accordion-button:not(.collapsed) {
+    color: inherit !important;
+    background-color: inherit !important;
+}
+
+canvas {
+    /*border: 2px rgba(127,127,127,0.25) dashed;*/
+    border-radius: 5px;
+}
+canvas.drag-mode {
+    cursor: grab !important;
+}
+canvas.draw-mode {
+    cursor: crosshair !important;
+}
+canvas.eraser-mode {
+    cursor: crosshair !important;
+}
+canvas.polygon-mode {
+    cursor: crosshair !important;
+}
+
+.color {
+    display: inline-block;
+    width: 35px;
+    height: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.color.blue {
+    background-color: #0080ff;
+}
+.color.red {
+    background-color: #ff8080;
+}
+.color.selected {
+    border: 3px dashed lawngreen;
+}
+#text-color-div, #shape-color-div, #line-color-div {
+    flex-wrap: wrap;
+}
+#line-color-div span {
+    margin-left: 5px;
+}
+#shape-color-div span {
+    margin-left: 5px;
+}
+#text-color-div span {
+    margin-left: 5px;
+}
+
+.new-slide {
+    margin-bottom: 3px
+}
+.new-slide .bi-trash-fill {
+    color: red;
+}
+
+.slide {
+    margin-bottom: 3px
+}
+.slide .bi-trash-fill {
+    color: red;
+}
+
+#sp-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 40px);
+    grid-template-rows: repeat(5, 40px);
+    column-gap: 5px;
+    row-gap: 5px;
+}
+
+.sp-toggle {
+    background: rgba(127, 127, 127, 0.5);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.sp-toggle.selected {
+    background: rgba(0, 255, 0, 0.5);
+}
+
+label a {
+    margin-left: 3px;
+    padding-left: 3px;
+}
+
+.sp-toggle.unavailable {
+    background: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 5px,
+            rgba(127, 127, 127, 0.5) 5px,
+            rgba(127, 127, 127, 0.5) 10px
+    );
+    user-input: none;
+    cursor: default;
+}
+
+ul {
+    line-height: 20px;
+}
+
+.navbar-brand {
+    font-size: 1.75rem!important;
+}
+
+.navbar {
+    font-size: 1.5rem!important;
+}
+
+.navbar-brand img {
+    width: 40px !important;
+    height: 40px !important;
+}
+
+button .countdown, button .spinner {
+    display: none;
+}
+
+button.loading .countdown, button.loading .spinner {
+    display: initial;
+}
+
+.context-menu-list .context-menu-disabled {
+    background-color: rgb(54, 54, 54);
+    color: lightgray;
+}
+
+.context-menu-list, .context-menu-list * {
+    background-color: inherit;
+    color: inherit;
+    border: none;
+}
+
+.context-menu-submenu::after {
+    border-color: transparent transparent transparent #fff;
+}
+
+.context-menu-item.context-menu-hover {
+    background-color: gray;
+}
+
+.context-menu-submenu .context-menu-list {
+    background-color: rgb(34, 34, 34);
+}
+
+.context-menu-submenu .context-menu-item.context-menu-hover {
+    background-color: gray;
+}
+
+/* Dark mode tweaks */
+html.dark .tag {
+    background-color: royalblue;
+}
+
+html.dark .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+html.dark a, html.dark .btn-link {
+    color: lightskyblue;
+}
+
+html.dark .progress-bar {
+    color: #fff;
+}
+
+.session-panel {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.session-panel h4 {
+    margin: 0;
+}
+
+#viewer-panel {
+    background-color: rgba(0, 50, 255, 0.15);
+    border: 2px dashed rgba(0, 50, 255, 0.75);
+}
+
+#editor-panel {
+    background-color: rgba(0, 255, 50, 0.15);
+    border: 2px dashed rgba(0, 255, 50, 0.75);
+}
+
+#warning-panel {
+    background-color: rgba(255, 255, 50, 0.15);
+    border: 2px dashed rgba(255, 255, 50, 0.75);
+}
+
+@font-face {
+    font-family: 'password';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
+}
+
+.fake-password {
+    font-family: 'password', serif;
+}
+
+.menu-x {
+    visibility: hidden;
+    z-index: -100;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    border-radius: 5px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    background-color: rgb(34, 34, 34);
+}
+
+.menu-li {
+    box-sizing: border-box;
+    padding: 4px 8px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.menu-li.submenu {
+    cursor: default;
+}
+
+.menu-li:hover {
+    background-color: black;
+}
+
+.menu-li:first-child {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.menu-li:last-child {
+    border-bottom: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+@media only screen and (max-width: 768px) {
+    #canvas-container {
+        height: 450px;
+    }
+}
+@media only screen and (min-width: 769px) {
+    #canvas-container {
+        height: 800px;
+    }
+}
+
+table.dataTable tbody td {
+    vertical-align: middle;
+}
+
+html.dark .btn-outline-primary {
+    color: #0d6efd;
+    outline-color: #0d6efd;
+}
+
+.badge.S, .badge.SP {
+    background-color: #00bc8c!important;
+    color: black!important
+}
+
+.badge.P {
+    background-color: #0d6efd!important;
+    color: white!important
+}
+
+.badge.E {
+    background-color: rgb(108, 117, 125)!important;
+    color: white!important
+}
+
+.badge.F {
+    background-color: rgb(255, 193, 7)!important;
+    color: black!important
+}
