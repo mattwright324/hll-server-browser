@@ -145,8 +145,8 @@
             }
         }, 100);
 
-        // let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
-        let socket = io('localhost:3000');
+        let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
+        // let socket = io('localhost:3000');
 
         socket.on("list-update", function (message) {
             console.log(message)
