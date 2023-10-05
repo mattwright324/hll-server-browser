@@ -71,17 +71,17 @@
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             const server = ip2server[data[0]];
             if (!server) {
-                console.log('null', server)
+                // console.log('null', server)
                 return false
             }
 
             if (checkHidePassworded.is(":checked") && server.visibility === 1) {
-                console.log(`pw [${server.visibility}] ${server.name}`)
+                // console.log(`pw [${server.visibility}] ${server.name}`)
                 return false
             }
 
             if (checkMax100.is(":checked") && server.maxPlayers !== 100) {
-                console.log(`100 [${server.maxPlayers}] ${server.name}`)
+                // console.log(`100 [${server.maxPlayers}] ${server.name}`)
                 return false
             }
 
@@ -90,7 +90,7 @@
                 for (let i = 0; i < terms.length; i++) {
                     const term = terms[i].toLowerCase().trim();
                     if (term && server.name.toLowerCase().includes(term)) {
-                        console.log(`term [${term}] ${server.name}`)
+                        // console.log(`term [${term}] ${server.name}`)
                         return false
                     }
                 }
@@ -137,16 +137,43 @@
         let seeding = []
         let populated = []
 
+        function formatDuration(duration, includeMs, ignoreTime) {
+            const years = duration.years();
+            const months = duration.months();
+            const days = duration.days();
+            const hours = duration.hours();
+            const minutes = duration.minutes();
+            const seconds = duration.seconds();
+            const millis = duration.milliseconds();
+            const format = [
+                (years > 0 ? years + " years" : ""),
+                (months > 0 ? months + " months" : ""),
+                (days > 0 ? days + " days" : ""),
+                (!ignoreTime && hours > 0 ? hours + "h" : ""),
+                (!ignoreTime && minutes > 0 ? minutes + "m" : ""),
+                (!ignoreTime && seconds > 0 ? seconds + "s" : ""),
+                includeMs ? (millis > 0 ? millis + "ms" : "") : ""
+            ].join(" ");
+
+            if (format.trim() === "") {
+                return "0s";
+            }
+
+            return format;
+        }
+
         setInterval(function () {
             if (lastUpdatedTime) {
-                const time = moment(lastUpdatedTime).fromNow()
+                const diff = moment().diff(moment(lastUpdatedTime));
+                const duration = moment.duration(diff);
+                const time = formatDuration(duration)
                 console.log(time)
-                $("#last-updated").text(time)
+                $("#last-updated").text(time + " ago")
             }
         }, 100);
 
-        let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
-        // let socket = io('localhost:3000');
+        // let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
+        let socket = io('localhost:3000');
 
         socket.on("list-update", function (message) {
             console.log(message)
