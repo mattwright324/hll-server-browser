@@ -255,8 +255,10 @@
                         server.status_num = 1
                     }
 
-                    const connectUrl = `steam://connect/${server.query.split(":")[0]}:${server.port}?appid=686810`;
-                    // const connectUrl = `steam://run/686810//+connect ${server.query.split(":")[0]}:${server.port}`;
+                    const query = server.query;
+                    const game = `${server.query.split(":")[0]}:${server.port}`
+                    const connectUrl = `steam://connect/${query}?appid=686810`;
+                    // const connectUrl = `steam://launch/686810//connect/${query}`;
 
                     rows.push([
                         server.query,
