@@ -255,9 +255,12 @@
                         server.status_num = 1
                     }
 
+                    // const connectUrl = `steam://connect/${server.query.split(":")[0]}:${server.port}?appid=686810`;
+                    const connectUrl = `steam://run/686810//+connect ${server.query.split(":")[0]}:${server.port}`;
+
                     rows.push([
                         server.query,
-                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="steam://connect/${server.query}?appid=686810">Quick Join</a>`,
+                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Quick Join</a>`,
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         {"display": `<span class="badge ${server.status}">${server.status}</span>`, "num": server.status_num},
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
