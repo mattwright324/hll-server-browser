@@ -1,6 +1,6 @@
 # HLL Server Browser
 
-Quickly create advanced custom tacmaps for Hell Let Loose.
+Web server browser for Hell Let Loose.
 
 - https://mattw.io/hll-server-browser/
 
