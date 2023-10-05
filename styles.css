@@ -305,3 +305,12 @@ html.dark .btn-outline-primary {
     background-color: rgb(255, 193, 7)!important;
     color: black!important
 }
+
+.map-icon {
+    border-radius: 20px;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    top: -12px;
+    margin-right: 8px;
+}

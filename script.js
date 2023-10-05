@@ -14,8 +14,9 @@
                     className: "dt-nowrap"
                 },
                 {
-                    title: "Status",
+                    title: "PW",
                     type: "num",
+                    visible: false,
                     render: {
                         _: 'display',
                         sort: 'num'
@@ -23,7 +24,7 @@
                     className: "dt-nowrap dt-center"
                 },
                 {
-                    title: "PW",
+                    title: "Status",
                     type: "num",
                     render: {
                         _: 'display',
@@ -49,7 +50,7 @@
                 "width": "100%",
                 "targets": 5
             }],
-            order: [[2, 'desc'], [4, 'desc'], [5, 'desc']],
+            order: [[3, 'desc'], [4, 'desc'], [5, 'desc']],
             lengthMenu: [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
             deferRender: true,
             bDeferRender: true,
@@ -64,7 +65,11 @@
         const ignoreWordsTextbox = $("#ignoreWords");
 
         [checkHidePassworded, checkMax100, checkIgnoreKeywords].forEach(el => {
-            el.change(() => serverTable.draw())
+            el.change(() => {
+                serverTable.draw()
+
+                serverTable.column(2).visible(!checkHidePassworded.is(":checked"))
+            })
         })
         ignoreWordsTextbox.on('keyup', () => serverTable.draw())
 
@@ -172,6 +177,42 @@
             }
         }, 100);
 
+        function getMapImage(map) {
+            if (map.includes("CT")) {
+                return "carentan.webp"
+            } else if (map.includes("Foy")) {
+                return "foy.webp"
+            } else if (map.includes("NewMap_1")) {
+                return "elalamein.webp"
+            } else if (map.includes("NewMap_0")) {
+                return "driel.webp"
+            } else if (map.includes("Hill400")) {
+                return "hill400.webp"
+            } else if (map.includes("Hurtgen")) {
+                return "hurtgenforest.webp"
+            } else if (map.includes("Kharkov")) {
+                return "kharkov.webp"
+            } else if (map.includes("Kursk")) {
+                return "kursk.webp"
+            } else if (map.includes("Omaha")) {
+                return "omahabeach.webp"
+            } else if (map.includes("PHL")) {
+                return "purpleheartlane.webp"
+            } else if (map.includes("Remagen")) {
+                return "remagen.webp"
+            } else if (map.includes("Stalin")) {
+                return "stalingrad.webp"
+            } else if (map.includes("StMarie")) {
+                return "stmariedumont.webp"
+            } else if (map.includes("SME")) {
+                return "stmereeglise.webp"
+            } else if (map.includes("Utah")) {
+                return "utahbeach.webp"
+            } else {
+                return "unknown.jpg"
+            }
+        }
+
         let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
         // let socket = io('localhost:3000');
 
@@ -217,10 +258,11 @@
                     rows.push([
                         server.query,
                         `<a id="connect-${server.query}" class="btn btn-outline-primary" href="steam://connect/${server.query}?appid=686810">Quick Join</a>`,
-                        {"display": `<span class="badge ${server.status}">${server.status}</span>`, "num": server.status_num},
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
-                        {"display": `${server.players} / ${server.maxPlayers}`, "num": Number(server.players)},
-                        `${server.name}<br><small class="text-muted">${server.map}</small>`
+                        {"display": `<span class="badge ${server.status}">${server.status}</span>`, "num": server.status_num},
+                        {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
+                        `<div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
+                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div>`
                     ])
                 }
 
