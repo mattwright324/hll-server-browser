@@ -261,8 +261,8 @@
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         {"display": `<span class="badge ${server.status}">${server.status}</span>`, "num": server.status_num},
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
-                        `<div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
-                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div>`
+                        `<div style="white-space: nowrap"><div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
+                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div></div>`
                     ])
                 }
 
