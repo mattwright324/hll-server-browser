@@ -35,7 +35,7 @@
                 {
                     title: "Players",
                     type: "num",
-                    className: "dt-nowrap",
+                    className: "dt-nowrap  dt-center",
                     render: {
                         _: 'display',
                         sort: 'num'
