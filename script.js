@@ -79,7 +79,7 @@
             $(".name-filter[data-val='custom']").click()
         })
 
-        const commonIgnore = "event, training, test, team17, dev"
+        const commonIgnore = "event, training, test, team17, dev team"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
         const euOnly = "[eu, euro, eu/, /eu, /en, eng/, en/, english, exd"
         const frOnly = "fr o, french, [fr, fr/, /fr"
