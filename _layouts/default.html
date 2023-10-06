@@ -53,13 +53,13 @@
     <div class="row justify-content-md-center">
         <div class="col col-md-auto">
             <div class="input-group mb-3">
-                <button class="btn btn-outline-success" style="height: 150px" id="join-seeding" disabled="disabled">Quick Join<br>Random Seeding! 🌱<br>(5-50 players)</button>
+                <button class="btn btn-outline-success" style="height: 150px" id="join-seeding" disabled="disabled">Quick Join<br>Random Seeding! 🌱<br>(3-50 players)</button>
                 <span class="input-group-text" id="seeding-count">## servers</span>
             </div>
         </div>
         <div class="col col-md-auto">
             <div class="input-group mb-3">
-                <button class="btn btn-outline-primary" style="height: 150px" id="join-populated" disabled="disabled">Quick Join<br>Random Populated! 🏟️<br>(40-90 players)</button>
+                <button class="btn btn-outline-primary" style="height: 150px" id="join-populated" disabled="disabled">Quick Join<br>Random Populated! 🏟️<br>(40-91 players)</button>
                 <span class="input-group-text" id="populated-count">## servers</span>
             </div>
         </div>
@@ -67,33 +67,72 @@
 </div>
 <div class="container">
     <h3>Server List</h3>
-    <div class="input-group mb-3">
-        <span class="input-group-text">Last updated</span>
-        <span class="input-group-text" id="last-updated">...</span>
+    <div class="row">
+        <div class="col-sm-12 col-md-4">
+            <div class="input-group mb-3">
+                <span class="input-group-text">Last updated</span>
+                <span class="input-group-text" id="last-updated">...</span>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="hide-passworded" checked>
+                <label class="form-check-label" for="hide-passworded">
+                    Hide passworded servers
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="max-100-only" checked>
+                <label class="form-check-label" for="max-100-only">
+                    100 max player servers only
+                </label>
+            </div>
+            <div class="mb-3">
+                <div class="form-check" style="margin-bottom: 5px">
+                    <input class="form-check-input" type="checkbox" value="" id="ignore-keywords" checked>
+                    <label class="form-check-label" for="ignore-keywords">
+                        Ignore server names that contain
+                    </label>
+                </div>
+                <textarea class="form-control" id="ignoreWords" rows="2" aria-describedby="help">cn, violet, event, training, test, hll official, french, aust, german, [fr, [ger, [pl, onl, team17, brasil, [rus, esp, ger mic</textarea>
+                <div id="help" class="form-text">Comma separated list of words or phrases</div>
+            </div>
+            <div class="mb-3">
+                <div class="form-check" style="margin-bottom: 5px">
+                    <input class="form-check-input" type="checkbox" value="" id="only-keywords" checked>
+                    <label class="form-check-label" for="only-keywords">
+                        Only server names that contain
+                    </label>
+                </div>
+                <textarea class="form-control" id="onlyWords" rows="2" aria-describedby="onlyHelp"></textarea>
+                <div id="onlyHelp" class="form-text">Comma separated list of words or phrases</div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <h5>General Name Filters</h5>
+            <p>Pre-defined server name filters for various langs/regions. Results will not be perfect. Geo-ip was unreliable and HLL does not use steam region filters.</p>
+            <div style="display: grid; grid-template-columns: auto auto auto auto; grid-gap: 7px; text-align: center">
+                <div data-val="all" class="name-filter">ALL (none)</div>
+                <div data-val="en" class="name-filter selected">ENG</div>
+                <div data-val="en-us" class="name-filter">ENG (US)</div>
+                <div data-val="en-eu" class="name-filter">ENG (EU)</div>
+                <div data-val="fr" class="name-filter">FR</div>
+                <div data-val="cn" class="name-filter">CN</div>
+                <div data-val="ger" class="name-filter">GER</div>
+                <div data-val="spa" class="name-filter">SPA/ESP</div>
+                <div data-val="rus" class="name-filter">RUS</div>
+                <div data-val="aus" class="name-filter">AUS</div>
+                <div data-val="nl" class="name-filter">NL/DUT</div>
+                <div data-val="official" class="name-filter">Official</div>
+                <div data-val="other" class="name-filter">Other</div>
+                <div data-val="custom" class="name-filter" hidden>Custom</div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4" hidden>
+            <h5>Share</h5>
+            <p>Share this server search config</p>
+        </div>
     </div>
 
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="hide-passworded" checked>
-        <label class="form-check-label" for="hide-passworded">
-            Hide passworded servers
-        </label>
-    </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="max-100-only" checked>
-        <label class="form-check-label" for="max-100-only">
-            100 max player servers only
-        </label>
-    </div>
-    <div class="mb-3 col-md-4">
-        <div class="form-check" style="margin-bottom: 5px">
-            <input class="form-check-input" type="checkbox" value="" id="ignore-keywords" checked>
-            <label class="form-check-label" for="ignore-keywords">
-                Ignore server names that contain
-            </label>
-        </div>
-        <textarea class="form-control" id="ignoreWords" rows="3" aria-describedby="help">cn, violet, event, training, test, hll official, french, aust, german, [fr, [ger, [pl, onl, team17, brasil</textarea>
-        <div id="help" class="form-text">Comma separated list of words or phrases</div>
-    </div>
     <br>
 
     <table id="server-table" class="table table-striped table-hover" style="width:100%"></table>

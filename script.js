@@ -3,6 +3,7 @@
 
     function init() {
         const serverTable = $("#server-table").DataTable({
+            dom: "i",
             columns: [
                 {
                     title: "IP",
@@ -63,15 +64,147 @@
         const checkMax100 = $("#max-100-only");
         const checkIgnoreKeywords = $("#ignore-keywords");
         const ignoreWordsTextbox = $("#ignoreWords");
+        const checkOnlyKeywords = $("#only-keywords");
+        const onlyWordsTextbox = $("#onlyWords");
 
-        [checkHidePassworded, checkMax100, checkIgnoreKeywords].forEach(el => {
+        [checkHidePassworded, checkMax100, checkIgnoreKeywords, checkOnlyKeywords].forEach(el => {
             el.change(() => {
                 serverTable.draw()
-
                 serverTable.column(2).visible(!checkHidePassworded.is(":checked"))
             })
+        });
+        [ignoreWordsTextbox, onlyWordsTextbox].forEach(el => {
+            el.on('keyup', () => serverTable.draw())
+
+            $(".name-filter[data-val='custom']").click()
         })
-        ignoreWordsTextbox.on('keyup', () => serverTable.draw())
+
+        const commonIgnore = "event, training, test, team17, dev"
+        const commonIgnoreOfficial = `${commonIgnore}, hll official`
+        const euOnly = "[eu, euro, eu/, /eu, /en, eng/, en/, english, exd"
+        const frOnly = "fr o, french, [fr, fr/, /fr"
+        const cnOnly = "cn, kook, violet"
+        const gerOnly = "german, ger mic, .de, [ger, ger/, /ger, lwj, deu"
+        const spaOnly = "spa o, esp, hisp, .es"
+        const rusOnly = "[rus, only ru, russia"
+        const ausOnly = ".au, /aus, /aus, bigd, aust, auss, kiwi"
+        const nlOnly = "[nl, dutch, dll, nl/, /nl"
+        const otherOnly = "brasil, ita, danish"
+        const langFilters = {
+            "all": {
+                checkIgnore: true,
+                ignore: "",
+                checkOnly: true,
+                only: ""
+            },
+            "en": {
+                checkIgnore: true,
+                ignore: `${commonIgnoreOfficial}, ${frOnly}, ${cnOnly}, ${gerOnly}, ${spaOnly}, ${rusOnly}, ${ausOnly}, ${nlOnly}, ${otherOnly}`,
+                checkOnly: true,
+                only: ""
+            },
+            "en-us": {
+                checkIgnore: true,
+                ignore: `${commonIgnoreOfficial}, ${euOnly}, ${frOnly}, ${cnOnly}, ${gerOnly}, ${spaOnly}, ${rusOnly}, ${ausOnly}, ${nlOnly}, ${otherOnly}`,
+                checkOnly: true,
+                only: ""
+            },
+            "en-eu": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: euOnly
+            },
+            "fr": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: frOnly
+            },
+            "cn": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: cnOnly
+            },
+            "ger": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: gerOnly
+            },
+            "spa": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: spaOnly
+            },
+            "rus": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: rusOnly
+            },
+            "aus": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: ausOnly
+            },
+            "nl": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: nlOnly
+            },
+            "official": {
+                checkIgnore: true,
+                ignore: commonIgnore,
+                checkOnly: true,
+                only: "hll official"
+            },
+            "other": {
+                checkIgnore: true,
+                ignore: commonIgnoreOfficial,
+                checkOnly: true,
+                only: otherOnly
+            },
+            "custom": {},
+        }
+
+        $('.name-filter').on('click', function (e) {
+            $(".name-filter").removeClass("selected");
+            $(e.target).addClass("selected");
+
+            const key = $(e.target).data("val");
+            const settings = langFilters[key];
+            if (!settings) {
+                return
+            }
+
+            let draw = false
+            console.log(settings)
+            if (settings.checkIgnore) {
+                checkIgnoreKeywords.prop("checked", settings.checkIgnore)
+                draw = true
+            }
+            if (settings.hasOwnProperty("ignore")) {
+                ignoreWordsTextbox.text(settings.ignore)
+                draw = true
+            }
+            if (settings.checkOnly) {
+                checkOnlyKeywords.prop("checked", settings.checkOnly)
+                draw = true
+            }
+            if (settings.hasOwnProperty("only")) {
+                onlyWordsTextbox.text(settings.only)
+                draw = true
+            }
+
+            if (draw) {
+                serverTable.draw()
+            }
+        })
 
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             const server = ip2server[data[0]];
@@ -98,6 +231,24 @@
                         // console.log(`term [${term}] ${server.name}`)
                         return false
                     }
+                }
+            }
+
+            if (checkOnlyKeywords.is(":checked")) {
+                const terms = onlyWordsTextbox.val().split(",")
+                let containsAny = false
+                let checkedAny = false
+                for (let i = 0; i < terms.length; i++) {
+                    const term = terms[i].toLowerCase().trim();
+                    if (term) { checkedAny = true }
+                    if (term && server.name.toLowerCase().includes(term)) {
+                        console.log(`not term [${term}] ${server.name}`)
+                        containsAny = true
+                        break
+                    }
+                }
+                if (checkedAny && !containsAny) {
+                    return false
                 }
             }
 
@@ -172,7 +323,6 @@
                 const diff = moment().diff(moment(lastUpdatedTime));
                 const duration = moment.duration(diff);
                 const time = formatDuration(duration)
-                console.log(time)
                 $("#last-updated").text(time + " ago")
             }
         }, 100);
@@ -232,13 +382,13 @@
                     ip2server[server.query] = server;
 
                     server.status = ""
-                    if (server.players < 5) {
+                    if (server.players < 3) {
                         server.status += "E" // Empty
                     }
-                    if (server.players >= 5 && server.players <= 50) {
+                    if (server.players >= 3 && server.players <= 50) {
                         server.status += "S" // Seeding
                     }
-                    if (server.players >= 40 && server.players <= 90) {
+                    if (server.players >= 40 && server.players <= 91) {
                         server.status += "P" // Populated
                     }
                     if (server.players > 90) {
@@ -262,9 +412,9 @@
 
                     rows.push([
                         server.query,
-                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Quick Join</a>`,
+                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}" onclick="return false;">Quick Join</a>`,
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
-                        {"display": `<span class="badge ${server.status}">${server.status}</span>`, "num": server.status_num},
+                        {"display": `<span class="badge ${server.status.split("").join(" ")}">${server.status}</span>`, "num": server.status_num},
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
                         `<div style="white-space: nowrap"><div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
                          <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div></div>`

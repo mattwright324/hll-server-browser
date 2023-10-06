@@ -286,7 +286,7 @@ html.dark .btn-outline-primary {
     outline-color: #0d6efd;
 }
 
-.badge.S, .badge.SP {
+.badge.S, .badge.S.P, .badge.S.E {
     background-color: #00bc8c!important;
     color: black!important
 }
@@ -313,4 +313,18 @@ html.dark .btn-outline-primary {
     position: relative;
     top: -12px;
     margin-right: 8px;
+}
+
+.name-filter {
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px dashed transparent;
+    cursor: pointer;
+}
+
+.name-filter:hover {
+    background-color: rgba(127,127,127,0.25);
+}
+.name-filter.selected {
+    border: 2px dashed cornflowerblue;
 }
