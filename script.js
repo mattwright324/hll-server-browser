@@ -74,10 +74,16 @@
             })
         });
         [ignoreWordsTextbox, onlyWordsTextbox].forEach(el => {
-            el.on('keyup', () => serverTable.draw())
-
-            $(".name-filter[data-val='custom']").click()
-        })
+            el.on('keyup', () => {
+                serverTable.draw();
+                $(".name-filter[data-val='custom']").click();
+            })
+        });
+        [checkIgnoreKeywords, checkOnlyKeywords].forEach(el => {
+            el.change(() => {
+                $(".name-filter[data-val='custom']").click();
+            })
+        });
 
         const commonIgnore = "event, training, test, team17, dev team"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
@@ -189,7 +195,7 @@
                 draw = true
             }
             if (settings.hasOwnProperty("ignore")) {
-                ignoreWordsTextbox.text(settings.ignore)
+                ignoreWordsTextbox.val(settings.ignore)
                 draw = true
             }
             if (settings.checkOnly) {
@@ -197,7 +203,7 @@
                 draw = true
             }
             if (settings.hasOwnProperty("only")) {
-                onlyWordsTextbox.text(settings.only)
+                onlyWordsTextbox.val(settings.only)
                 draw = true
             }
 
@@ -205,6 +211,8 @@
                 serverTable.draw()
             }
         })
+
+        $(".name-filter[data-val='en']").click()
 
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             const server = ip2server[data[0]];
@@ -286,7 +294,7 @@
             console.log(randomServer)
 
             document.getElementById("connect-" + randomServer.query).click()
-        })
+        });
 
         let lastUpdatedTime;
         let ip2server = {}
