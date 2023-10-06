@@ -53,13 +53,27 @@
     <div class="row justify-content-md-center">
         <div class="col col-md-auto">
             <div class="input-group mb-3">
-                <button class="btn btn-outline-success" style="height: 150px" id="join-seeding" disabled="disabled">Quick Join<br>Random Seeding! 🌱<br>(3-50 players)</button>
+                <button class="btn btn-outline-info" style="height: 90px; width: 300px" id="join-any" disabled="disabled">
+                    Quick Join<br>Random Any (Incl. Queue)! 🤷<br>(1-99 players)
+                </button>
+                <span class="input-group-text" id="any-count">## servers</span>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col col-md-auto">
+            <div class="input-group mb-3">
+                <button class="btn btn-outline-success" style="height: 90px; width: 300px" id="join-seeding" disabled="disabled">
+                    Quick Join<br>Random Seeding! 🌱<br>(3-50 players)
+                </button>
                 <span class="input-group-text" id="seeding-count">## servers</span>
             </div>
         </div>
         <div class="col col-md-auto">
             <div class="input-group mb-3">
-                <button class="btn btn-outline-primary" style="height: 150px" id="join-populated" disabled="disabled">Quick Join<br>Random Populated! 🏟️<br>(40-91 players)</button>
+                <button class="btn btn-outline-primary" style="height: 90px; width: 300px" id="join-populated" disabled="disabled">
+                    Quick Join<br>Random Populated! 🏟️<br>(40-91 players)
+                </button>
                 <span class="input-group-text" id="populated-count">## servers</span>
             </div>
         </div>
@@ -127,9 +141,13 @@
                 <div data-val="custom" class="name-filter">Custom</div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-4" hidden>
+        <div class="col-sm-12 col-md-4">
             <h5>Share</h5>
             <p>Share this server search config</p>
+            <div class="input-group" style="max-width: 226px;">
+                <input type="text" class="form-control" aria-describedby="copy" id="shareLink" autocomplete="off">
+                <button class="btn btn-primary clipboard" type="button"  data-clipboard-target="#shareLink"><i class="bi bi-clipboard"></i></button>
+            </div>
         </div>
     </div>
 

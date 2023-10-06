@@ -2,6 +2,8 @@
     'use strict';
 
     function init() {
+        new ClipboardJS(".clipboard");
+
         const serverTable = $("#server-table").DataTable({
             dom: "i",
             columns: [
@@ -58,8 +60,10 @@
             pageLength: -1
         });
 
+        const shareLink = $("#shareLink")
         const btnConnectSeeding = $("#join-seeding");
         const btnConnectPopulated = $("#join-populated");
+        const btnConnectAny = $("#join-any");
         const checkHidePassworded = $("#hide-passworded");
         const checkMax100 = $("#max-100-only");
         const checkIgnoreKeywords = $("#ignore-keywords");
@@ -71,17 +75,20 @@
             el.change(() => {
                 serverTable.draw()
                 serverTable.column(2).visible(!checkHidePassworded.is(":checked"))
+                updateShareLink()
             })
         });
         [ignoreWordsTextbox, onlyWordsTextbox].forEach(el => {
             el.on('keyup', () => {
                 serverTable.draw();
                 $(".name-filter[data-val='custom']").click();
+                updateShareLink()
             })
         });
         [checkIgnoreKeywords, checkOnlyKeywords].forEach(el => {
             el.change(() => {
                 $(".name-filter[data-val='custom']").click();
+                updateShareLink()
             })
         });
 
@@ -129,7 +136,7 @@
             },
             "cn": {
                 checkIgnore: true,
-                ignore: commonIgnoreOfficial,
+                ignore: `${commonIgnoreOfficial}, ${frOnly}`,
                 checkOnly: true,
                 only: cnOnly
             },
@@ -210,9 +217,8 @@
             if (draw) {
                 serverTable.draw()
             }
+            updateShareLink()
         })
-
-        $(".name-filter[data-val='en']").click()
 
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             const server = ip2server[data[0]];
@@ -250,7 +256,7 @@
                     const term = terms[i].toLowerCase().trim();
                     if (term) { checkedAny = true }
                     if (term && server.name.toLowerCase().includes(term)) {
-                        console.log(`not term [${term}] ${server.name}`)
+                        // console.log(`not term [${term}] ${server.name}`)
                         containsAny = true
                         break
                     }
@@ -264,6 +270,7 @@
         });
 
         serverTable.on("draw.dt", function () {
+            any = []
             seeding = []
             populated = []
             serverTable.rows({"search": "applied"}).every( function () {
@@ -276,28 +283,39 @@
                 if (server.status.includes("P")) {
                     populated.push(server)
                 }
+                if (server.players >= 1 && server.players <= 99) {
+                    any.push(server)
+                }
             });
             btnConnectSeeding.prop("disabled", seeding.length === 0)
             $("#seeding-count").text(seeding.length + " servers")
             btnConnectPopulated.prop("disabled", populated.length === 0)
             $("#populated-count").text(populated.length + " servers")
+            btnConnectAny.prop("disabled", any.length === 0)
+            $("#any-count").text(any.length + " servers")
+
+            updateShareLink()
         })
 
         btnConnectSeeding.click(function () {
             let randomServer = seeding.sort(() => 0.5 - Math.random())[0];
             console.log(randomServer)
-
             document.getElementById("connect-" + randomServer.query).click()
         })
         btnConnectPopulated.click(function () {
             let randomServer = populated.sort(() => 0.5 - Math.random())[0];
             console.log(randomServer)
-
+            document.getElementById("connect-" + randomServer.query).click()
+        });
+        btnConnectAny.click(function () {
+            let randomServer = any.sort(() => 0.5 - Math.random())[0];
+            console.log(randomServer)
             document.getElementById("connect-" + randomServer.query).click()
         });
 
         let lastUpdatedTime;
         let ip2server = {}
+        let any = []
         let seeding = []
         let populated = []
 
@@ -368,6 +386,72 @@
                 return "utahbeach.webp"
             } else {
                 return "unknown.jpg"
+            }
+        }
+
+        function updateShareLink() {
+            const baseUrl = location.origin + location.pathname;
+            const params = []
+
+            if (!checkHidePassworded.is(":checked")) {
+                params.push("hide_pw=false")
+            }
+            if (!checkMax100.is(":checked")) {
+                params.push("max_100=false")
+            }
+
+            const filter = $(".name-filter.selected").data("val");
+            params.push("filter=" + filter)
+            if (filter === "custom") {
+                params.push("ignore=" + checkIgnoreKeywords.is(":checked"))
+                params.push("ignore_words=" + ignoreWordsTextbox.val().trim().split(/\s*,\s*/).join())
+                params.push("only=" + checkOnlyKeywords.is(":checked"))
+                params.push("only_words=" + onlyWordsTextbox.val().trim().split(/\s*,\s*/).join())
+            }
+
+            shareLink.val(baseUrl + "?" + params.join("&"))
+        }
+
+        const queryString = window.location.search;
+        const query = {};
+        const pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+        for (let i = 0; i < pairs.length; i++) {
+            let pair = pairs[i].split('=');
+            query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+        }
+
+        if (query.hasOwnProperty("hide_pw")) {
+            checkHidePassworded.prop("checked", !(query.hide_pw.toLowerCase() === "false"))
+            checkHidePassworded.trigger("change")
+        }
+        if (query.hasOwnProperty("max_100")) {
+            checkMax100.prop("checked", !(query.max_100.toLowerCase() === "false"))
+            checkMax100.trigger("change")
+        }
+
+        if (query.hasOwnProperty("filter")) {
+            $(`.name-filter[data-val='${query.filter}']`).click()
+        } else {
+            $(".name-filter[data-val='en']").click()
+        }
+
+        const filter = $(".name-filter.selected").data("val");
+        if (filter === "custom") {
+            if (query.hasOwnProperty("ignore")) {
+                checkIgnoreKeywords.prop("checked", !(query.ignore.toLowerCase() === "false"))
+                checkIgnoreKeywords.trigger("change")
+            }
+            if (query.hasOwnProperty("ignore_words")) {
+                ignoreWordsTextbox.val(query.ignore_words.trim().split(/\s*,\s*/).join(", "))
+                ignoreWordsTextbox.trigger("keyup")
+            }
+            if (query.hasOwnProperty("only")) {
+                checkOnlyKeywords.prop("checked", !(query.only.toLowerCase() === "false"))
+                checkOnlyKeywords.trigger("change")
+            }
+            if (query.hasOwnProperty("only_words")) {
+                onlyWordsTextbox.val(query.only_words.trim().split(/\s*,\s*/).join(", "))
+                onlyWordsTextbox.trigger("keyup")
             }
         }
 
