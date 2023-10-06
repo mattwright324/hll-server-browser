@@ -94,15 +94,15 @@
 
         const commonIgnore = "event, training, test, team17, dev team"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
-        const euOnly = "[eu, euro, eu/, /eu, /en, eng/, en/, english, exd"
+        const euOnly = "(eu, [eu, eu], euro, eu/, /eu, /en, eng/, en/, english, exd, ww, [taw, wth"
         const frOnly = "fr o, french, [fr, fr/, /fr"
         const cnOnly = "cn, kook, violet"
-        const gerOnly = "german, ger mic, .de, [ger, ger/, /ger, lwj, deu"
+        const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, lwj, deu, ♦ GER"
         const spaOnly = "spa o, esp, hisp, .es"
         const rusOnly = "[rus, only ru, russia"
-        const ausOnly = ".au, /aus, /aus, bigd, aust, auss, kiwi"
+        const ausOnly = ".au, /aus, /aus, bigd, aust, auss, kiwi, koala"
         const nlOnly = "[nl, dutch, dll, nl/, /nl"
-        const otherOnly = "brasil, ita, danish"
+        const otherOnly = "brasil, ita, danish, norway, scandin, [pl"
         const langFilters = {
             "all": {
                 checkIgnore: true,
@@ -148,25 +148,25 @@
             },
             "spa": {
                 checkIgnore: true,
-                ignore: commonIgnoreOfficial,
+                ignore: commonIgnore,
                 checkOnly: true,
                 only: spaOnly
             },
             "rus": {
                 checkIgnore: true,
-                ignore: commonIgnoreOfficial,
+                ignore: commonIgnore,
                 checkOnly: true,
                 only: rusOnly
             },
             "aus": {
                 checkIgnore: true,
-                ignore: commonIgnoreOfficial,
+                ignore: `${commonIgnore}, ${gerOnly}`,
                 checkOnly: true,
                 only: ausOnly
             },
             "nl": {
                 checkIgnore: true,
-                ignore: commonIgnoreOfficial,
+                ignore: `${commonIgnoreOfficial}, ${gerOnly}`,
                 checkOnly: true,
                 only: nlOnly
             },
