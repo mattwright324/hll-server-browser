@@ -412,7 +412,7 @@
 
                     rows.push([
                         server.query,
-                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}" onclick="return false;">Quick Join</a>`,
+                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Quick Join</a>`,
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         {"display": `<span class="badge ${server.status.split("").join(" ")}">${server.status}</span>`, "num": server.status_num},
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
