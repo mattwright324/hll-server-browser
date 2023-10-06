@@ -391,7 +391,7 @@
                     if (server.players >= 40 && server.players <= 91) {
                         server.status += "P" // Populated
                     }
-                    if (server.players > 90) {
+                    if (server.players > 91) {
                         server.status += "F" // Full
                     }
 
