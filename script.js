@@ -14,7 +14,8 @@
                 },
                 {
                     title: "",
-                    className: "dt-nowrap"
+                    className: "dt-nowrap",
+                    sortable: false
                 },
                 {
                     title: "PW",
@@ -44,7 +45,16 @@
                         sort: 'num'
                     },
                 },
-                {title: "Server"}
+                {title: "Server"},
+                {
+                    title: "<i class='bi bi-star-half' title='Favorite'></i>",
+                    type: "num",
+                    className: "dt-nowrap  dt-center",
+                    render: {
+                        _: 'display',
+                        sort: 'num'
+                    },
+                },
             ],
             columnDefs: [{
                 "defaultContent": "",
@@ -53,12 +63,17 @@
                 "width": "100%",
                 "targets": 5
             }],
-            order: [[3, 'desc'], [4, 'desc'], [5, 'desc']],
+            order: [[6, 'desc'], [3, 'desc'], [4, 'desc'], [5, 'desc']],
             lengthMenu: [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
             deferRender: true,
             bDeferRender: true,
             pageLength: -1
         });
+
+        let favorites = []
+        if (localStorage && localStorage.getItem("favorites")) {
+            favorites = JSON.parse(localStorage.favorites);
+        }
 
         const shareLink = $("#shareLink")
         const btnConnectSeeding = $("#join-seeding");
@@ -112,7 +127,7 @@
             },
             "en": {
                 checkIgnore: true,
-                ignore: `${commonIgnoreOfficial}, ${frOnly}, ${cnOnly}, ${gerOnly}, ${spaOnly}, ${rusOnly}, ${ausOnly}, ${nlOnly}, ${otherOnly}`,
+                ignore: `${commonIgnoreOfficial}, ${frOnly}, ${cnOnly}, ${gerOnly}, ${spaOnly}, ${rusOnly}, ${ausOnly}, ${otherOnly}`,
                 checkOnly: true,
                 only: ""
             },
@@ -184,6 +199,30 @@
             },
             "custom": {},
         }
+
+        $(document).on('click', '.fav', function (e) {
+            console.log(favorites)
+            const toggle = $(e.target);
+            const server = toggle.data("for");
+            if (!Array.isArray(favorites)) {
+                favorites = [favorites]
+            }
+            if (toggle.hasClass("selected")) {
+                toggle.removeClass("selected");
+                favorites = favorites.filter(x => x !== server);
+            } else {
+                toggle.addClass("selected");
+                favorites.push(server)
+            }
+
+            if (localStorage) {
+                localStorage.setItem("favorites", JSON.stringify(favorites))
+            }
+
+            console.log(favorites)
+
+            serverTable.draw()
+        })
 
         $('.name-filter').on('click', function (e) {
             $(".name-filter").removeClass("selected");
@@ -293,6 +332,10 @@
             $("#populated-count").text(populated.length + " servers")
             btnConnectAny.prop("disabled", any.length === 0)
             $("#any-count").text(any.length + " servers")
+
+            for (let i = 0; i < favorites.length; i++) {
+                $("#fav-" + favorites[i]).addClass("selected")
+            }
 
             updateShareLink()
         })
@@ -503,13 +546,26 @@
                     // const connectUrl = `steam://launch/686810//connect/${query}`;
 
                     rows.push([
+                        // ip:query (hidden)
                         server.query,
+                        // join button
                         `<a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Quick Join</a>`,
+                        // passworded (default hidden)
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
+                        // status s/p/e/f
                         {"display": `<span class="badge ${server.status.split("").join(" ")}">${server.status}</span>`, "num": server.status_num},
+                        // players
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
-                        `<div style="white-space: nowrap"><div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
-                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div></div>`
+                        // server title and map
+                        `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px"><div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
+                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div></div>`,
+                        // favorite button
+                        {
+                            display: `<i id="fav-${server.query}" class='bi bi-star fav' data-for='${server.query}' title='Favorite'></i>`,
+                            num: function () {
+                                return favorites.includes(server.query) ? 1 : 0
+                            }
+                        }
                     ])
                 }
 

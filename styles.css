@@ -380,3 +380,11 @@ html.dark .btn-outline-primary {
 #join-any::before {
     background-image: url("./any.png");
 }
+
+.fav {
+    cursor: pointer
+}
+
+.fav.selected {
+    color: yellow
+}
