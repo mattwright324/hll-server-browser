@@ -388,3 +388,11 @@ html.dark .btn-outline-primary {
 .fav.selected {
     color: yellow
 }
+
+.unknown_map {
+    color: orangered;
+}
+
+.night {
+    font-weight: bold;
+}

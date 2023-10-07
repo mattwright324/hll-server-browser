@@ -392,6 +392,40 @@
             }
         }, 100);
 
+        const night = `<span class='night'>Night</span>`
+        const mapName = {
+            CT: `Carentan`,
+            CT_N: `Carentan ${night}`,
+            Foy: `Foy`,
+            Foy_N: `Foy ${night}`,
+            NewMap_0: `Driel`,
+            NewMap_0_N: `Driel ${night}`,
+            NewMap_1: `El Alamein`,
+            NewMap_1_N: `El Alamein ${night}`,
+            Hill400: `Hill 400`,
+            Hill400_N: `Hill 400 ${night}`,
+            Hurtgen: `Hurtgen Forest`,
+            Hurtgen_N: `Hurtgen Forest ${night}`,
+            Kharkov: `Kharkov`,
+            Kharkov_N: `Kharkov ${night}`,
+            Kursk: `Kursk`,
+            Kursk_N: `Kursk ${night}`,
+            Omaha: `Omaha Beach`,
+            Omaha_N: `Omaha Beach ${night}`,
+            PHL: `Purple Heart Lane`,
+            PHL_N: `Purple Heart Lane ${night}`,
+            Remagen: `Remagen`,
+            Remagen_N: `Remagen ${night}`,
+            Stalin: `Stalingrad`,
+            Stalin_N: `Stalingrad ${night}`,
+            StMarie: `St Marie du Mont (SMDM)`,
+            StMarie_N: `St Marie du Mont (SMDM) ${night}`,
+            SME: `St Mere Eglise (SME)`,
+            SME_N: `St Mere Eglise (SME) ${night}`,
+            Utah: `Utah Beach`,
+            Utah_N: `Utah Beach ${night}`,
+        }
+
         function getMapImage(map) {
             if (map.includes("CT")) {
                 return "carentan.webp"
@@ -541,6 +575,9 @@
                     const connectUrl = `steam://connect/${query}?appid=686810`;
                     // const connectUrl = `steam://launch/686810//connect/${query}`;
 
+                    const map = mapName.hasOwnProperty(server.map) ? mapName[server.map] :
+                        `<span class='unknown_map'>${server.map}</span>`
+
                     rows.push([
                         // ip:query (hidden)
                         server.query,
@@ -554,7 +591,7 @@
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
                         // server title and map
                         `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px"><div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
-                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div></div>`,
+                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${map}</small></div></div>`,
                         // favorite button
                         {
                             display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected':''}' data-for='${server.query}' title='Favorite'></i>`,
