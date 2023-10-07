@@ -333,10 +333,6 @@
             btnConnectAny.prop("disabled", any.length === 0)
             $("#any-count").text(any.length + " servers")
 
-            for (let i = 0; i < favorites.length; i++) {
-                $("#fav-" + favorites[i]).addClass("selected")
-            }
-
             updateShareLink()
         })
 
@@ -561,7 +557,7 @@
                          <div style="display:inline-block">${server.name}<br><small class="text-muted">${server.map}</small></div></div>`,
                         // favorite button
                         {
-                            display: `<i id="fav-${server.query}" class='bi bi-star fav' data-for='${server.query}' title='Favorite'></i>`,
+                            display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected':''}' data-for='${server.query}' title='Favorite'></i>`,
                             num: function () {
                                 return favorites.includes(server.query) ? 1 : 0
                             }
