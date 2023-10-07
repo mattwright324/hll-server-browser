@@ -328,3 +328,55 @@ html.dark .btn-outline-primary {
 .name-filter.selected {
     border: 2px dashed cornflowerblue;
 }
+
+.quick-join {
+    font-weight: bold;
+    border: none;
+    color: white;
+    text-shadow: 1px 1px 6px black;
+    height: 120px;
+    width: 300px;
+    background-size: cover;
+}
+.quick-join::before {
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    z-index:-1;
+    filter: grayscale(80%);
+    background-size: cover;
+}
+
+.quick-join:hover {
+    filter: grayscale(0%) contrast(125%) brightness(115%);
+}
+
+.quick-join[disabled] {
+    filter: grayscale(100%) blur(1px);
+}
+
+#join-seeding {
+    color: greenyellow;
+    border-color: greenyellow;
+}
+#join-seeding::before {
+    background-image: url("./seeding.webp");
+}
+
+#join-populated {
+    color: deepskyblue;
+    border-color: deepskyblue;
+}
+#join-populated::before {
+    background-image: url("./populated.webp");
+}
+#join-any {
+    color: magenta;
+    border-color: magenta;
+}
+#join-any::before {
+    background-image: url("./any.png");
+}
