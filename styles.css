@@ -286,18 +286,23 @@ html.dark .btn-outline-primary {
     outline-color: #0d6efd;
 }
 
-.badge.S, .badge.S.P, .badge.S.E {
+.badge.S, .badge.S.L, .badge.S.E {
     background-color: #00bc8c!important;
     color: black!important
 }
 
-.badge.P {
+.badge.L {
     background-color: #0d6efd!important;
     color: white!important
 }
 
 .badge.E {
     background-color: rgb(108, 117, 125)!important;
+    color: white!important
+}
+
+.badge.P {
+    background-color: rgb(108, 150, 125)!important;
     color: white!important
 }
 

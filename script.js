@@ -107,6 +107,11 @@
             })
         });
 
+        function initTooltip() {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        }
+
         const commonIgnore = "event, training, test, team17, dev team"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
         const euOnly = "(eu, [eu, eu], euro, eu/, /eu, /en, eng/, en/, english, exd, ww, [taw, wth"
@@ -311,7 +316,7 @@
         serverTable.on("draw.dt", function () {
             any = []
             seeding = []
-            populated = []
+            live = []
             serverTable.rows({"search": "applied"}).every( function () {
                 const data = this.data();
                 const server = ip2server[data[0]];
@@ -319,8 +324,8 @@
                 if (server.status.includes("S")) {
                     seeding.push(server)
                 }
-                if (server.status.includes("P")) {
-                    populated.push(server)
+                if (server.status.includes("L")) {
+                    live.push(server)
                 }
                 if (server.players >= 1 && server.players <= 99) {
                     any.push(server)
@@ -328,12 +333,15 @@
             });
             btnConnectSeeding.prop("disabled", seeding.length === 0)
             $("#seeding-count").text(seeding.length + " servers")
-            btnConnectPopulated.prop("disabled", populated.length === 0)
-            $("#populated-count").text(populated.length + " servers")
+            btnConnectPopulated.prop("disabled", live.length === 0)
+            $("#populated-count").text(live.length + " servers")
             btnConnectAny.prop("disabled", any.length === 0)
             $("#any-count").text(any.length + " servers")
 
             updateShareLink()
+
+            $('.tooltip').remove(); // remove hanging tooltips on table update
+            initTooltip()
         })
 
         btnConnectSeeding.click(function () {
@@ -342,7 +350,7 @@
             document.getElementById("connect-" + randomServer.query).click()
         })
         btnConnectPopulated.click(function () {
-            let randomServer = populated.sort(() => 0.5 - Math.random())[0];
+            let randomServer = live.sort(() => 0.5 - Math.random())[0];
             console.log(randomServer)
             document.getElementById("connect-" + randomServer.query).click()
         });
@@ -356,7 +364,7 @@
         let ip2server = {}
         let any = []
         let seeding = []
-        let populated = []
+        let live = []
 
         function formatDuration(duration, includeMs, ignoreTime) {
             const years = duration.years();
@@ -528,6 +536,14 @@
             }
         }
 
+        const statusDesc = {
+            E: "Empty (0 pop)",
+            P: "People (empty)",
+            S: "Seeding (3-50)",
+            L: "Live (40-91, no queue)",
+            F: "Full (92-100, likely queue)",
+        }
+
         let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
         // let socket = io('localhost:3000');
 
@@ -539,7 +555,7 @@
             try {
                 ip2server = {}
                 seeding = []
-                populated = []
+                live = []
 
                 const rows = []
                 for (let i = 0; i < message.servers.length; i++) {
@@ -547,14 +563,17 @@
                     ip2server[server.query] = server;
 
                     server.status = ""
-                    if (server.players < 3) {
+                    if (server.players === 0) {
                         server.status += "E" // Empty
+                    }
+                    if (server.players >= 1 && server.players < 3) {
+                        server.status += "P" // People (Empty)
                     }
                     if (server.players >= 3 && server.players <= 50) {
                         server.status += "S" // Seeding
                     }
                     if (server.players >= 40 && server.players <= 91) {
-                        server.status += "P" // Populated
+                        server.status += "L" // Populated
                     }
                     if (server.players > 91) {
                         server.status += "F" // Full
@@ -562,11 +581,11 @@
 
                     if (server.status.includes("S")) {
                         server.status_num = 3
-                    } else if (server.status.includes("P")) {
+                    } else if (server.status.includes("L")) {
                         server.status_num = 2
                     } else if (server.status.includes("F")) {
                         server.status_num = 1
-                    } else if (server.status.includes("E")) {
+                    } else if (server.status.includes("P")) {
                         server.status_num = 1
                     }
 
@@ -578,6 +597,12 @@
                     const map = mapName.hasOwnProperty(server.map) ? mapName[server.map] :
                         `<span class='unknown_map'>${server.map}</span>`
 
+                    const statuses = server.status.split("");
+                    const tooltipLines = []
+                    for (let i = 0; i < statuses.length; i++) {
+                        tooltipLines.push(statusDesc[statuses[i]])
+                    }
+
                     rows.push([
                         // ip:query (hidden)
                         server.query,
@@ -586,7 +611,11 @@
                         // passworded (default hidden)
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         // status s/p/e/f
-                        {"display": `<span class="badge ${server.status.split("").join(" ")}">${server.status}</span>`, "num": server.status_num},
+                        {
+                            "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>')}" data-html="true">
+                                             ${server.status}</span>`,
+                            "num": server.status_num
+                        },
                         // players
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
                         // server title and map
