@@ -603,6 +603,20 @@
                         tooltipLines.push(statusDesc[statuses[i]])
                     }
 
+                    let runtime = ""
+                    if (server.hasOwnProperty("map_change")) {
+                        const changeTime = moment(server.map_change);
+                        const duration = moment.duration(moment().diff(changeTime))
+                        const warfareEndTime = changeTime.add(1.5, 'hour')
+                        const durationUntilEnd = moment.duration(warfareEndTime.diff(moment()))
+
+                        if (duration.asMinutes() < 151) {
+                            runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Time left if Warfare:<br>${formatDuration(durationUntilEnd)}">${formatDuration(duration)}</span>`
+                        } else {
+                            runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Passed maximum possible runtime of 2h 30m (offensive)">Unknown</span>`
+                        }
+                    }
+
                     rows.push([
                         // ip:query (hidden)
                         server.query,
@@ -619,8 +633,15 @@
                         // players
                         {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
                         // server title and map
-                        `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px"><div style="display:inline-block; height: 0px"><img class="map-icon" src="./maps/${getMapImage(server.map)}"></div>
-                         <div style="display:inline-block">${server.name}<br><small class="text-muted">${map}</small></div></div>`,
+                        `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px">
+                            <div style="display:inline-block; height: 0px">
+                                <img class="map-icon" src="./maps/${getMapImage(server.map)}">
+                            </div>
+                            <div style="display:inline-block">
+                                ${server.name}<br>
+                                <small class="text-muted">${map}${runtime ? " · " + runtime : ""}</small>
+                            </div>
+                         </div>`,
                         // favorite button
                         {
                             display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected':''}' data-for='${server.query}' title='Favorite'></i>`,
