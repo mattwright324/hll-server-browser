@@ -612,7 +612,7 @@
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         // status s/p/e/f
                         {
-                            "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>')}" data-html="true">
+                            "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>')}" data-bs-html="true">
                                              ${server.status}</span>`,
                             "num": server.status_num
                         },
