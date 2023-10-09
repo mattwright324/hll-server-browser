@@ -366,7 +366,7 @@
         let seeding = []
         let live = []
 
-        function formatDuration(duration, includeMs, ignoreTime) {
+        function formatDuration(duration, hideSec=false, includeMs, ignoreTime) {
             const years = duration.years();
             const months = duration.months();
             const days = duration.days();
@@ -379,8 +379,8 @@
                 (months > 0 ? months + " months" : ""),
                 (days > 0 ? days + " days" : ""),
                 (!ignoreTime && hours > 0 ? hours + "h" : ""),
-                (!ignoreTime && (minutes > 0 || hours) > 0 ? minutes + "m" : ""),
-                (!ignoreTime && (seconds > 0 || minutes) > 0 ? seconds + "s" : ""),
+                (!ignoreTime && (minutes > 0 || hours || hideSec) > 0 ? minutes + "m" : ""),
+                (!ignoreTime && !hideSec && (seconds > 0 || minutes) > 0 ? seconds + "s" : ""),
                 includeMs ? (millis > 0 ? millis + "ms" : "") : ""
             ].join(" ");
 
@@ -612,10 +612,10 @@
 
                         let tooltipText;
                         let text;
-                        if (duration.asMinutes() <= 91) {
+                        if (duration.asMinutes() <= 92) {
                             tooltipText = "Map time remaining<br>(if warfare)"
-                            text = `${formatDuration(durationUntilEnd)} left`
-                        } else if (duration.asMinutes() <= 151) {
+                            text = `${formatDuration(durationUntilEnd, true)} left`
+                        } else if (duration.asMinutes() <= 152) {
                             tooltipText = "Time passed 1h 30m"
                             text = "Offensive"
                         } else {
