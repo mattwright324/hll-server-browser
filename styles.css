@@ -398,6 +398,6 @@ html.dark .btn-outline-primary {
     color: orangered;
 }
 
-/*.night {*/
-/*    font-weight: bold;*/
-/*}*/
+.separator {
+    margin: 0 4px
+}

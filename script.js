@@ -379,8 +379,8 @@
                 (months > 0 ? months + " months" : ""),
                 (days > 0 ? days + " days" : ""),
                 (!ignoreTime && hours > 0 ? hours + "h" : ""),
-                (!ignoreTime && minutes > 0 ? minutes + "m" : ""),
-                (!ignoreTime && seconds > 0 ? seconds + "s" : ""),
+                (!ignoreTime && (minutes > 0 || hours) > 0 ? minutes + "m" : ""),
+                (!ignoreTime && (seconds > 0 || minutes) > 0 ? seconds + "s" : ""),
                 includeMs ? (millis > 0 ? millis + "ms" : "") : ""
             ].join(" ");
 
@@ -610,11 +610,20 @@
                         const warfareEndTime = changeTime.add(1.5, 'hour')
                         const durationUntilEnd = moment.duration(warfareEndTime.diff(moment()))
 
-                        if (duration.asMinutes() < 151) {
-                            runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Time left if Warfare:<br>${formatDuration(durationUntilEnd)}">${formatDuration(duration)}</span>`
+                        let tooltipText;
+                        let text;
+                        if (duration.asMinutes() <= 91) {
+                            tooltipText = "Map time remaining<br>(if warfare)"
+                            text = `${formatDuration(durationUntilEnd)} left`
+                        } else if (duration.asMinutes() <= 151) {
+                            tooltipText = "Time passed 1h 30m"
+                            text = "Offensive"
                         } else {
-                            runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Passed maximum possible runtime of 2h 30m (offensive)">Unknown</span>`
+                            tooltipText = "Passed maximum possible runtime of 2h 30m (offensive)"
+                            text = "Unknown"
                         }
+
+                        runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText}">${text}</span>`
                     }
 
                     rows.push([
@@ -639,7 +648,7 @@
                             </div>
                             <div style="display:inline-block">
                                 ${server.name}<br>
-                                <small class="text-muted">${map}${runtime ? " · " + runtime : ""}</small>
+                                <small class="text-muted"><span>${map}</span>${runtime ? "<span class='separator'></span>" + runtime : ""}</small>
                             </div>
                          </div>`,
                         // favorite button
