@@ -406,10 +406,10 @@
             CT_N: `Carentan ${night}`,
             Foy: `Foy`,
             Foy_N: `Foy ${night}`,
-            NewMap_0: `Driel`,
-            NewMap_0_N: `Driel ${night}`,
-            NewMap_1: `El Alamein`,
-            NewMap_1_N: `El Alamein ${night}`,
+            NewMap_1: `Driel`,
+            NewMap_1_N: `Driel ${night}`,
+            NewMap_0: `El Alamein`,
+            NewMap_0_N: `El Alamein ${night}`,
             Hill400: `Hill 400`,
             Hill400_N: `Hill 400 ${night}`,
             Hurtgen: `Hurtgen Forest`,
@@ -439,9 +439,9 @@
                 return "carentan.webp"
             } else if (map.includes("Foy")) {
                 return "foy.webp"
-            } else if (map.includes("NewMap_1")) {
-                return "elalamein.webp"
             } else if (map.includes("NewMap_0")) {
+                return "elalamein.webp"
+            } else if (map.includes("NewMap_1")) {
                 return "driel.webp"
             } else if (map.includes("Hill400")) {
                 return "hill400.webp"
