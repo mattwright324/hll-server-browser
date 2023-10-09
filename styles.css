@@ -123,10 +123,6 @@ label a {
     cursor: default;
 }
 
-ul {
-    line-height: 20px;
-}
-
 .navbar-brand {
     font-size: 1.75rem!important;
 }
