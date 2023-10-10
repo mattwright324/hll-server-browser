@@ -383,11 +383,19 @@ html.dark .btn-outline-primary {
 }
 
 .fav {
-    cursor: pointer
+    cursor: pointer;
+    color: grey;
 }
-
 .fav.selected {
     color: yellow
+}
+
+.vip {
+    cursor: pointer;
+    color: grey;
+}
+.vip.selected {
+    color: greenyellow;
 }
 
 .unknown_map {

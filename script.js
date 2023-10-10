@@ -47,6 +47,15 @@
                 },
                 {title: "Server"},
                 {
+                    title: "<i class='bi bi-award' title='VIP'></i>",
+                    type: "num",
+                    className: "dt-nowrap  dt-center",
+                    render: {
+                        _: 'display',
+                        sort: 'num'
+                    },
+                },
+                {
                     title: "<i class='bi bi-star-half' title='Favorite'></i>",
                     type: "num",
                     className: "dt-nowrap  dt-center",
@@ -63,7 +72,7 @@
                 "width": "100%",
                 "targets": 5
             }],
-            order: [[6, 'desc'], [3, 'desc'], [4, 'desc'], [5, 'desc']],
+            order: [[7, 'desc'], [3, 'desc'], [4, 'desc'], [5, 'asc']],
             lengthMenu: [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
             deferRender: true,
             bDeferRender: true,
@@ -73,6 +82,10 @@
         let favorites = []
         if (localStorage && localStorage.getItem("favorites")) {
             favorites = JSON.parse(localStorage.favorites);
+        }
+        let server_vip = []
+        if (localStorage && localStorage.getItem("server_vip")) {
+            server_vip = JSON.parse(localStorage.server_vip);
         }
 
         const shareLink = $("#shareLink")
@@ -115,7 +128,7 @@
         const commonIgnore = "event, training, test, team17, dev team"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
         const euOnly = "(eu, [eu, eu], euro, eu/, /eu, /en, eng/, en/, english, exd, ww, [taw, wth"
-        const frOnly = "fr o, french, [fr, fr/, /fr"
+        const frOnly = "fr o, fr -, [fr, fr/, /fr"
         const cnOnly = "cn, kook, violet, qq"
         const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, lwj, deu, ♦ GER, aut"
         const spaOnly = "spa o, esp, hisp, .es, south a"
@@ -229,6 +242,30 @@
             serverTable.draw()
         })
 
+        $(document).on('click', '.vip', function (e) {
+            console.log(server_vip)
+            const toggle = $(e.target);
+            const server = toggle.data("for");
+            if (!Array.isArray(server_vip)) {
+                server_vip = [server_vip]
+            }
+            if (toggle.hasClass("selected")) {
+                toggle.removeClass("selected");
+                server_vip = server_vip.filter(x => x !== server);
+            } else {
+                toggle.addClass("selected");
+                server_vip.push(server)
+            }
+
+            if (localStorage) {
+                localStorage.setItem("server_vip", JSON.stringify(server_vip))
+            }
+
+            console.log(favorites)
+
+            serverTable.draw()
+        })
+
         $('.name-filter').on('click', function (e) {
             $(".name-filter").removeClass("selected");
             $(e.target).addClass("selected");
@@ -324,7 +361,7 @@
                 if (server.status.includes("S")) {
                     seeding.push(server)
                 }
-                if (server.status.includes("L")) {
+                if (server.status.includes("L") || server_vip.includes(server.query) && server.players <= 99 && server.players >= 40) {
                     live.push(server)
                 }
                 if (server.players >= 1 && server.players <= 99) {
@@ -651,6 +688,13 @@
                                 <small class="text-muted"><span>${map}</span>${runtime ? "<span class='separator'></span>" + runtime : ""}</small>
                             </div>
                          </div>`,
+                        // vip button
+                        {
+                            display: `<i id="fav-${server.query}" class='bi bi-award vip ${server_vip.includes(server.query) ? 'selected':''}' data-for='${server.query}' title='I have VIP here'></i>`,
+                            num: function () {
+                                return server_vip.includes(server.query) ? 1 : 0
+                            }
+                        },
                         // favorite button
                         {
                             display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected':''}' data-for='${server.query}' title='Favorite'></i>`,
