@@ -130,7 +130,7 @@
         const euOnly = "(eu, [eu, eu], euro, eu/, /eu, /en, eng/, en/, english, exd, ww, [taw, wth"
         const frOnly = "fr o, fr -, [fr, fr/, /fr"
         const cnOnly = "cn, kook, violet, qq"
-        const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, lwj, deu, ♦ GER, aut"
+        const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, ger), lwj, deut, ger+, ♦ GER, aut"
         const spaOnly = "spa o, esp, hisp, .es, south a"
         const rusOnly = "[rus, only ru, russia, /ru, ru/, pkka"
         const ausOnly = ".au, /aus, /aus, bigd, aust, auss, kiwi, koala"
