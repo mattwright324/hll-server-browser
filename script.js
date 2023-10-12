@@ -276,7 +276,12 @@
                 },
                 {
                     title: "Duration",
-                    className: "dt-nowrap"
+                    type: "num",
+                    className: "dt-nowrap",
+                    render: {
+                        _: 'display',
+                        sort: 'num'
+                    },
                 },
             ],
             columnDefs: [{
@@ -315,7 +320,7 @@
             if (info.player_list) {
                 const rows = []
                 info.player_list.forEach(player => {
-                    rows.push([player.name, player.duration])
+                    rows.push([player.name, {"display": formatDuration(moment.duration(player.duration, 'seconds')), "num": player.duration}])
                 })
 
                 playersTable.clear()
