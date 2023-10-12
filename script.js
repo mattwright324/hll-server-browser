@@ -264,7 +264,67 @@
             console.log(favorites)
 
             serverTable.draw()
+        });
+
+        const infoModal = $("#infoModal");
+        const playersTable = $("#player-table").DataTable({
+            dom: "i",
+            columns: [
+                {
+                    title: "Name",
+                    className: "dt-nowrap"
+                },
+                {
+                    title: "Duration",
+                    className: "dt-nowrap"
+                },
+            ],
+            columnDefs: [{
+                "defaultContent": "",
+                "targets": "_all"
+            }],
+            order: [[1, 'desc'], [0, 'asc']],
+            lengthMenu: [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
+            deferRender: true,
+            bDeferRender: true,
+            pageLength: -1
         })
+        $(document).on('click', '.open-info', function (e) {
+            const server = $(e.target).data("for");
+            console.log('open info for ', server)
+
+            infoModal.attr("data-for", server);
+            infoModal.modal('show');
+            tryUpdateInfoModal()
+        });
+
+        function tryUpdateInfoModal() {
+            const server = infoModal.attr('data-for')
+            if (!server) {
+                return
+            }
+            const info = ip2server[server];
+            if (!info) {
+                return
+            }
+            console.log('info modal', info)
+
+            infoModal.find(".modal-title").text(info.name);
+            infoModal.find(".join-link").attr("href", info.connect_url);
+
+            if (info.player_list) {
+                const rows = []
+                info.player_list.forEach(player => {
+                    rows.push([player.name, player.duration])
+                })
+
+                playersTable.clear()
+                playersTable.rows.add(rows).draw(false);
+                playersTable.columns.adjust().draw(false);
+            } else {
+                playersTable.clear().draw(false)
+            }
+        }
 
         $('.name-filter').on('click', function (e) {
             $(".name-filter").removeClass("selected");
@@ -302,6 +362,10 @@
         })
 
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            if (settings.sInstance !== "server-table") {
+                return true
+            }
+
             const server = ip2server[data[0]];
             if (!server) {
                 // console.log('null', server)
@@ -631,6 +695,8 @@
                     const connectUrl = `steam://connect/${query}?appid=686810`;
                     // const connectUrl = `steam://launch/686810//connect/${query}`;
 
+                    server.connect_url = connectUrl
+
                     const map = mapName.hasOwnProperty(server.map) ? mapName[server.map] :
                         `<span class='unknown_map'>${server.map}</span>`
 
@@ -663,11 +729,25 @@
                         runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText}">${text}</span>`
                     }
 
+                    let tooltipPlayers = ""
+                    if (server.players === 0) {
+                        tooltipPlayers = "Empty"
+                    } else if (server.players > 0 && (server.player_list || []).length === 0) {
+                        tooltipPlayers = "Failed players query"
+                    } else if (server.players > 0 && (server.player_list || []).length > 0) {
+                        tooltipPlayers = server.player_list.slice(0,7).map(x => x?.name || "").join(", ");
+
+                        if (server.player_list.length > 7) {
+                            tooltipPlayers += `... and ${server.player_list.length - 7} more`
+                        }
+                    }
+
                     rows.push([
                         // ip:query (hidden)
                         server.query,
                         // join button
-                        `<a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Quick Join</a>`,
+                        `<a data-for="${server.query}" class="btn btn-outline-secondary open-info" href="javascript:">Info</a> 
+                         <a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Join</a>`,
                         // passworded (default hidden)
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         // status s/p/e/f
@@ -677,7 +757,10 @@
                             "num": server.status_num
                         },
                         // players
-                        {"display": `${server.players}/${server.maxPlayers}`, "num": Number(server.players)},
+                        {
+                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers}" data-bs-html="true">${server.players}/${server.maxPlayers}`,
+                            "num": Number(server.players)
+                        },
                         // server title and map
                         `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px">
                             <div style="display:inline-block; height: 0px">
@@ -708,6 +791,8 @@
                 serverTable.clear()
                 serverTable.rows.add(rows).draw(false);
                 serverTable.columns.adjust().draw(false);
+
+                tryUpdateInfoModal()
             } catch (e) {
                 console.error(e)
             }

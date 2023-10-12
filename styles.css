@@ -406,3 +406,9 @@ html.dark .btn-outline-primary {
 .separator {
     margin: 0 4px
 }
+
+.modal-title {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
