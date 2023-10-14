@@ -79,6 +79,24 @@
             pageLength: -1
         });
 
+        const findPlayerTable = $("#find-players-table").DataTable({
+            columns: [
+                {
+                    title: "Player",
+                    className: "dt-nowrap",
+                },
+                {
+                    title: "Server",
+                    className: "dt-nowrap",
+                    searchable: false,
+                },
+            ],
+            order: [[0, 'desc'], [1, 'desc']],
+            lengthMenu: [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]],
+            deferRender: true,
+            bDeferRender: true,
+        });
+
         let favorites = []
         if (localStorage && localStorage.getItem("favorites")) {
             favorites = JSON.parse(localStorage.favorites);
@@ -663,6 +681,7 @@
                 seeding = []
                 live = []
 
+                const findPlayersRows = []
                 const rows = []
                 for (let i = 0; i < message.servers.length; i++) {
                     const server = message.servers[i];
@@ -747,6 +766,14 @@
                         }
                     }
 
+                    if (server.player_list) {
+                        server.player_list.forEach(player => {
+                            findPlayersRows.push([
+                                player.name, server.name
+                            ])
+                        })
+                    }
+
                     rows.push([
                         // ip:query (hidden)
                         server.query,
@@ -796,6 +823,10 @@
                 serverTable.clear()
                 serverTable.rows.add(rows).draw(false);
                 serverTable.columns.adjust().draw(false);
+
+                findPlayerTable.clear()
+                findPlayerTable.rows.add(findPlayersRows).draw(false);
+                findPlayerTable.columns.adjust().draw(false);
 
                 tryUpdateInfoModal()
             } catch (e) {
