@@ -86,12 +86,35 @@
                     className: "dt-nowrap",
                 },
                 {
+                    title: "Duration",
+                    type: "num",
+                    className: "dt-nowrap",
+                    render: {
+                        _: 'display',
+                        sort: 'num'
+                    },
+                    searchable: false,
+                },
+                {
                     title: "Server",
                     className: "dt-nowrap",
                     searchable: false,
                 },
+                {
+                    title: "",
+                    className: "dt-nowrap",
+                    sortable: false,
+                    searchable: false,
+                },
             ],
-            order: [[0, 'desc'], [1, 'desc']],
+            columnDefs: [{
+                "defaultContent": "",
+                "targets": "_all"
+            }, {
+                "width": "100%",
+                "targets": 2
+            }],
+            order: [[0, 'desc'], [2, 'desc']],
             lengthMenu: [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]],
             deferRender: true,
             bDeferRender: true,
@@ -499,9 +522,9 @@
             const seconds = duration.seconds();
             const millis = duration.milliseconds();
             const format = [
-                (years > 0 ? years + " years" : ""),
-                (months > 0 ? months + " months" : ""),
-                (days > 0 ? days + " days" : ""),
+                (years > 0 ? years + "y" : ""),
+                (months > 0 ? months + "m" : ""),
+                (days > 0 ? days + "d" : ""),
                 (!ignoreTime && hours > 0 ? hours + "h" : ""),
                 (!ignoreTime && (minutes > 0 || hours || hideSec) > 0 ? minutes + "m" : ""),
                 (!ignoreTime && !hideSec && (seconds > 0 || minutes) > 0 ? seconds + "s" : ""),
@@ -769,7 +792,11 @@
                     if (server.player_list) {
                         server.player_list.forEach(player => {
                             findPlayersRows.push([
-                                player.name, server.name
+                                player.name,
+                                {"display": formatDuration(moment.duration(player.duration, 'seconds')), "num": player.duration},
+                                server.name,
+                                `<a data-for="${server.query}" class="btn btn-outline-secondary open-info" href="javascript:">Info</a> 
+                                 <a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Join</a>`,
                             ])
                         })
                     }
