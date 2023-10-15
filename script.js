@@ -114,7 +114,7 @@
                 "width": "100%",
                 "targets": 2
             }],
-            order: [[0, 'desc'], [2, 'desc']],
+            order: [[1, 'desc'], [2, 'desc']],
             lengthMenu: [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]],
             deferRender: true,
             bDeferRender: true,
