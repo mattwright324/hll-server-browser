@@ -662,7 +662,7 @@
             checkHidePassworded.trigger("change")
         }
         if (query.hasOwnProperty("hide_e")) {
-            checkHideEmpty.prop("checked", !(query.hide_e.toLowerCase() === "true"))
+            checkHideEmpty.prop("checked", query.hide_e.toLowerCase() === "true")
             checkHideEmpty.trigger("change")
         }
         if (query.hasOwnProperty("max_100")) {
