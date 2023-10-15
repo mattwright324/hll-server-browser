@@ -134,13 +134,14 @@
         const btnConnectPopulated = $("#join-populated");
         const btnConnectAny = $("#join-any");
         const checkHidePassworded = $("#hide-passworded");
+        const checkHideEmpty = $("#hide-empty");
         const checkMax100 = $("#max-100-only");
         const checkIgnoreKeywords = $("#ignore-keywords");
         const ignoreWordsTextbox = $("#ignoreWords");
         const checkOnlyKeywords = $("#only-keywords");
         const onlyWordsTextbox = $("#onlyWords");
 
-        [checkHidePassworded, checkMax100, checkIgnoreKeywords, checkOnlyKeywords].forEach(el => {
+        [checkHidePassworded, checkHideEmpty, checkMax100, checkIgnoreKeywords, checkOnlyKeywords].forEach(el => {
             el.change(() => {
                 serverTable.draw()
                 serverTable.column(2).visible(!checkHidePassworded.is(":checked"))
@@ -418,6 +419,11 @@
                 return false
             }
 
+            if (checkHideEmpty.is(":checked") && server.players === 0 && !favorites.includes(server.query)) {
+                // console.log(`empty [${server.players}] ${server.name}`)
+                return false
+            }
+
             if (checkHidePassworded.is(":checked") && server.visibility === 1) {
                 // console.log(`pw [${server.visibility}] ${server.name}`)
                 return false
@@ -621,6 +627,9 @@
             const baseUrl = location.origin + location.pathname;
             const params = []
 
+            if (checkHideEmpty.is(":checked")) {
+                params.push("hide_e=true")
+            }
             if (!checkHidePassworded.is(":checked")) {
                 params.push("hide_pw=false")
             }
@@ -651,6 +660,10 @@
         if (query.hasOwnProperty("hide_pw")) {
             checkHidePassworded.prop("checked", !(query.hide_pw.toLowerCase() === "false"))
             checkHidePassworded.trigger("change")
+        }
+        if (query.hasOwnProperty("hide_e")) {
+            checkHideEmpty.prop("checked", !(query.hide_e.toLowerCase() === "true"))
+            checkHideEmpty.trigger("change")
         }
         if (query.hasOwnProperty("max_100")) {
             checkMax100.prop("checked", !(query.max_100.toLowerCase() === "false"))
