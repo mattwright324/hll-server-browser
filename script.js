@@ -171,8 +171,8 @@
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
         const euOnly = "(eu, [eu, eu], euro, eu/, /eu, /en, eng/, en/, english, exd, ww, [taw, wth"
         const frOnly = "fr o, fr -, [fr, fr/, /fr"
-        const cnOnly = "cn, kook, violet, qq"
-        const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, ger), lwj, deut, ger+, ♦ GER, aut"
+        const cnOnly = "cn, kook, violet, qq, $regex_cn$"
+        const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, ger), deut, ger+, ♦ GER, aut"
         const spaOnly = "spa o, esp, hisp, .es, south a"
         const rusOnly = "[rus, only ru, russia, /ru, ru/, pkka"
         const ausOnly = ".au, /aus, /aus, bigd, aust, auss, kiwi, koala"
@@ -211,7 +211,7 @@
             },
             "cn": {
                 checkIgnore: true,
-                ignore: `${commonIgnoreOfficial}, ${frOnly}`,
+                ignore: `${commonIgnoreOfficial}, ${frOnly}, ${gerOnly}`,
                 checkOnly: true,
                 only: cnOnly
             },
@@ -408,6 +408,10 @@
             updateShareLink()
         })
 
+        const termRegexes = {
+            "$regex_cn$": /([\u4e00-\u9fff\u3400-\u4dbf\ufa0e\ufa0f\ufa11\ufa13\ufa14\ufa1f\ufa21\ufa23\ufa24\ufa27\ufa28\ufa29\u3006\u3007]|[\ud840-\ud868\ud86a-\ud879\ud880-\ud887][\udc00-\udfff]|\ud869[\udc00-\udedf\udf00-\udfff]|\ud87a[\udc00-\udfef]|\ud888[\udc00-\udfaf])([\ufe00-\ufe0f]|\udb40[\udd00-\uddef])?/g
+        }
+
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             if (settings.sInstance !== "server-table") {
                 return true
@@ -442,6 +446,9 @@
                         // console.log(`term [${term}] ${server.name}`)
                         return false
                     }
+                    if (term && termRegexes.hasOwnProperty(term) && server.name.match(termRegexes[term])) {
+                        return false
+                    }
                 }
             }
 
@@ -454,6 +461,10 @@
                     if (term) { checkedAny = true }
                     if (term && server.name.toLowerCase().includes(term)) {
                         // console.log(`not term [${term}] ${server.name}`)
+                        containsAny = true
+                        break
+                    }
+                    if (term && termRegexes.hasOwnProperty(term) && server.name.match(termRegexes[term])) {
                         containsAny = true
                         break
                     }
@@ -719,8 +730,7 @@
 
                 const findPlayersRows = []
                 const rows = []
-                for (let i = 0; i < message.servers.length; i++) {
-                    const server = message.servers[i];
+                message.servers.forEach(server => {
                     ip2server[server.query] = server;
 
                     server.status = ""
@@ -786,7 +796,7 @@
                             text = "Unknown"
                         }
 
-                        runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText}">${text}</span>`
+                        runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
                     }
 
                     let tooltipPlayers = ""
@@ -824,13 +834,13 @@
                         {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         // status s/p/e/f
                         {
-                            "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>')}" data-bs-html="true">
+                            "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>') || " "}" data-bs-html="true">
                                              ${server.status}</span>`,
                             "num": server.status_num
                         },
                         // players
                         {
-                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers}" data-bs-html="true">${server.players}/${server.maxPlayers}`,
+                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true">${server.players}/${server.maxPlayers}`,
                             "num": Number(server.players)
                         },
                         // server title and map
@@ -858,7 +868,7 @@
                             }
                         }
                     ])
-                }
+                })
 
                 serverTable.clear()
                 serverTable.rows.add(rows).draw(false);
