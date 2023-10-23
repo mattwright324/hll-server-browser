@@ -423,7 +423,7 @@
                 return false
             }
 
-            if (checkHideEmpty.is(":checked") && server.players === 0 && !favorites.includes(server.query)) {
+            if (checkHideEmpty.is(":checked") && server.players === 0 && !favorites.includes(server.query) && !server.hasOwnProperty("last_success")) {
                 // console.log(`empty [${server.players}] ${server.name}`)
                 return false
             }
@@ -708,12 +708,14 @@
         }
 
         const statusDesc = {
+            O: "Offline",
             E: "Empty (0 pop)",
             P: "People (empty)",
             S: "Seeding (3-50)",
             L: "Live (40-91, no queue)",
             F: "Full (92-100, likely queue)",
         }
+        const union = (arr) => {return [...new Set(arr.flat())]}
 
         let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
         // let socket = io('localhost:3000');
@@ -727,6 +729,8 @@
                 ip2server = {}
                 seeding = []
                 live = []
+
+                message.failures.forEach(server => message.servers.push(server));
 
                 const findPlayersRows = []
                 const rows = []
@@ -749,26 +753,36 @@
                     if (server.players > 91) {
                         server.status += "F" // Full
                     }
+                    if (server.hasOwnProperty("last_success")) {
+                        server.status = "O"
+                    }
 
                     if (server.status.includes("S")) {
-                        server.status_num = 3
+                        server.status_num = 10
                     } else if (server.status.includes("L")) {
-                        server.status_num = 2
+                        server.status_num = 9
                     } else if (server.status.includes("F")) {
-                        server.status_num = 1
+                        server.status_num = 8
                     } else if (server.status.includes("P")) {
-                        server.status_num = 1
+                        server.status_num = 7
+                    } else if (server.status.includes("E")) {
+                        server.status_num = 6
+                    }
+                    if (server.status.includes("O")) {
+                        server.status_num = 0
                     }
 
                     const query = server.query;
                     const game = `${server.query.split(":")[0]}:${server.port}`
                     const connectUrl = `steam://connect/${query}?appid=686810`;
-                    // const connectUrl = `steam://launch/686810//connect/${query}`;
 
                     server.connect_url = connectUrl
 
-                    const map = mapName.hasOwnProperty(server.map) ? mapName[server.map] :
+                    let map = mapName.hasOwnProperty(server.map) ? mapName[server.map] :
                         `<span class='unknown_map'>${server.map}</span>`
+                    if (server.status.includes("O")) {
+                        map = "Offline"
+                    }
 
                     const statuses = server.status.split("");
                     const tooltipLines = []
@@ -797,6 +811,17 @@
                         }
 
                         runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+                    }
+
+                    let offline_time = ""
+                    if (server.hasOwnProperty("last_success")) {
+                        const changeTime = moment(server.last_success);
+                        const duration = moment.duration(moment().diff(changeTime))
+
+                        let tooltipText = "Time since last successful query";
+                        let text = formatDuration(duration, true)
+
+                        offline_time = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
                     }
 
                     let tooltipPlayers = ""
@@ -828,10 +853,10 @@
                         // ip:query (hidden)
                         server.query,
                         // join button
-                        `<a data-for="${server.query}" class="btn btn-outline-secondary open-info" href="javascript:">Info</a> 
-                         <a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Join</a>`,
+                        `<a data-for="${server.query}" class="btn btn-outline-secondary open-info ${statuses.join(" ")}" href="javascript:">Info</a> 
+                         <a id="connect-${server.query}" class="btn btn-outline-primary ${statuses.join(" ")}" href="${connectUrl}">Join</a>`,
                         // passworded (default hidden)
-                        {"display": server.visibility === 1 ? `<i class="bi bi-key-fill" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
+                        {"display": server.visibility === 1 ? `<i class="bi bi-key-fill ${statuses.join(" ")}" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
                         // status s/p/e/f
                         {
                             "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>') || " "}" data-bs-html="true">
@@ -840,29 +865,29 @@
                         },
                         // players
                         {
-                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true">${server.players}/${server.maxPlayers}`,
+                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${server.players}/${server.maxPlayers}</span>`,
                             "num": Number(server.players)
                         },
                         // server title and map
-                        `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px">
+                        `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                             <div style="display:inline-block; height: 0px">
-                                <img class="map-icon" src="./maps/${getMapImage(server.map)}">
+                                <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.map)}">
                             </div>
                             <div style="display:inline-block">
                                 ${server.name}<br>
-                                <small class="text-muted"><span>${map}</span>${runtime ? "<span class='separator'></span>" + runtime : ""}</small>
+                                <small class="text-muted"><span class="map-name">${map}</span>${offline_time || runtime  ? "<span class='separator'></span>" + (offline_time || runtime) : ""}</small>
                             </div>
                          </div>`,
                         // vip button
                         {
-                            display: `<i id="fav-${server.query}" class='bi bi-award vip ${server_vip.includes(server.query) ? 'selected':''}' data-for='${server.query}' title='I have VIP here'></i>`,
+                            display: `<i id="fav-${server.query}" class='bi bi-award vip ${server_vip.includes(server.query) ? 'selected':''} ${statuses.join(" ")}' data-for='${server.query}' title='I have VIP here'></i>`,
                             num: function () {
                                 return server_vip.includes(server.query) ? 1 : 0
                             }
                         },
                         // favorite button
                         {
-                            display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected':''}' data-for='${server.query}' title='Favorite'></i>`,
+                            display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected':''} ${statuses.join(" ")}' data-for='${server.query}' title='Favorite'></i>`,
                             num: function () {
                                 return favorites.includes(server.query) ? 1 : 0
                             }
