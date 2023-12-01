@@ -568,12 +568,12 @@
         const mapName = {
             CT: `Carentan`,
             CT_N: `Carentan ${night}`,
+            Driel: `Driel`,
+            Driel_N: `Driel ${night}`,
+            elalamein: `El Alamein`,
+            elalamein_N: `El Alamein ${night}`,
             Foy: `Foy`,
             Foy_N: `Foy ${night}`,
-            NewMap_1: `Driel`,
-            NewMap_1_N: `Driel ${night}`,
-            NewMap_0: `El Alamein`,
-            NewMap_0_N: `El Alamein ${night}`,
             Hill400: `Hill 400`,
             Hill400_N: `Hill 400 ${night}`,
             Hurtgen: `Hurtgen Forest`,
@@ -876,6 +876,8 @@
                             <div style="display:inline-block">
                                 ${server.name}<br>
                                 <small class="text-muted"><span class="map-name">${map}</span>${offline_time || runtime  ? "<span class='separator'></span>" + (offline_time || runtime) : ""}</small>
+                                ${server.whois ? `<br>` + (server.whois.match("netname:.+\n") || [""])[0].replace('\n', '') : ""}
+                                ${server.whois ? `<br>` + (server.whois.match("country:.+\n") || [""])[0].replace('\n', '') : ""}
                             </div>
                          </div>`,
                         // vip button
