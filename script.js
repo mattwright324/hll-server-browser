@@ -603,9 +603,9 @@
                 return "carentan.webp"
             } else if (map.includes("Foy")) {
                 return "foy.webp"
-            } else if (map.includes("NewMap_0")) {
+            } else if (map.includes("elalamein")) {
                 return "elalamein.webp"
-            } else if (map.includes("NewMap_1")) {
+            } else if (map.includes("Driel")) {
                 return "driel.webp"
             } else if (map.includes("Hill400")) {
                 return "hill400.webp"
