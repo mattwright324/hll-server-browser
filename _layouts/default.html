@@ -171,6 +171,19 @@
                 <textarea class="form-control" id="onlyWords" rows="2" aria-describedby="onlyHelp"></textarea>
                 <div id="onlyHelp" class="form-text">Comma separated list of words or phrases</div>
             </div>
+            <div class="mb-3">
+                <span style="margin-right: 10px">Crossplay status</span>
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="crossplayEnabled" autocomplete="off">
+                    <label class="btn btn-outline-success btn-sm" for="crossplayEnabled" title="Enabled"><i class="bi bi-check-lg"></i> Enabled</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="crossplayAny" autocomplete="off" checked>
+                    <label class="btn btn-outline-info btn-sm" for="crossplayAny" title="Any"><i class="bi bi-circle"></i> Any</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="crossplayDisabled" autocomplete="off">
+                    <label class="btn btn-outline-danger btn-sm" for="crossplayDisabled" title="Disabled"><i class="bi bi-x-lg"></i> Disabled</label>
+                </div>
+            </div>
         </div>
         <div class="col-sm-12 col-md-4">
             <h5>General Name Filters</h5>

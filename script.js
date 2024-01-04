@@ -140,8 +140,11 @@
         const ignoreWordsTextbox = $("#ignoreWords");
         const checkOnlyKeywords = $("#only-keywords");
         const onlyWordsTextbox = $("#onlyWords");
+        const crossplayEnabled = $("#crossplayEnabled");
+        const crossplayAny = $("#crossplayAny");
+        const crossplayDisabled = $("#crossplayDisabled");
 
-        [checkHidePassworded, checkHideEmpty, checkMax100, checkIgnoreKeywords, checkOnlyKeywords].forEach(el => {
+        [checkHidePassworded, checkHideEmpty, checkMax100, checkIgnoreKeywords, checkOnlyKeywords, crossplayEnabled, crossplayAny, crossplayDisabled].forEach(el => {
             el.change(() => {
                 serverTable.draw()
                 serverTable.column(2).visible(!checkHidePassworded.is(":checked"))
@@ -474,6 +477,15 @@
                 }
             }
 
+            if (!crossplayAny.is(":checked")) {
+                if (crossplayEnabled.is(":checked") && !JSON.stringify(server.rules || {}).includes("crossplayenabled")) {
+                    return false
+                }
+                if (crossplayDisabled.is(":checked") && !JSON.stringify(server.rules || {}).includes("crossplaydisabled")) {
+                    return false
+                }
+            }
+
             return true;
         });
 
@@ -647,6 +659,9 @@
             if (!checkMax100.is(":checked")) {
                 params.push("max_100=false")
             }
+            if (!crossplayAny.is(":checked")) {
+                params.push("crossplay=" + crossplayEnabled.is(":checked"))
+            }
 
             const filter = $(".name-filter.selected").data("val");
             params.push("filter=" + filter)
@@ -679,6 +694,15 @@
         if (query.hasOwnProperty("max_100")) {
             checkMax100.prop("checked", !(query.max_100.toLowerCase() === "false"))
             checkMax100.trigger("change")
+        }
+        if (query.hasOwnProperty("crossplay")) {
+            if (query.crossplay.toLowerCase() === "true") {
+                crossplayEnabled.prop("checked", true)
+            } else if (query.crossplay.toLowerCase() === "false") {
+                crossplayDisabled.prop("checked", true)
+            } else {
+                crossplayAny.prop("checked", true)
+            }
         }
 
         if (query.hasOwnProperty("filter")) {
@@ -813,6 +837,26 @@
                         runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
                     }
 
+                    let crossplay = ""
+                    if (server.hasOwnProperty("rules")) {
+                        const rulesString = JSON.stringify(server.rules);
+
+                        let tooltipText;
+                        let text;
+                        if (rulesString.includes("crossplayenabled")) {
+                            tooltipText = "Crossplay enabled: Steam + Windows Store"
+                            text = "<i class=\"bi bi-controller\"></i> Enabled"
+                        } else if (rulesString.includes("crossplaydisabled")) {
+                            tooltipText = "Crossplay disabled: Steam only or Windows Store only"
+                            text = "<i class=\"bi bi-controller\"></i> Disabled"
+                        } else {
+                            tooltipText = "Crossplay unknown"
+                            text = "<i class=\"bi bi-controller\"></i> Unknown"
+                        }
+
+                        crossplay = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+                    }
+
                     let offline_time = ""
                     if (server.hasOwnProperty("last_success")) {
                         const changeTime = moment(server.last_success);
@@ -878,7 +922,11 @@
                             </div>
                             <div style="display:inline-block">
                                 ${server.name}<br>
-                                <small class="text-muted"><span class="map-name">${map}</span>${offline_time || runtime  ? "<span class='separator'></span>" + (offline_time || runtime) : ""}</small>
+                                <small class="text-muted">
+                                    <span class="map-name">${map}</span>
+                                    ${offline_time || runtime  ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
+                                    ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
+                                </small>
                                 ${server.whois ? `<br>` + (server.whois.match("netname:.+\n") || [""])[0].replace('\n', '') : ""}
                                 ${server.whois ? `<br>` + (server.whois.match("country:.+\n") || [""])[0].replace('\n', '') : ""}
                             </div>
