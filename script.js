@@ -839,6 +839,9 @@
 
                     if (server.player_list) {
                         server.player_list.forEach(player => {
+                            if (!player.name) {
+                                return
+                            }
                             findPlayersRows.push([
                                 player.name,
                                 {"display": formatDuration(moment.duration(player.duration, 'seconds')), "num": player.duration},
