@@ -977,19 +977,24 @@
                 findPlayerTable.clear()
                 findPlayerTable.rows.add(findPlayersRows).draw(false);
                 findPlayerTable.columns.adjust().draw(false);
+
+                function percent(x, total) {
+                    return Number(Number(x / total).toFixed(4) * 100).toFixed(2)
+                }
+
                 $("#player-stats").html(`
                     <li>${totalPlayers} total players
                         <ul>
-                            <li>${steamPlayers} steam players (${Number(steamPlayers / totalPlayers).toFixed(4) * 100}%)</li>
-                            <li>${windowsPlayers} windows players (${Number(windowsPlayers / totalPlayers).toFixed(4) * 100}%)</li>
+                            <li>${steamPlayers} steam players (${percent(steamPlayers, totalPlayers)}%)</li>
+                            <li>${windowsPlayers} windows players (${percent(windowsPlayers, totalPlayers)}%)</li>
                         </ul>
                     </li>
                     
                     <li>${totalServers} total servers
                         <ul>
-                            <li>${crossplayOn} servers have crossplay on (${Number(crossplayOn / totalServers).toFixed(4) * 100}%)</li>
-                            <li>${crossplayOff} servers have crossplay off (${Number(crossplayOff / totalServers).toFixed(4) * 100}%)</li>
-                            <li>${crossplayUnknown} servers do not have crossplay status (${Number(crossplayUnknown / totalServers).toFixed(4) * 100}%)</li>
+                            <li>${crossplayOn} servers have crossplay on (${percent(crossplayOn, totalServers)}%)</li>
+                            <li>${crossplayOff} servers have crossplay off (${percent(crossplayOff, totalServers)}%)</li>
+                            <li>${crossplayUnknown} servers do not have crossplay status (${percent(crossplayUnknown, totalServers)}%)</li>
                         </ul>
                     </li>
                 `)
