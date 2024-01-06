@@ -756,6 +756,14 @@
 
                 message.failures.forEach(server => message.servers.push(server));
 
+                let totalPlayers = 0;
+                let steamPlayers = 0;
+                let windowsPlayers = 0;
+                let totalServers = 0;
+                let crossplayOn = 0;
+                let crossplayOff = 0;
+                let crossplayUnknown = 0;
+
                 const findPlayersRows = []
                 const rows = []
                 message.servers.forEach(server => {
@@ -837,6 +845,7 @@
                         runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
                     }
 
+                    totalServers += 1;
                     let crossplay = ""
                     if (server.hasOwnProperty("rules")) {
                         const rulesString = JSON.stringify(server.rules);
@@ -844,12 +853,15 @@
                         let tooltipText;
                         let text;
                         if (rulesString.includes("crossplayenabled")) {
+                            crossplayOn += 1;
                             tooltipText = "Crossplay enabled: Steam + Windows Store"
                             text = "<i class=\"bi bi-controller\"></i> Enabled"
                         } else if (rulesString.includes("crossplaydisabled")) {
+                            crossplayOff += 1;
                             tooltipText = "Crossplay disabled: Steam only or Windows Store only"
                             text = "<i class=\"bi bi-controller\"></i> Disabled"
                         } else {
+                            crossplayUnknown += 1;
                             tooltipText = "Crossplay unknown"
                             text = "<i class=\"bi bi-controller\"></i> Unknown"
                         }
@@ -883,6 +895,16 @@
 
                     if (server.player_list) {
                         server.player_list.forEach(player => {
+                            totalPlayers += 1
+
+                            // Steam players can have a blank name briefly when joining but quickly resolve.
+                            // Windows players always have a blank name and incorrect large duration time
+                            if (!player.name && player.duration > 180) {
+                                windowsPlayers += 1
+                            } else {
+                                steamPlayers += 1
+                            }
+
                             if (!player.name) {
                                 return
                             }
@@ -955,6 +977,22 @@
                 findPlayerTable.clear()
                 findPlayerTable.rows.add(findPlayersRows).draw(false);
                 findPlayerTable.columns.adjust().draw(false);
+                $("#player-stats").html(`
+                    <li>${totalPlayers} total players
+                        <ul>
+                            <li>${steamPlayers} steam players</li>
+                            <li>${windowsPlayers} windows players</li>
+                        </ul>
+                    </li>
+                    
+                    <li>${totalServers} total servers
+                        <ul>
+                            <li>${crossplayOn} servers have crossplay on</li>
+                            <li>${crossplayOff} servers have crossplay off</li>
+                            <li>${crossplayUnknown} servers do not have crossplay status (not updated / old)</li>
+                        </ul>
+                    </li>
+                `)
 
                 tryUpdateInfoModal()
             } catch (e) {
