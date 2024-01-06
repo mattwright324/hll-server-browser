@@ -980,16 +980,16 @@
                 $("#player-stats").html(`
                     <li>${totalPlayers} total players
                         <ul>
-                            <li>${steamPlayers} steam players</li>
-                            <li>${windowsPlayers} windows players</li>
+                            <li>${steamPlayers} steam players (${Number(steamPlayers / totalPlayers).toFixed(4) * 100}%)</li>
+                            <li>${windowsPlayers} windows players (${Number(windowsPlayers / totalPlayers).toFixed(4) * 100}%)</li>
                         </ul>
                     </li>
                     
                     <li>${totalServers} total servers
                         <ul>
-                            <li>${crossplayOn} servers have crossplay on</li>
-                            <li>${crossplayOff} servers have crossplay off</li>
-                            <li>${crossplayUnknown} servers do not have crossplay status (not updated / old)</li>
+                            <li>${crossplayOn} servers have crossplay on (${Number(crossplayOn / totalServers).toFixed(4) * 100}%)</li>
+                            <li>${crossplayOff} servers have crossplay off (${Number(crossplayOff / totalServers).toFixed(4) * 100}%)</li>
+                            <li>${crossplayUnknown} servers do not have crossplay status (${Number(crossplayUnknown / totalServers).toFixed(4) * 100}%)</li>
                         </ul>
                     </li>
                 `)
