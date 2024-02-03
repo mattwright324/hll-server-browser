@@ -166,8 +166,12 @@
         });
 
         function initTooltip() {
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+            try {
+                const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+            } catch (e) {
+                console.warn("Failed to init tooltips")
+            }
         }
 
         const commonIgnore = "event, training, test, team17, dev team"
@@ -892,6 +896,8 @@
                             tooltipPlayers += `... and ${server.player_list.length - 7} more`
                         }
                     }
+
+                    tooltipPlayers = tooltipPlayers.replaceAll('"', '&quot;')
 
                     if (server.player_list) {
                         server.player_list.forEach(player => {
