@@ -761,9 +761,17 @@
                 message.failures.forEach(server => message.servers.push(server));
 
                 let totalPlayers = 0;
+                let officialPlayers = 0;
+                let communityPlayers = 0;
                 let steamPlayers = 0;
+                let steamOfficialPlayers = 0;
+                let steamCommunityPlayers = 0;
                 let windowsPlayers = 0;
+                let winOfficialPlayers = 0;
+                let winCommunityPlayers = 0;
                 let totalServers = 0;
+                let officialServers = 0;
+                let communityServers = 0;
                 let crossplayOn = 0;
                 let crossplayOff = 0;
                 let crossplayUnknown = 0;
@@ -850,6 +858,12 @@
                     }
 
                     totalServers += 1;
+                    if (server.name.startsWith("HLL Official")) {
+                        officialServers += 1
+                    } else {
+                        communityServers += 1;
+                    }
+
                     let crossplay = ""
                     if (server.hasOwnProperty("rules")) {
                         const rulesString = JSON.stringify(server.rules);
@@ -903,12 +917,28 @@
                         server.player_list.forEach(player => {
                             totalPlayers += 1
 
+                            if (server.name.startsWith("HLL Official")) {
+                                officialPlayers += 1
+                            } else {
+                                communityPlayers += 1;
+                            }
+
                             // Steam players can have a blank name briefly when joining but quickly resolve.
                             // Windows players always have a blank name and incorrect large duration time
                             if (!player.name && player.duration > 180) {
                                 windowsPlayers += 1
+                                if (server.name.startsWith("HLL Official")) {
+                                    winOfficialPlayers += 1
+                                } else {
+                                    winCommunityPlayers += 1;
+                                }
                             } else {
                                 steamPlayers += 1
+                                if (server.name.startsWith("HLL Official")) {
+                                    steamOfficialPlayers += 1
+                                } else {
+                                    steamCommunityPlayers += 1;
+                                }
                             }
 
                             if (!player.name) {
@@ -991,8 +1021,20 @@
                 $("#player-stats").html(`
                     <li>${totalPlayers} total players
                         <ul>
-                            <li>${steamPlayers} steam players (${percent(steamPlayers, totalPlayers)}%)</li>
-                            <li>${windowsPlayers} windows players (${percent(windowsPlayers, totalPlayers)}%)</li>
+                            <li>${steamPlayers} steam players (${percent(steamPlayers, totalPlayers)}%)
+                                <!--<ul>
+                                    <li>${steamOfficialPlayers} on official servers (${percent(steamOfficialPlayers, steamPlayers)}%)</li>
+                                    <li>${steamCommunityPlayers} on community servers (${percent(steamCommunityPlayers, steamPlayers)}%)</li>
+                                </ul>-->
+                            </li>
+                            <li>${windowsPlayers} windows players (${percent(windowsPlayers, totalPlayers)}%)
+                                <!--<ul>
+                                    <li>${winOfficialPlayers} on official servers (${percent(winOfficialPlayers, windowsPlayers)}%)</li>
+                                    <li>${winCommunityPlayers} on community servers (${percent(winCommunityPlayers, windowsPlayers)}%)</li>
+                                </ul>-->
+                            </li>
+                            <li>${officialPlayers} on official servers (${percent(officialPlayers, totalPlayers)}%)</li>
+                            <li>${communityPlayers} on community servers (${percent(communityPlayers, totalPlayers)}%)</li>
                         </ul>
                     </li>
                     
@@ -1001,6 +1043,8 @@
                             <li>${crossplayOn} servers have crossplay on (${percent(crossplayOn, totalServers)}%)</li>
                             <li>${crossplayOff} servers have crossplay off (${percent(crossplayOff, totalServers)}%)</li>
                             <li>${crossplayUnknown} servers do not have crossplay status (${percent(crossplayUnknown, totalServers)}%)</li>
+                            <li>${officialServers} official servers (${percent(officialServers, totalServers)}%)</li>
+                            <li>${communityServers} community servers (${percent(communityServers, totalServers)}%)</li>
                         </ul>
                     </li>
                 `)
