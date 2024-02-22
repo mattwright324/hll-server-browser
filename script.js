@@ -369,7 +369,10 @@
             if (info.player_list) {
                 const rows = []
                 info.player_list.forEach(player => {
-                    rows.push([player.name, {"display": formatDuration(moment.duration(player.duration, 'seconds')), "num": player.duration}])
+                    rows.push([player.name, {
+                        "display": formatDuration(moment.duration(player.duration, 'seconds')),
+                        "num": player.duration
+                    }])
                 })
 
                 playersTable.clear()
@@ -465,7 +468,9 @@
                 let checkedAny = false
                 for (let i = 0; i < terms.length; i++) {
                     const term = terms[i].toLowerCase().trim();
-                    if (term) { checkedAny = true }
+                    if (term) {
+                        checkedAny = true
+                    }
                     if (term && server.name.toLowerCase().includes(term)) {
                         // console.log(`not term [${term}] ${server.name}`)
                         containsAny = true
@@ -497,7 +502,7 @@
             any = []
             seeding = []
             live = []
-            serverTable.rows({"search": "applied"}).every( function () {
+            serverTable.rows({"search": "applied"}).every(function () {
                 const data = this.data();
                 const server = ip2server[data[0]];
 
@@ -546,7 +551,7 @@
         let seeding = []
         let live = []
 
-        function formatDuration(duration, hideSec=false, includeMs, ignoreTime) {
+        function formatDuration(duration, hideSec = false, includeMs, ignoreTime) {
             const years = duration.years();
             const months = duration.months();
             const days = duration.days();
@@ -743,12 +748,39 @@
             L: "Live (40-91, no queue)",
             F: "Full (92-100, likely queue)",
         }
-        const union = (arr) => {return [...new Set(arr.flat())]}
+        const union = (arr) => {
+            return [...new Set(arr.flat())]
+        }
+
+        function sortArrayOfObjects(items, getter) {
+            const copy = JSON.parse(JSON.stringify(items));
+
+            const sortFn = fn => {
+                copy.sort((a, b) => {
+                    a = fn(a)
+                    b = fn(b)
+                    return a === b ? 0 : a < b ? -1 : 1;
+                });
+            };
+
+            getter.forEach(x => {
+                const fn = typeof x === 'function' ? x : item => item[x];
+                sortFn(fn);
+            });
+
+            return copy;
+        }
 
         let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
         // let socket = io('localhost:3000');
 
         socket.on("list-update", function (message) {
+            let serversCopy = JSON.parse(JSON.stringify(message.servers));
+            try {
+                message.servers = sortArrayOfObjects(message.servers, [(item) => item.name])
+            } catch (e) {
+                message.servers = serversCopy;
+            }
             console.log(message)
 
             lastUpdatedTime = message.time;
@@ -769,6 +801,7 @@
                 let windowsPlayers = 0;
                 let winOfficialPlayers = 0;
                 let winCommunityPlayers = 0;
+                let platformUnknownPlayers = 0;
                 let totalServers = 0;
                 let officialServers = 0;
                 let communityServers = 0;
@@ -904,7 +937,7 @@
                     } else if (server.players > 0 && (server.player_list || []).length === 0) {
                         tooltipPlayers = "Failed players query"
                     } else if (server.players > 0 && (server.player_list || []).length > 0) {
-                        tooltipPlayers = server.player_list.slice(0,7).map(x => x?.name || "").join(", ");
+                        tooltipPlayers = server.player_list.slice(0, 7).map(x => x?.name || "").join(", ");
 
                         if (server.player_list.length > 7) {
                             tooltipPlayers += `... and ${server.player_list.length - 7} more`
@@ -913,22 +946,26 @@
 
                     tooltipPlayers = tooltipPlayers.replaceAll('"', '&quot;')
 
+                    totalPlayers += server.players;
+                    if (server.name.startsWith("HLL Official")) {
+                        officialPlayers += server.players;
+                    } else {
+                        communityPlayers += server.players;
+                    }
+
+                    if (!server.player_list && server.players) {
+                        platformUnknownPlayers += server.players;
+                    }
+
                     if (server.player_list) {
                         server.player_list.forEach(player => {
-                            totalPlayers += 1
-
-                            if (server.name.startsWith("HLL Official")) {
-                                officialPlayers += 1
-                            } else {
-                                communityPlayers += 1;
-                            }
 
                             // Steam players can have a blank name briefly when joining but quickly resolve.
                             // Windows players always have a blank name and incorrect large duration time
                             if (!player.name && player.duration > 180) {
                                 windowsPlayers += 1
                                 if (server.name.startsWith("HLL Official")) {
-                                    winOfficialPlayers += 1
+                                    winOfficialPlayers += 1;
                                 } else {
                                     winCommunityPlayers += 1;
                                 }
@@ -946,7 +983,10 @@
                             }
                             findPlayersRows.push([
                                 player.name,
-                                {"display": formatDuration(moment.duration(player.duration, 'seconds')), "num": player.duration},
+                                {
+                                    "display": formatDuration(moment.duration(player.duration, 'seconds')),
+                                    "num": player.duration
+                                },
                                 server.name,
                                 `<a data-for="${server.query}" class="btn btn-outline-secondary open-info" href="javascript:">Info</a> 
                                  <a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Join</a>`,
@@ -961,7 +1001,10 @@
                         `<a data-for="${server.query}" class="btn btn-outline-secondary open-info ${statuses.join(" ")}" href="javascript:">Info</a> 
                          <a id="connect-${server.query}" class="btn btn-outline-primary ${statuses.join(" ")}" href="${connectUrl}">Join</a>`,
                         // passworded (default hidden)
-                        {"display": server.visibility === 1 ? `<i class="bi bi-key-fill ${statuses.join(" ")}" style="color:rgb(255, 193, 7)"></i>` : "", "num": server.visibility},
+                        {
+                            "display": server.visibility === 1 ? `<i class="bi bi-key-fill ${statuses.join(" ")}" style="color:rgb(255, 193, 7)"></i>` : "",
+                            "num": server.visibility
+                        },
                         // status s/p/e/f
                         {
                             "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>') || " "}" data-bs-html="true">
@@ -982,7 +1025,7 @@
                                 ${server.name}<br>
                                 <small class="text-muted">
                                     <span class="map-name">${map}</span>
-                                    ${offline_time || runtime  ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
+                                    ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
                                     ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
                                 </small>
                                 ${server.whois ? `<br>` + (server.whois.match("netname:.+\n") || [""])[0].replace('\n', '') : ""}
@@ -991,14 +1034,14 @@
                          </div>`,
                         // vip button
                         {
-                            display: `<i id="fav-${server.query}" class='bi bi-award vip ${server_vip.includes(server.query) ? 'selected':''} ${statuses.join(" ")}' data-for='${server.query}' title='I have VIP here'></i>`,
+                            display: `<i id="fav-${server.query}" class='bi bi-award vip ${server_vip.includes(server.query) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${server.query}' title='I have VIP here'></i>`,
                             num: function () {
                                 return server_vip.includes(server.query) ? 1 : 0
                             }
                         },
                         // favorite button
                         {
-                            display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected':''} ${statuses.join(" ")}' data-for='${server.query}' title='Favorite'></i>`,
+                            display: `<i id="fav-${server.query}" class='bi bi-star fav ${favorites.includes(server.query) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${server.query}' title='Favorite'></i>`,
                             num: function () {
                                 return favorites.includes(server.query) ? 1 : 0
                             }
@@ -1022,16 +1065,19 @@
                     <li>${totalPlayers} total players
                         <ul>
                             <li>${steamPlayers} steam players (${percent(steamPlayers, totalPlayers)}%)
-                                <!--<ul>
+                                <ul hidden>
                                     <li>${steamOfficialPlayers} on official servers (${percent(steamOfficialPlayers, steamPlayers)}%)</li>
                                     <li>${steamCommunityPlayers} on community servers (${percent(steamCommunityPlayers, steamPlayers)}%)</li>
-                                </ul>-->
+                                </ul>
                             </li>
                             <li>${windowsPlayers} windows players (${percent(windowsPlayers, totalPlayers)}%)
-                                <!--<ul>
+                                <ul hidden>
                                     <li>${winOfficialPlayers} on official servers (${percent(winOfficialPlayers, windowsPlayers)}%)</li>
                                     <li>${winCommunityPlayers} on community servers (${percent(winCommunityPlayers, windowsPlayers)}%)</li>
-                                </ul>-->
+                                </ul>
+                            </li>
+                            <li hidden>${platformUnknownPlayers} 
+                                <span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Steam player_list query failed for server(s)">unknown platform</span>
                             </li>
                             <li>${officialPlayers} on official servers (${percent(officialPlayers, totalPlayers)}%)</li>
                             <li>${communityPlayers} on community servers (${percent(communityPlayers, totalPlayers)}%)</li>
@@ -1048,7 +1094,7 @@
                         </ul>
                     </li>
                 `)
-
+                initTooltip()
                 tryUpdateInfoModal()
             } catch (e) {
                 console.error(e)
