@@ -1138,8 +1138,9 @@
                                     <li>${winCommunityPlayers} on community servers (${percent(winCommunityPlayers, windowsPlayers)}%)</li>
                                 </ul>
                             </li>
-                            <li hidden>${platformUnknownPlayers} 
-                                <span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Steam player_list query failed for server(s)">unknown platform</span>
+                            <li>${platformUnknownPlayers} 
+                                <span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Steam player_list query failed">unknown platform</span>
+                                (${percent(platformUnknownPlayers, totalPlayers)}%)
                             </li>
                             <li>${officialPlayers} on official servers (${percent(officialPlayers, totalPlayers)}%)</li>
                             <li>${communityPlayers} on community servers (${percent(communityPlayers, totalPlayers)}%)</li>
