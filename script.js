@@ -143,8 +143,10 @@
         const crossplayEnabled = $("#crossplayEnabled");
         const crossplayAny = $("#crossplayAny");
         const crossplayDisabled = $("#crossplayDisabled");
+        const checkMapKeywords = $("#map-keywords");
+        const mapWordsTextbox = $("#mapWords");
 
-        [checkHidePassworded, checkHideEmpty, checkMax100, checkIgnoreKeywords, checkOnlyKeywords, crossplayEnabled, crossplayAny, crossplayDisabled].forEach(el => {
+        [checkHidePassworded, checkHideEmpty, checkMax100, checkIgnoreKeywords, checkOnlyKeywords, crossplayEnabled, crossplayAny, crossplayDisabled, checkMapKeywords].forEach(el => {
             el.change(() => {
                 serverTable.draw()
                 serverTable.column(2).visible(!checkHidePassworded.is(":checked"))
@@ -161,6 +163,12 @@
         [checkIgnoreKeywords, checkOnlyKeywords].forEach(el => {
             el.change(() => {
                 $(".name-filter[data-val='custom']").click();
+                updateShareLink()
+            })
+        });
+        [mapWordsTextbox].forEach(el => {
+            el.on('keyup', () => {
+                serverTable.draw();
                 updateShareLink()
             })
         });
@@ -411,6 +419,10 @@
                 onlyWordsTextbox.val(settings.only)
                 draw = true
             }
+            if (settings.hasOwnProperty("maps")) {
+                onlyWordsTextbox.val(settings.maps)
+                draw = true
+            }
 
             if (draw) {
                 serverTable.draw()
@@ -477,6 +489,31 @@
                         break
                     }
                     if (term && termRegexes.hasOwnProperty(term) && server.name.match(termRegexes[term])) {
+                        containsAny = true
+                        break
+                    }
+                }
+                if (checkedAny && !containsAny) {
+                    return false
+                }
+            }
+
+            if (checkMapKeywords.is(":checked")) {
+                const terms = mapWordsTextbox.val().split(",")
+                const map = mapName[server.map] || server.map;
+                let containsAny = false
+                let checkedAny = false
+                for (let i = 0; i < terms.length; i++) {
+                    const term = terms[i].toLowerCase().trim();
+                    if (term) {
+                        checkedAny = true
+                    }
+                    if (term && map.toLowerCase().includes(term)) {
+                        // console.log(`not term [${term}] ${server.name}`)
+                        containsAny = true
+                        break
+                    }
+                    if (term && termRegexes.hasOwnProperty(term) && map.match(termRegexes[term])) {
                         containsAny = true
                         break
                     }
@@ -591,8 +628,14 @@
             CT_N: `Carentan ${night}`,
             Driel: `Driel`,
             Driel_N: `Driel ${night}`,
+            DEV_C_Day_SKM: `Driel Skirmish Day`,
+            DEV_C_Night_SKM: `Driel Skirmish Night`,
+            DEV_C_SKM: `Driel Skirmish`,
             elalamein: `El Alamein`,
             elalamein_N: `El Alamein ${night}`,
+            DEV_D_Day_SKM: `El Alamein Skirmish Day`,
+            DEV_D_Night_SKM: `El Alamein Skirmish Night`,
+            DEV_D_SKM: `El Alamein Skirmish`,
             Foy: `Foy`,
             Foy_N: `Foy ${night}`,
             Hill400: `Hill 400`,
@@ -620,35 +663,36 @@
         }
 
         function getMapImage(map) {
-            if (map.includes("CT")) {
+            const name = mapName[map] || "";
+            if (name.includes("Carentan")) {
                 return "carentan.webp"
-            } else if (map.includes("Foy")) {
+            } else if (name.includes("Foy")) {
                 return "foy.webp"
-            } else if (map.includes("elalamein")) {
+            } else if (name.includes("Alamein")) {
                 return "elalamein.webp"
-            } else if (map.includes("Driel")) {
+            } else if (name.includes("Driel")) {
                 return "driel.webp"
-            } else if (map.includes("Hill400")) {
+            } else if (name.includes("Hill 400")) {
                 return "hill400.webp"
-            } else if (map.includes("Hurtgen")) {
+            } else if (name.includes("Hurtgen")) {
                 return "hurtgenforest.webp"
-            } else if (map.includes("Kharkov")) {
+            } else if (name.includes("Kharkov")) {
                 return "kharkov.webp"
-            } else if (map.includes("Kursk")) {
+            } else if (name.includes("Kursk")) {
                 return "kursk.webp"
-            } else if (map.includes("Omaha")) {
+            } else if (name.includes("Omaha")) {
                 return "omahabeach.webp"
-            } else if (map.includes("PHL")) {
+            } else if (name.includes("Purple")) {
                 return "purpleheartlane.webp"
-            } else if (map.includes("Remagen")) {
+            } else if (name.includes("Remagen")) {
                 return "remagen.webp"
-            } else if (map.includes("Stalin")) {
+            } else if (name.includes("Stalin")) {
                 return "stalingrad.webp"
-            } else if (map.includes("StMarie")) {
+            } else if (name.includes("du Mont")) {
                 return "stmariedumont.webp"
-            } else if (map.includes("SME")) {
+            } else if (name.includes("Eglise")) {
                 return "stmereeglise.webp"
-            } else if (map.includes("Utah")) {
+            } else if (name.includes("Utah")) {
                 return "utahbeach.webp"
             } else {
                 return "unknown.jpg"
@@ -679,6 +723,10 @@
                 params.push("ignore_words=" + ignoreWordsTextbox.val().trim().split(/\s*,\s*/).join())
                 params.push("only=" + checkOnlyKeywords.is(":checked"))
                 params.push("only_words=" + onlyWordsTextbox.val().trim().split(/\s*,\s*/).join())
+            }
+            if (checkMapKeywords.is(":checked") && mapWordsTextbox.val().trim()) {
+                params.push("maps=" + checkMapKeywords.is(":checked"))
+                params.push("maps_words=" + mapWordsTextbox.val().trim().split(/\s*,\s*/).join())
             }
 
             shareLink.val(baseUrl + "?" + params.join("&"))
@@ -738,6 +786,15 @@
                 onlyWordsTextbox.val(query.only_words.trim().split(/\s*,\s*/).join(", "))
                 onlyWordsTextbox.trigger("keyup")
             }
+        }
+
+        if (query.hasOwnProperty("maps")) {
+            checkMapKeywords.prop("checked", !(query.maps.toLowerCase() === "false"))
+            checkMapKeywords.trigger("change")
+        }
+        if (query.hasOwnProperty("maps_words")) {
+            mapWordsTextbox.val(query.maps_words.trim().split(/\s*,\s*/).join(", "))
+            mapWordsTextbox.trigger("keyup")
         }
 
         const statusDesc = {
@@ -871,14 +928,19 @@
                     if (server.hasOwnProperty("map_change")) {
                         const changeTime = moment(server.map_change);
                         const duration = moment.duration(moment().diff(changeTime))
-                        const warfareEndTime = changeTime.add(1.5, 'hour')
-                        const durationUntilEnd = moment.duration(warfareEndTime.diff(moment()))
+                        const warfareEndTime = moment(server.map_change).add(1.5, 'hour')
+                        const warfareDurationUntilEnd = moment.duration(warfareEndTime.diff(moment()))
+                        const skirmishEndTime = moment(server.map_change).add(30, 'minute')
+                        const skirmishDurationUntilEnd = moment.duration(skirmishEndTime.diff(moment()))
 
                         let tooltipText;
                         let text;
-                        if (duration.asMinutes() <= 92) {
+                        if (server.map.includes("SKM")) {
+                            tooltipText = "Map time remaining<br>(Skirmish)"
+                            text = `${formatDuration(skirmishDurationUntilEnd, true)} left`
+                        } else if (duration.asMinutes() <= 92) {
                             tooltipText = "Map time remaining<br>(if warfare)"
-                            text = `${formatDuration(durationUntilEnd, true)} left`
+                            text = `${formatDuration(warfareDurationUntilEnd, true)} left`
                         } else if (duration.asMinutes() <= 152) {
                             tooltipText = "Time passed 1h 30m"
                             text = "Offensive"

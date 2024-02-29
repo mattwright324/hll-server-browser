@@ -184,6 +184,16 @@
                     <label class="btn btn-outline-danger btn-sm" for="crossplayDisabled" title="Disabled"><i class="bi bi-x-lg"></i> Disabled</label>
                 </div>
             </div>
+            <div class="mb-3">
+                <div class="form-check" style="margin-bottom: 5px">
+                    <input class="form-check-input" type="checkbox" value="" id="map-keywords" checked>
+                    <label class="form-check-label" for="map-keywords">
+                        Only map names that contain
+                    </label>
+                </div>
+                <textarea class="form-control" id="mapWords" rows="1" aria-describedby="mapHelp"></textarea>
+                <div id="mapHelp" class="form-text">Comma separated list of words or phrases</div>
+            </div>
         </div>
         <div class="col-sm-12 col-md-4">
             <h5>General Name Filters</h5>
