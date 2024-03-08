@@ -406,7 +406,7 @@
                             nameDisplay = `<small class="text-muted"><i class="bi bi-steam mr-4"></i>Unnamed Steam Player</small>`
                         }
                     } else {
-                        nameDisplay = `<i class="bi bi-steam mr-4"></i><span style="margin-right:8px">${player.name}</span><a class="steam-name-search" href="https://steamcommunity.com/search/users/#text=%22${encodeURI(player.name.replace("=", "%3D"))}%22" target="_blank"><i class="bi bi-search"></i></a>`;
+                        nameDisplay = `<i class="bi bi-steam mr-4"></i><span style="margin-right:8px">${player.name}</span><a class="steam-name-search" href="https://steamcommunity.com/search/users/#text=%22${encodeURI(player.name.replaceAll("=", "%3D"))}%22" target="_blank"><i class="bi bi-search"></i></a>`;
                     }
 
                     rows.push([nameDisplay, {
@@ -1076,7 +1076,7 @@
                             if (!player.name) {
                                 return
                             }
-                            let name = `<i class="bi bi-steam mr-4"></i><span style="margin-right:8px">${player.name}</span><a class="steam-name-search" href="https://steamcommunity.com/search/users/#text=%22${encodeURI(player.name.replace("=", "%3D"))}%22" target="_blank"><i class="bi bi-search"></i></a>`
+                            let name = `<i class="bi bi-steam mr-4"></i><span style="margin-right:8px">${player.name}</span><a class="steam-name-search" href="https://steamcommunity.com/search/users/#text=%22${encodeURI(player.name.replaceAll("=", "%3D"))}%22" target="_blank"><i class="bi bi-search"></i></a>`
                             findPlayersRows.push([
                                 name,
                                 {
