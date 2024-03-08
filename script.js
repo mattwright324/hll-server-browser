@@ -628,13 +628,14 @@
             CT_N: `Carentan ${night}`,
             Driel: `Driel`,
             Driel_N: `Driel ${night}`,
+            Driel_Day: `Driel Offensive`,
             DEV_C_Day_SKM: `Driel Skirmish Day`,
-            DEV_C_Night_SKM: `Driel Skirmish Night`,
-            DEV_C_SKM: `Driel Skirmish`,
+            DEV_C_Night_SKM: `Driel Skirmish ${night}`,
+            DEV_C_SKM: `Driel Skirmish Dusk`,
             elalamein: `El Alamein`,
             elalamein_N: `El Alamein ${night}`,
             DEV_D_Day_SKM: `El Alamein Skirmish Day`,
-            DEV_D_Night_SKM: `El Alamein Skirmish Night`,
+            DEV_D_Night_SKM: `El Alamein Skirmish ${night}`,
             DEV_D_SKM: `El Alamein Skirmish`,
             Foy: `Foy`,
             Foy_N: `Foy ${night}`,
@@ -968,15 +969,15 @@
                         if (rulesString.includes("crossplayenabled")) {
                             crossplayOn += 1;
                             tooltipText = "Crossplay enabled: Steam + Windows Store"
-                            text = "<i class=\"bi bi-controller\"></i> Enabled"
+                            text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i> Enabled</span>"
                         } else if (rulesString.includes("crossplaydisabled")) {
                             crossplayOff += 1;
                             tooltipText = "Crossplay disabled: Steam only or Windows Store only"
-                            text = "<i class=\"bi bi-controller\"></i> Disabled"
+                            text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i> Disabled</span>"
                         } else {
                             crossplayUnknown += 1;
                             tooltipText = "Crossplay unknown"
-                            text = "<i class=\"bi bi-controller\"></i> Unknown"
+                            text = "<span class='crossplay unknown'><i class=\"bi bi-controller\"></i> Unknown</span>"
                         }
 
                         crossplay = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`

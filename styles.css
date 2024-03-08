@@ -426,3 +426,7 @@ html.dark .btn-outline-primary {
     white-space: nowrap;
     overflow: hidden;
 }
+
+.crossplay.disabled {
+    color: rgb(220,120,120);
+}
