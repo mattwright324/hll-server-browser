@@ -430,3 +430,27 @@ html.dark .btn-outline-primary {
 .crossplay.disabled {
     color: rgb(220,120,120);
 }
+
+#additional-info li {
+    /*border-bottom: 1px dotted lightgray;*/
+    margin-bottom: 2px;
+}
+
+#additional-info .property {
+    display: inline-block;
+    min-width: 100px;
+}
+
+#additional-info .value {
+    display: inline-block;
+}
+
+.mr-4 {
+    margin-right: 4px;
+}
+
+.steam-name-search {
+    margin-left: 4px;
+    font-size: 0.75rem;
+    color:darkslategray!important;
+}

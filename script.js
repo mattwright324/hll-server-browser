@@ -84,6 +84,7 @@
                 {
                     title: "Player",
                     className: "dt-nowrap",
+                    type: "html"
                 },
                 {
                     title: "Duration",
@@ -324,12 +325,14 @@
         });
 
         const infoModal = $("#infoModal");
+        const divAdditionalInfo = $("#additional-info");
         const playersTable = $("#player-table").DataTable({
             dom: "i",
             columns: [
                 {
                     title: "Name",
-                    className: "dt-nowrap"
+                    className: "dt-nowrap",
+                    type: "html"
                 },
                 {
                     title: "Duration",
@@ -374,10 +377,39 @@
             infoModal.find(".modal-title").text(info.name);
             infoModal.find(".join-link").attr("href", info.connect_url);
 
+            let rules = []
+            for (let i = 0; i < (info.rules || []).length; i++) {
+                const rule = info.rules[i].name;
+                const value = info.rules[i].value;
+                rules.push(`<li><small>${rule}: ${value}</small></li>`)
+            }
+
+            divAdditionalInfo.html(`
+            <small>
+                <ul>
+                    <li><div class="property">Query Port: </div><div class="value">${info.query}</div></li>
+                    <li><div class="property">Game Rules: </div><ul>
+                        ${rules.join("")}
+                    </ul></li>
+                </ul>
+            </small>
+            `)
+
             if (info.player_list) {
                 const rows = []
                 info.player_list.forEach(player => {
-                    rows.push([player.name, {
+                    let nameDisplay;
+                    if (!player.name) {
+                        if (player.duration > 180) {
+                            nameDisplay = `<small class="text-muted"><i class="bi bi-windows mr-4"></i>Unnamed Windows Player</small>`
+                        } else {
+                            nameDisplay = `<small class="text-muted"><i class="bi bi-steam mr-4"></i>Unnamed Steam Player</small>`
+                        }
+                    } else {
+                        nameDisplay = `<i class="bi bi-steam mr-4"></i><span style="margin-right:8px">${player.name}</span><a class="steam-name-search" href="https://steamcommunity.com/search/users/#text=%22${encodeURI(player.name.replace("=", "%3D"))}%22" target="_blank"><i class="bi bi-search"></i></a>`;
+                    }
+
+                    rows.push([nameDisplay, {
                         "display": formatDuration(moment.duration(player.duration, 'seconds')),
                         "num": player.duration
                     }])
@@ -636,7 +668,7 @@
             elalamein_N: `El Alamein ${night}`,
             DEV_D_Day_SKM: `El Alamein Skirmish Day`,
             DEV_D_Night_SKM: `El Alamein Skirmish ${night}`,
-            DEV_D_SKM: `El Alamein Skirmish`,
+            DEV_D_SKM: `El Alamein Skirmish Dusk`,
             Foy: `Foy`,
             Foy_N: `Foy ${night}`,
             Hill400: `Hill 400`,
@@ -1044,8 +1076,9 @@
                             if (!player.name) {
                                 return
                             }
+                            let name = `<i class="bi bi-steam mr-4"></i><span style="margin-right:8px">${player.name}</span><a class="steam-name-search" href="https://steamcommunity.com/search/users/#text=%22${encodeURI(player.name.replace("=", "%3D"))}%22" target="_blank"><i class="bi bi-search"></i></a>`
                             findPlayersRows.push([
-                                player.name,
+                                name,
                                 {
                                     "display": formatDuration(moment.duration(player.duration, 'seconds')),
                                     "num": player.duration
