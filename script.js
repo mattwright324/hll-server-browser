@@ -377,20 +377,36 @@
             infoModal.find(".modal-title").text(info.name);
             infoModal.find(".join-link").attr("href", info.connect_url);
 
-            let rules = []
-            for (let i = 0; i < (info.rules || []).length; i++) {
-                const rule = info.rules[i].name;
-                const value = info.rules[i].value;
-                rules.push(`<li><small>${rule}: ${value}</small></li>`)
+            const details = []
+            details.push(`<li><div class="property">Server IP: </div><div class="value">${info.query.split(":")[0]}</div></li>`)
+            details.push(`<li><div class="property">Query Port: </div><div class="value">${info.query}</div></li>`)
+            const statuses = info.status.split("");
+            const statusLines = []
+            for (let i = 0; i < statuses.length; i++) {
+                statusLines.push(statusDesc[statuses[i]])
+            }
+            details.push(`<li><div class="property">Status(es): </div><div class="value">${statusLines.join(", ")}</div></li>`)
+            if (info.status !== 'O') {
+                details.push(`<li><div class="property">Player Count: </div><div class="value">${info.players} / ${info.maxPlayers}</div></li>`)
+                let map = mapName.hasOwnProperty(info.map) ? mapName[info.map] + ` — ${info.map}` :
+                    `<span class='unknown_map'>${info.map}</span>`
+                details.push(`<li><div class="property">Current Map: </div><div class="value">${map}</div></li>`)
+            }
+            if (info.rules) {
+                const rules = []
+                for (let i = 0; i < (info.rules || []).length; i++) {
+                    const rule = info.rules[i].name;
+                    const value = info.rules[i].value;
+                    rules.push(`<li><small>${rule}: ${value}</small></li>`)
+                }
+
+                details.push(`<li><div class="property">Game Rules: </div><ul>${rules.join("")}</ul></li>`)
             }
 
             divAdditionalInfo.html(`
             <small>
                 <ul>
-                    <li><div class="property">Query Port: </div><div class="value">${info.query}</div></li>
-                    <li><div class="property">Game Rules: </div><ul>
-                        ${rules.join("")}
-                    </ul></li>
+                    ${details.join("")}
                 </ul>
             </small>
             `)
