@@ -432,13 +432,12 @@ html.dark .btn-outline-primary {
 }
 
 #additional-info li {
-    /*border-bottom: 1px dotted lightgray;*/
     margin-bottom: 2px;
 }
 
 #additional-info .property {
     display: inline-block;
-    min-width: 100px;
+    min-width: 110px;
 }
 
 #additional-info .value {

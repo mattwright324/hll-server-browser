@@ -121,6 +121,43 @@
             bDeferRender: true,
         });
 
+        const winPlayerServerTable = $("#winplayer-server-table").DataTable({
+            dom: "i",
+            columns: [
+                {
+                    title: "Players",
+                    type: "num",
+                    className: "dt-nowrap  dt-center",
+                    render: {
+                        _: 'display',
+                        sort: 'num'
+                    },
+                },
+                {
+                    title: "Win Players",
+                    type: "num",
+                    className: "dt-nowrap  dt-center",
+                    render: {
+                        _: 'display',
+                        sort: 'num'
+                    },
+                },
+                {title: "Server"},
+            ],
+            columnDefs: [{
+                "defaultContent": "",
+                "targets": "_all"
+            }, {
+                "width": "100%",
+                "targets": 2
+            }],
+            order: [[1, 'desc'], [2, 'asc']],
+            lengthMenu: [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
+            deferRender: true,
+            bDeferRender: true,
+            pageLength: -1
+        })
+
         let favorites = []
         if (localStorage && localStorage.getItem("favorites")) {
             favorites = JSON.parse(localStorage.favorites);
@@ -388,6 +425,18 @@
             details.push(`<li><div class="property">Status(es): </div><div class="value">${statusLines.join(", ")}</div></li>`)
             if (info.status !== 'O') {
                 details.push(`<li><div class="property">Player Count: </div><div class="value">${info.players} / ${info.maxPlayers}</div></li>`)
+                if (info.player_list) {
+                    let serverSteam = 0;
+                    let serverWin = 0;
+                    for (let i = 0; i < info.player_list.length; i++) {
+                        if (!info.player_list[i].name && info.player_list[i].duration > 180) {
+                            serverWin += 1;
+                        } else {
+                            serverSteam += 1;
+                        }
+                    }
+                    details.push(`<li><div class="property">Platform Count: </div><div class="value"><i class="bi bi-steam mr-4"></i> ${serverSteam} : <i class="bi bi-windows mr-4"></i> ${serverWin}</div></li>`)
+                }
                 let map = mapName.hasOwnProperty(info.map) ? mapName[info.map] + ` — ${info.map}` :
                     `<span class='unknown_map'>${info.map}</span>`
                 details.push(`<li><div class="property">Current Map: </div><div class="value">${map}</div></li>`)
@@ -916,7 +965,8 @@
                 let crossplayUnknown = 0;
 
                 const findPlayersRows = []
-                const rows = []
+                const rows = [];
+                const winServers = [];
                 message.servers.forEach(server => {
                     ip2server[server.query] = server;
 
@@ -1069,11 +1119,13 @@
                     }
 
                     if (server.player_list) {
+                        let thisServerWinPlayers = 0;
                         server.player_list.forEach(player => {
 
                             // Steam players can have a blank name briefly when joining but quickly resolve.
                             // Windows players always have a blank name and incorrect large duration time
                             if (!player.name && player.duration > 180) {
+                                thisServerWinPlayers += 1;
                                 windowsPlayers += 1
                                 if (server.name.startsWith("HLL Official")) {
                                     winOfficialPlayers += 1;
@@ -1104,6 +1156,34 @@
                                  <a id="connect-${server.query}" class="btn btn-outline-primary" href="${connectUrl}">Join</a>`,
                             ])
                         })
+
+                        if (thisServerWinPlayers > 0) {
+                            winServers.push([
+                                {
+                                    "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${server.players}/${server.maxPlayers}</span>`,
+                                    "num": Number(server.players)
+                                },
+                                {
+                                    "display": `<i class="bi bi-windows mr-4"></i> ${thisServerWinPlayers}`,
+                                    "num": thisServerWinPlayers
+                                },
+                                `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
+                                    <div style="display:inline-block; height: 0px">
+                                        <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.map)}">
+                                    </div>
+                                    <div style="display:inline-block">
+                                        ${server.name}<br>
+                                        <small class="text-muted">
+                                            <span class="map-name">${map}</span>
+                                            ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
+                                            ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
+                                        </small>
+                                        ${server.whois ? `<br>` + (server.whois.match("netname:.+\n") || [""])[0].replace('\n', '') : ""}
+                                        ${server.whois ? `<br>` + (server.whois.match("country:.+\n") || [""])[0].replace('\n', '') : ""}
+                                    </div>
+                                 </div>`,
+                            ])
+                        }
                     }
 
                     rows.push([
@@ -1169,6 +1249,10 @@
                 findPlayerTable.rows.add(findPlayersRows).draw(false);
                 findPlayerTable.columns.adjust().draw(false);
 
+                winPlayerServerTable.clear()
+                winPlayerServerTable.rows.add(winServers).draw(false);
+                winPlayerServerTable.columns.adjust().draw(false);
+
                 function percent(x, total) {
                     return Number(Number(x / total).toFixed(4) * 100).toFixed(2)
                 }
@@ -1182,7 +1266,8 @@
                                     <li>${steamCommunityPlayers} on community servers (${percent(steamCommunityPlayers, steamPlayers)}%)</li>
                                 </ul>
                             </li>
-                            <li>${windowsPlayers} windows players (${percent(windowsPlayers, totalPlayers)}%)
+                            <li>${windowsPlayers} windows players (${percent(windowsPlayers, totalPlayers)}%) 
+                                <i class="bi bi-info-circle" data-bs-toggle="modal" data-bs-target="#winPlayersModal" style="cursor:pointer;color:cornflowerblue" title="Server breakdown"></i>
                                 <ul hidden>
                                     <li>${winOfficialPlayers} on official servers (${percent(winOfficialPlayers, windowsPlayers)}%)</li>
                                     <li>${winCommunityPlayers} on community servers (${percent(winCommunityPlayers, windowsPlayers)}%)</li>
