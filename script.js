@@ -758,6 +758,14 @@
             SME_N: `St Mere Eglise (SME) ${night}`,
             Utah: `Utah Beach`,
             Utah_N: `Utah Beach ${night}`,
+
+            DEV_M_Night_SKM: `St Maria du Mont (SMDM) Skirmish ${night}`,
+            DEV_M_Rain_SKM: `St Maria du Mont (SMDM) Skirmish Rain`,
+            DEV_M_SKM: `St Maria du Mont (SMDM) Skirmish`,
+            Mortain: `Mortain`,
+            Mortain_O: `Mortain Overcast`,
+            Mortain_SKM_Day: `Mortain Skirmish Day`,
+            Mortain_SKM_Overcast: `Mortain Skirmish Overcast`,
         }
 
         function getMapImage(map) {
@@ -792,6 +800,8 @@
                 return "stmereeglise.webp"
             } else if (name.includes("Utah")) {
                 return "utahbeach.webp"
+            } else if (name.includes("Mortain")) {
+                return "mortain.webp"
             } else {
                 return "unknown.jpg"
             }
