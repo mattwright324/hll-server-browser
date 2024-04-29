@@ -527,6 +527,26 @@
             updateShareLink()
         })
 
+        function crossplayIs(server, enabled) {
+            if (server.rules) {
+                // Old crossplay status
+                const stringify = JSON.stringify(server.rules);
+                if (enabled === "true" && stringify.includes("crossplayenabled") ||
+                    enabled === "false" && stringify.includes("crossplaydisabled")) {
+                    return true
+                }
+
+                // New crossplay status
+                for (let i = 0; i < server.rules.length; i++) {
+                    const rule = server.rules[i];
+                    if (rule.name === "Crossplay_b" && rule.value === enabled) {
+                        return true;
+                    }
+                }
+            }
+            return false
+        }
+
         const termRegexes = {
             "$regex_cn$": /([\u4e00-\u9fff\u3400-\u4dbf\ufa0e\ufa0f\ufa11\ufa13\ufa14\ufa1f\ufa21\ufa23\ufa24\ufa27\ufa28\ufa29\u3006\u3007]|[\ud840-\ud868\ud86a-\ud879\ud880-\ud887][\udc00-\udfff]|\ud869[\udc00-\udedf\udf00-\udfff]|\ud87a[\udc00-\udfef]|\ud888[\udc00-\udfaf])([\ufe00-\ufe0f]|\udb40[\udd00-\uddef])?/g
         }
@@ -621,10 +641,10 @@
             }
 
             if (!crossplayAny.is(":checked")) {
-                if (crossplayEnabled.is(":checked") && !JSON.stringify(server.rules || {}).includes("crossplayenabled")) {
+                if (crossplayEnabled.is(":checked") && !crossplayIs(server, "true")) {
                     return false
                 }
-                if (crossplayDisabled.is(":checked") && !JSON.stringify(server.rules || {}).includes("crossplaydisabled")) {
+                if (crossplayDisabled.is(":checked") && !crossplayIs(server, "false")) {
                     return false
                 }
             }
@@ -1070,15 +1090,13 @@
 
                     let crossplay = ""
                     if (server.hasOwnProperty("rules")) {
-                        const rulesString = JSON.stringify(server.rules);
-
                         let tooltipText;
                         let text;
-                        if (rulesString.includes("crossplayenabled")) {
+                        if (crossplayIs(server, "true")) {
                             crossplayOn += 1;
                             tooltipText = "Crossplay enabled: Steam + Windows Store"
                             text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i> Enabled</span>"
-                        } else if (rulesString.includes("crossplaydisabled")) {
+                        } else if (crossplayIs(server, "false")) {
                             crossplayOff += 1;
                             tooltipText = "Crossplay disabled: Steam only or Windows Store only"
                             text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i> Disabled</span>"
