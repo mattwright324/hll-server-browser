@@ -959,6 +959,10 @@
         let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
         // let socket = io('localhost:3000');
 
+        let scrolledToFindPlayerTable = false;
+        if (query.hasOwnProperty("playerSearch")) {
+            findPlayerTable.search(query.playerSearch)
+        }
         socket.on("list-update", function (message) {
             let serversCopy = JSON.parse(JSON.stringify(message.servers));
             try {
@@ -1276,6 +1280,11 @@
                 findPlayerTable.clear()
                 findPlayerTable.rows.add(findPlayersRows).draw(false);
                 findPlayerTable.columns.adjust().draw(false);
+
+                if (query.hasOwnProperty("playerSearch") && !scrolledToFindPlayerTable) {
+                    document.getElementById("find-a-player").scrollIntoView(true)
+                    scrolledToFindPlayerTable = true
+                }
 
                 winPlayerServerTable.clear()
                 winPlayerServerTable.rows.add(winServers).draw(false);
