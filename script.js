@@ -539,7 +539,7 @@
                 // New crossplay status
                 for (let i = 0; i < server.rules.length; i++) {
                     const rule = server.rules[i];
-                    if (rule.name === "Crossplay_b" && rule.value === enabled) {
+                    if (rule.name.toLowerCase() === "crossplay_b" && rule.value === enabled) {
                         return true;
                     }
                 }
