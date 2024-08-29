@@ -100,7 +100,7 @@
                                 function readBin(len, desc, color) {
                                     color = color || "cornflowerblue";
                                     const bitStr = bin2.slice(0, len);
-                                    bits.push(`<td style="color:${color};border:2px dashed ${color}">${bitStr}</td>`)
+                                    bits.push(`<td style="color:${color};border:2px dashed ${color};text-wrap: nowrap">${bitStr.split("").reverse().join("").replaceAll(/(\d{4})/g, '$1 ').trim().split("").reverse().join("")}</td>`)
                                     descs.push(`<td style="color:${color};border:2px dashed ${color}">${desc}</td>`)
                                     const value = parseInt(bitStr, 2);
                                     bin2 = bin2.slice(len)
