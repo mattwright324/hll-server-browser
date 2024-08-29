@@ -942,6 +942,20 @@
             return [...new Set(arr.flat())]
         }
 
+        function base64ToHex(str) {
+            try {
+                const raw = atob(str);
+                let result = '';
+                for (let i = 0; i < raw.length; i++) {
+                    const hex = raw.charCodeAt(i).toString(16);
+                    result += (hex.length === 2 ? hex : '0' + hex) + " ";
+                }
+                return result.toUpperCase();
+            } catch (e) {
+                return "Err: " + str
+            }
+        }
+
         function sortArrayOfObjects(items, getter) {
             const copy = JSON.parse(JSON.stringify(items));
 
@@ -1253,6 +1267,7 @@
                             <div style="display:inline-block">
                                 ${server.name}<br>
                                 <small class="text-muted">
+                                    <span class="hex-debug" style="display:none">${base64ToHex(server.gamestate)}</span>
                                     <span class="map-name">${map}</span>
                                     ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
                                     ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
@@ -1289,6 +1304,10 @@
                 if (query.hasOwnProperty("playerSearch") && !scrolledToFindPlayerTable) {
                     document.getElementById("find-a-player").scrollIntoView(true)
                     scrolledToFindPlayerTable = true
+                }
+
+                if (query.hasOwnProperty("debug")) {
+                    $(".hex-debug").show()
                 }
 
                 winPlayerServerTable.clear()
