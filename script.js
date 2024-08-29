@@ -101,26 +101,26 @@
                                     return value;
                                 }
 
-                                const weather = readBin(8)
-                                const timeOfDay = readBin(8)
-                                const map = readBin(8)
-                                const attackers = readBin(3)
-                                const crossplay = readBin(1) === 0
-                                const foo1 = readBin(4)
-                                const maxQueue = readBin(3)
-                                const currentQueue = readBin(3)
-                                const foo2 = readBin(2)
-                                const maxVips = readBin(7)
-                                const foo3 = readBin(1) === 1
-                                const currentVips = readBin(7)
-                                const development1 = readBin(1) === 0
-                                const development2 = readBin(1) === 0
-                                const players = readBin(7)
-                                const version = readBin(32)
-                                const official = readBin(1) === 0
-                                const foo4 = readBin(23)
-                                const gamemode = readBin(4)
                                 const foo5 = readBin(4)
+                                const gamemode = readBin(4)
+                                const foo4 = readBin(23)
+                                const official = readBin(1) === 1
+                                const version = readBin(32)
+                                const players = readBin(7)
+                                const development2 = readBin(1) === 1
+                                const development1 = readBin(1) === 1
+                                const currentVips = readBin(7)
+                                const foo3 = readBin(1) === 1
+                                const maxVips = readBin(7)
+                                const foo2 = readBin(2)
+                                const currentQueue = readBin(3)
+                                const maxQueue = readBin(3)
+                                const foo1 = readBin(4)
+                                const crossplay = readBin(1) === 1
+                                const attackers = readBin(3)
+                                const map = readBin(8)
+                                const timeOfDay = readBin(8)
+                                const weather = readBin(8)
 
                                 const values = [
                                     "<span style='color:cornflowerblue'>",
