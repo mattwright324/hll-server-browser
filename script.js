@@ -101,14 +101,13 @@
                                     return value;
                                 }
 
-                                const foo5 = readBin(4)
+                                const foo6 = readBin(4)
                                 const gamemode = readBin(4)
-                                const foo4 = readBin(23)
-                                const official = readBin(1) === 1
+                                const foo5 = readBin(24)
                                 const version = readBin(32)
                                 const players = readBin(7)
-                                const development2 = readBin(1) === 1
-                                const development1 = readBin(1) === 1
+                                const official = readBin(1) === 1
+                                const foo4 = readBin(1) === 1
                                 const currentVips = readBin(7)
                                 const foo3 = readBin(1) === 1
                                 const maxVips = readBin(7)
@@ -142,17 +141,18 @@
                                     "_:" + foo3,
                                     "<span style='color:cornflowerblue'>",
                                     "CVip:" + currentVips,
-                                    "Dev1:" + development1,
-                                    "Dev2:" + development2,
-                                    "Plyr:" + players,
-                                    "Ver:" + version,
-                                    "Off:" + official,
                                     "</span>",
                                     "_:" + foo4,
                                     "<span style='color:cornflowerblue'>",
-                                    "Gmde:" + gamemode,
+                                    "Off:" + official,
+                                    "Plyr:" + players,
+                                    "Ver:" + version,
                                     "</span>",
                                     "_:" + foo5,
+                                    "<span style='color:cornflowerblue'>",
+                                    "Gmde:" + gamemode,
+                                    "</span>",
+                                    "_:" + foo6,
                                 ]
 
                                 $(rows).eq(i).after(`<tr>
