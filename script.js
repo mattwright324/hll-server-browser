@@ -108,25 +108,35 @@
                                     return value;
                                 }
 
-                                const foo6 = readBin(4, "_", "gray")
-                                const gamemode = readBin(4, "Gmde")
-                                const foo5 = readBin(24, "_", "gray")
-                                const version = readBin(32, "Vers")
-                                const players = readBin(7, "Plyr")
-                                const official = readBin(1, "Ofcl") === 1
-                                const foo4 = readBin(1, "_", "gray") === 1
-                                const currentVips = readBin(7, "CurV")
-                                const foo3 = readBin(1, "_", "gray") === 1
-                                const maxVips = readBin(7, "MaxV")
-                                const foo2 = readBin(2, "_", "gray")
-                                const currentQueue = readBin(3, "CurQ")
-                                const maxQueue = readBin(3, "MaxQ")
-                                const foo1 = readBin(4, "_", "gray")
-                                const crossplay = readBin(1, "Crss") === 1
-                                const attackers = readBin(3, "Attk")
-                                const map = readBin(8, "Map")
-                                const timeOfDay = readBin(8, "TmOD")
-                                const weather = readBin(8, "Wthr")
+                                readBin(2, "???", "yellowgreen");
+                                readBin(2, "_", "gray");
+                                const gamemode = readBin(4, "Game mode");
+
+                                readBin(4, "???", "yellowgreen");
+                                readBin(4, "???", "yellowgreen");
+                                readBin(5, "???", "yellowgreen");
+
+                                readBin(11, "???", "yellowgreen");
+                                const version = readBin(32, "Build/Version");
+                                const players = readBin(7, "Players");
+                                const official = readBin(1, "Official") === 1;
+
+                                readBin(1, "_", "gray") === 1;
+                                const currentVips = readBin(7, "Curr VIP");
+
+                                readBin(1, "???", "yellowgreen") === 1;
+                                const maxVips = readBin(7, "Max VIP");
+
+                                readBin(2, "???", "yellowgreen");
+                                const currentQueue = readBin(3, "Cur Que");
+                                const maxQueue = readBin(3, "Max Que");
+
+                                readBin(4, "???", "yellowgreen");
+                                const crossplay = readBin(1, "Crss Play") === 1;
+                                const attackers = readBin(3, "Off. Attk");
+                                const map = readBin(8, "Map");
+                                const timeOfDay = readBin(8, "Time o Day");
+                                const weather = readBin(8, "Weather");
 
                                 // Ver:572092818
                                 const mapDecode = [
@@ -183,44 +193,11 @@
                                     "Dawn",
                                 ]
 
-                                const values = [
-                                    "_:" + foo6,
-                                    "<span style='color:cornflowerblue'>",
-                                    "Gmde:" + gamemode,
-                                    "</span>",
-                                    "_:" + foo5,
-                                    "<span style='color:cornflowerblue'>",
-                                    "Ver:" + version,
-                                    "Plyr:" + players,
-                                    "Off:" + official,
-                                    "</span>",
-                                    "_:" + foo4,
-                                    "<span style='color:cornflowerblue'>",
-                                    "CVip:" + currentVips,
-                                    "</span>",
-                                    "_:" + foo3,
-                                    "<span style='color:cornflowerblue'>",
-                                    "MVip:" + maxVips,
-                                    "</span>",
-                                    "_:" + foo2,
-                                    "<span style='color:cornflowerblue'>",
-                                    "CQ:" + currentQueue,
-                                    "MQ:" + maxQueue,
-                                    "</span>",
-                                    "_:" + foo1,
-                                    "<span style='color:cornflowerblue'>",
-                                    "Crss:" + crossplay,
-                                    "Att:" + attackers,
-                                    "Map:" + map,
-                                    "TmOD:" + timeOfDay,
-                                    "Wthr:" + weather,
-                                    "</span>",
-                                ]
                                 // ${bin.replaceAll(/(\d{4})/g, '$1 ')}<br>
                                 // ${hex.replaceAll(/(\w{2})/g, '$1 ')}<br>
-                                // ${values.join(" ")}<br>
+
                                 $(rows).eq(i).after(`<tr>
-                                        <td colspan="6">
+                                        <td colspan="7">
                                             <small class="text-muted" style="font-family: Consolas, monospace">
                                                 <table class="bit-table">
                                                 <tbody>
