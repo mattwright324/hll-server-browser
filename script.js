@@ -76,7 +76,37 @@
             lengthMenu: [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
             deferRender: true,
             bDeferRender: true,
-            pageLength: -1
+            pageLength: -1,
+            drawCallback: function(settings) {
+                var api = this.api();
+                var rows = api.rows({page: 'current'}).nodes()
+                var last = null;
+
+                api.column(0, {page: 'current'})
+                    .data()
+                    .each(function (ip, i) {
+                        if (last !== ip) {
+                            const server = ip2server[ip];
+
+                            let hex = "", bin = "";
+                            if (server.gamestate && query.hasOwnProperty("debug")) {
+                                hex = base64ToHex(server.gamestate);
+                                bin = hex2bin(hex);
+
+                                $(rows).eq(i).after(`<tr>
+                                        <td colspan="6">
+                                            <small class="text-muted" style="font-family: Consolas, monospace">
+                                                ${hex.replaceAll(/(\w{2})/g, '$1 ')}<br>
+                                                ${bin.replaceAll(/(\d{4})/g, '$1 ')}
+                                            </small>
+                                        </td>
+                                    </tr>`)
+
+                                last = ip;
+                            }
+                        }
+                    })
+            }
         });
 
         const findPlayerTable = $("#find-players-table").DataTable({
@@ -942,19 +972,21 @@
             return [...new Set(arr.flat())]
         }
 
-        function base64ToHex(str) {
+        function base64ToHex(base64) {
             try {
-                const raw = atob(str);
+                const raw = atob(base64);
                 let result = '';
                 for (let i = 0; i < raw.length; i++) {
                     const hex = raw.charCodeAt(i).toString(16);
-                    result += (hex.length === 2 ? hex : '0' + hex) + " ";
+                    result += (hex.length === 2 ? hex : '0' + hex);
                 }
                 return result.toUpperCase();
             } catch (e) {
-                return "Err: " + str
+                return "Err: " + base64
             }
         }
+        const hex2bin = (hex) => hex.split('').map(i =>
+            parseInt(i, 16).toString(2).padStart(4, '0')).join('');
 
         function sortArrayOfObjects(items, getter) {
             const copy = JSON.parse(JSON.stringify(items));
@@ -1267,7 +1299,6 @@
                             <div style="display:inline-block">
                                 ${server.name}<br>
                                 <small class="text-muted">
-                                    <span class="hex-debug" style="display:none">${base64ToHex(server.gamestate)}</span>
                                     <span class="map-name">${map}</span>
                                     ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
                                     ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
