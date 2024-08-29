@@ -93,33 +93,40 @@
                                 hex = base64ToHex(server.gamestate);
                                 bin = hex2bin(hex);
 
-
+                                let bits = []
+                                let sections = []
+                                let descs = []
                                 let bin2 = bin;
-                                function readBin(len) {
-                                    const value = parseInt(bin2.slice(0, len), 2);
+                                function readBin(len, desc, color) {
+                                    color = color || "cornflowerblue";
+                                    const bitStr = bin2.slice(0, len);
+                                    bits.push(`<td style="color:${color};border:2px dashed ${color}">${bitStr}</td>`)
+                                    descs.push(`<td style="color:${color};border:2px dashed ${color}">${desc}</td>`)
+                                    const value = parseInt(bitStr, 2);
                                     bin2 = bin2.slice(len)
+                                    sections.push(`<td style="color:${color};border:2px dashed ${color}">${value}</td>`)
                                     return value;
                                 }
 
-                                const foo6 = readBin(4)
-                                const gamemode = readBin(4)
-                                const foo5 = readBin(24)
-                                const version = readBin(32)
-                                const players = readBin(7)
-                                const official = readBin(1) === 1
-                                const foo4 = readBin(1) === 1
-                                const currentVips = readBin(7)
-                                const foo3 = readBin(1) === 1
-                                const maxVips = readBin(7)
-                                const foo2 = readBin(2)
-                                const currentQueue = readBin(3)
-                                const maxQueue = readBin(3)
-                                const foo1 = readBin(4)
-                                const crossplay = readBin(1) === 1
-                                const attackers = readBin(3)
-                                const map = readBin(8)
-                                const timeOfDay = readBin(8)
-                                const weather = readBin(8)
+                                const foo6 = readBin(4, "_", "gray")
+                                const gamemode = readBin(4, "Gmde")
+                                const foo5 = readBin(24, "_", "gray")
+                                const version = readBin(32, "Vers")
+                                const players = readBin(7, "Plyr")
+                                const official = readBin(1, "Ofcl") === 1
+                                const foo4 = readBin(1, "_", "gray") === 1
+                                const currentVips = readBin(7, "CurV")
+                                const foo3 = readBin(1, "_", "gray") === 1
+                                const maxVips = readBin(7, "MaxV")
+                                const foo2 = readBin(2, "_", "gray")
+                                const currentQueue = readBin(3, "CurQ")
+                                const maxQueue = readBin(3, "MaxQ")
+                                const foo1 = readBin(4, "_", "gray")
+                                const crossplay = readBin(1, "Crss") === 1
+                                const attackers = readBin(3, "Attk")
+                                const map = readBin(8, "Map")
+                                const timeOfDay = readBin(8, "TmOD")
+                                const weather = readBin(8, "Wthr")
 
                                 // Ver:572092818
                                 const mapDecode = [
@@ -177,45 +184,51 @@
                                 ]
 
                                 const values = [
-                                    "<span style='color:cornflowerblue'>",
-                                    "Wthr:" + weather,
-                                    "TmOD:" + timeOfDay,
-                                    "Map:" + map,
-                                    "Att:" + attackers,
-                                    "Crss:" + crossplay,
-                                    "</span>",
-                                    "_:" + foo1,
-                                    "<span style='color:cornflowerblue'>",
-                                    "MQ:" + maxQueue,
-                                    "CQ:" + currentQueue,
-                                    "</span>",
-                                    "_:" + foo2,
-                                    "<span style='color:cornflowerblue'>",
-                                    "MVip:" + maxVips,
-                                    "</span>",
-                                    "_:" + foo3,
-                                    "<span style='color:cornflowerblue'>",
-                                    "CVip:" + currentVips,
-                                    "</span>",
-                                    "_:" + foo4,
-                                    "<span style='color:cornflowerblue'>",
-                                    "Off:" + official,
-                                    "Plyr:" + players,
-                                    "Ver:" + version,
-                                    "</span>",
-                                    "_:" + foo5,
+                                    "_:" + foo6,
                                     "<span style='color:cornflowerblue'>",
                                     "Gmde:" + gamemode,
                                     "</span>",
-                                    "_:" + foo6,
+                                    "_:" + foo5,
+                                    "<span style='color:cornflowerblue'>",
+                                    "Ver:" + version,
+                                    "Plyr:" + players,
+                                    "Off:" + official,
+                                    "</span>",
+                                    "_:" + foo4,
+                                    "<span style='color:cornflowerblue'>",
+                                    "CVip:" + currentVips,
+                                    "</span>",
+                                    "_:" + foo3,
+                                    "<span style='color:cornflowerblue'>",
+                                    "MVip:" + maxVips,
+                                    "</span>",
+                                    "_:" + foo2,
+                                    "<span style='color:cornflowerblue'>",
+                                    "CQ:" + currentQueue,
+                                    "MQ:" + maxQueue,
+                                    "</span>",
+                                    "_:" + foo1,
+                                    "<span style='color:cornflowerblue'>",
+                                    "Crss:" + crossplay,
+                                    "Att:" + attackers,
+                                    "Map:" + map,
+                                    "TmOD:" + timeOfDay,
+                                    "Wthr:" + weather,
+                                    "</span>",
                                 ]
-
+                                // ${bin.replaceAll(/(\d{4})/g, '$1 ')}<br>
+                                // ${hex.replaceAll(/(\w{2})/g, '$1 ')}<br>
+                                // ${values.join(" ")}<br>
                                 $(rows).eq(i).after(`<tr>
                                         <td colspan="6">
                                             <small class="text-muted" style="font-family: Consolas, monospace">
-                                                ${hex.replaceAll(/(\w{2})/g, '$1 ')}<br>
-                                                ${bin.replaceAll(/(\d{4})/g, '$1 ')}<br>
-                                                ${values.join(" ")}<br>
+                                                <table class="bit-table">
+                                                <tbody>
+                                                <tr>${bits.join('')}</tr>
+                                                <tr>${sections.join('')}</tr>
+                                                <tr>${descs.join('')}</tr>
+                                                </tbody>
+                                                </table>
                                                 Map & Mode: 
                                                     ${mapDecode[map]} 
                                                     ${modeDecode[gamemode]} 

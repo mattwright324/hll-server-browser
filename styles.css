@@ -453,3 +453,10 @@ html.dark .btn-outline-primary {
     font-size: 0.75rem;
     color:darkslategray!important;
 }
+
+.bit-table {
+    text-align: center;
+}
+.bit-table td {
+    padding: 0 5px;
+}
