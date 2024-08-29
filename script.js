@@ -93,11 +93,74 @@
                                 hex = base64ToHex(server.gamestate);
                                 bin = hex2bin(hex);
 
+
+                                let bin2 = bin;
+                                function readBin(len) {
+                                    const value = parseInt(bin2.slice(0, len), 2);
+                                    bin2 = bin2.slice(len)
+                                    return value;
+                                }
+
+                                const weather = readBin(8)
+                                const timeOfDay = readBin(8)
+                                const map = readBin(8)
+                                const attackers = readBin(3)
+                                const crossplay = readBin(1) === 0
+                                const foo1 = readBin(4)
+                                const maxQueue = readBin(3)
+                                const currentQueue = readBin(3)
+                                const foo2 = readBin(2)
+                                const maxVips = readBin(7)
+                                const foo3 = readBin(1) === 1
+                                const currentVips = readBin(7)
+                                const development1 = readBin(1) === 0
+                                const development2 = readBin(1) === 0
+                                const players = readBin(7)
+                                const version = readBin(32)
+                                const official = readBin(1) === 0
+                                const foo4 = readBin(23)
+                                const gamemode = readBin(4)
+                                const foo5 = readBin(4)
+
+                                const values = [
+                                    "<span style='color:cornflowerblue'>",
+                                    "Wthr:" + weather,
+                                    "TmOD:" + timeOfDay,
+                                    "Map:" + map,
+                                    "Att:" + attackers,
+                                    "Crss:" + crossplay,
+                                    "</span>",
+                                    "_:" + foo1,
+                                    "<span style='color:cornflowerblue'>",
+                                    "MQ:" + maxQueue,
+                                    "CQ:" + currentQueue,
+                                    "</span>",
+                                    "_:" + foo2,
+                                    "<span style='color:cornflowerblue'>",
+                                    "MVip:" + maxVips,
+                                    "</span>",
+                                    "_:" + foo3,
+                                    "<span style='color:cornflowerblue'>",
+                                    "CVip:" + currentVips,
+                                    "Dev1:" + development1,
+                                    "Dev2:" + development2,
+                                    "Plyr:" + players,
+                                    "Ver:" + version,
+                                    "Off:" + official,
+                                    "</span>",
+                                    "_:" + foo4,
+                                    "<span style='color:cornflowerblue'>",
+                                    "Gmde:" + gamemode,
+                                    "</span>",
+                                    "_:" + foo5,
+                                ]
+
                                 $(rows).eq(i).after(`<tr>
                                         <td colspan="6">
                                             <small class="text-muted" style="font-family: Consolas, monospace">
                                                 ${hex.replaceAll(/(\w{2})/g, '$1 ')}<br>
-                                                ${bin.replaceAll(/(\d{4})/g, '$1 ')}
+                                                ${bin.replaceAll(/(\d{4})/g, '$1 ')}<br>
+                                                ${values.join(" ")}
                                             </small>
                                         </td>
                                     </tr>`)
