@@ -114,9 +114,8 @@
 
                                 readBin(4, "???", "yellowgreen");
                                 readBin(4, "???", "yellowgreen");
-                                readBin(5, "???", "yellowgreen");
 
-                                readBin(11, "???", "yellowgreen");
+                                readBin(16, "???", "yellowgreen");
                                 const version = readBin(32, "Build/Version");
                                 const players = readBin(7, "Players");
                                 const official = readBin(1, "Official") === 1;
