@@ -121,6 +121,61 @@
                                 const timeOfDay = readBin(8)
                                 const weather = readBin(8)
 
+                                // Ver:572092818
+                                const mapDecode = [
+                                    "",
+                                    "Foy",
+                                    "St Marie du Mont (SMDM)",
+                                    "Hurtgen",
+                                    "Utah Beach",
+                                    "Omaha Beach",
+                                    "St Mere Eglise (SME)",
+                                    "Purple Heart Lane",
+                                    "Hill 400",
+                                    "Carentan",
+                                    "Kursk",
+                                    "Stalingrad",
+                                    "Remagen",
+                                    "Kharkov",
+                                    "El Alamein",
+                                    "Driel",
+                                    "Mortain",
+                                ]
+                                const modeDecode = [
+                                    "Warfare", // 0
+                                    "",
+                                    "Warfare",  // 2
+                                    "Offensive",  // 3
+                                    "",
+                                    "",
+                                    "",
+                                    "Skirmish",  // 7
+                                    "",
+                                    "",
+                                    "Objective?", // 10
+                                ]
+                                const offAttackValues = [
+                                    "GER",
+                                    "US",
+                                    "RUS",
+                                    "GB",
+                                    "DAK",
+                                    "B8A"
+                                ]
+                                const wthrDecode = [
+                                    "",
+                                    "Default",
+                                    "Overcast",
+                                    "",
+                                ]
+                                const tmodDecode = [
+                                    "",
+                                    "Day",
+                                    "Night/Dusk",
+                                    "",
+                                    "Dawn",
+                                ]
+
                                 const values = [
                                     "<span style='color:cornflowerblue'>",
                                     "Wthr:" + weather,
@@ -160,7 +215,17 @@
                                             <small class="text-muted" style="font-family: Consolas, monospace">
                                                 ${hex.replaceAll(/(\w{2})/g, '$1 ')}<br>
                                                 ${bin.replaceAll(/(\d{4})/g, '$1 ')}<br>
-                                                ${values.join(" ")}
+                                                ${values.join(" ")}<br>
+                                                Map & Mode: 
+                                                    ${mapDecode[map]} 
+                                                    ${modeDecode[gamemode]} 
+                                                    ${gamemode === 3 ? offAttackValues[attackers] : ""}
+                                                    ${weather !== 1 ? wthrDecode[weather] : ""}
+                                                    ${timeOfDay !== 1 ? tmodDecode[timeOfDay] : ""}
+                                                <br>VIP:
+                                                    [${currentVips} / ${maxVips}]
+                                                <br>Queue:
+                                                    [${currentQueue} / ${maxQueue}]
                                             </small>
                                         </td>
                                     </tr>`)
