@@ -4,6 +4,138 @@
     function init() {
         new ClipboardJS(".clipboard");
 
+        // 572092818: v15.2
+        const LATEST_SERVER_VERSION = 572092818;
+        const gs = {
+            mapDecode: {
+                1: "Foy",
+                2: "St Marie du Mont (SMDM)",
+                3: "Hurtgen",
+                4: "Utah Beach",
+                5: "Omaha Beach",
+                6: "St Mere Eglise (SME)",
+                7: "Purple Heart Lane",
+                8: "Hill 400",
+                9: "Carentan",
+                10: "Kursk",
+                11: "Stalingrad",
+                12: "Remagen",
+                13: "Kharkov",
+                14: "El Alamein",
+                15: "Driel",
+                16: "Mortain",
+            },
+            modeDecode: {
+                2: "Warfare",
+                3: "Offensive",
+                7: "Skirmish",
+                10: "Objective?"
+            },
+            offAttackSide: {
+                0: "GER",
+                1: "US",
+                2: "RUS",
+                3: "GB",
+                4: "DAK",
+                5: "B8A"
+            },
+            weatherDecode: {
+                1: "Clear",
+                2: "Overcast",
+                3: "Rain"
+            },
+            timeOfDayDecode: {
+                1: "Day",
+                2: "Night",
+                3: "Dusk",
+                5: "Dawn",
+            },
+
+            steamMapStartsWith: {
+                Foy: "Foy",
+                StMarie: "St Marie du Mont (SMDM)",
+                DEV_M: "St Marie du Mont (SMDM)",
+                Hurtgen: "Hurtgen",
+                Utah: "Utah Beach",
+                Omaha: "Omaha Beach",
+                SME: "St Mere Eglise (SME)",
+                DEV_I: "St Mere Eglise (SME)",
+                PHL: "Purple Heart Lane",
+                Hill400: "Hill 400",
+                CT: "Carentan",
+                DEV_F: "Carentan",
+                Kursk: "Kursk",
+                Stalin: "Stalingrad",
+                Remagen: "Remagen",
+                Kharkov: "Kharkov",
+                elalamein: "El Alamein",
+                DEV_D: "El Alamein",
+                Driel: "Driel",
+                DEV_C: "Driel",
+                Mortain: "Mortain",
+            },
+
+            determineDisplayMapName: function (server) {
+                const decodedGs = server?.gamestate?.decoded;
+                const gsMap = decodedGs?.map;
+                const gsMode = decodedGs?.gamemode;
+                const gsOffAttkSide = decodedGs?.offensiveSide;
+                const gsWeather = decodedGs?.weather;
+                const gsTimeOfDay = decodedGs?.timeOfDay;
+
+                const steamMap = server?.map;
+                let steamDisplay;
+                Object.keys(this.steamMapStartsWith).forEach(key => {
+                    if (steamMap.startsWith(key)) {
+                        steamDisplay = this.steamMapStartsWith[key];
+                    }
+                })
+                if (!steamDisplay) {
+                    return;
+                }
+
+                let displayMap;
+                if (this.mapDecode.hasOwnProperty(gsMap)) {
+                    displayMap = this.mapDecode[gsMap];
+                    displayMap += " " + this.modeDecode[gsMode];
+                    if (gsMode === 3) {
+                        displayMap += " " + this.offAttackSide[gsOffAttkSide];
+                    }
+                    let modifiers = []
+                    if (gsTimeOfDay && gsTimeOfDay !== 1) {
+                        modifiers.push(this.timeOfDayDecode[gsTimeOfDay]);
+                    }
+                    if (gsWeather && gsWeather !== 1) {
+                        modifiers.push(this.weatherDecode[gsWeather])
+                    }
+                    if (modifiers.length) {
+                        displayMap += ` (${modifiers.join(", ")})`
+                    }
+                    return displayMap;
+                }
+                if (steamDisplay) {
+                    displayMap = steamDisplay;
+                    displayMap += " " + this.modeDecode[gsMode];
+                    if (gsMode === 3) {
+                        displayMap += " " + this.offAttackSide[gsOffAttkSide];
+                    }
+                    let modifiers = []
+                    if (gsTimeOfDay && gsTimeOfDay !== 1) {
+                        modifiers.push(this.timeOfDayDecode[gsTimeOfDay]);
+                    }
+                    if (gsWeather && gsWeather !== 1) {
+                        modifiers.push(this.weatherDecode[gsWeather])
+                    }
+                    if (modifiers.length) {
+                        displayMap += ` (${modifiers.join(", ")})`
+                    }
+                    return displayMap;
+                }
+            }
+        }
+
+        let unknownMapNames = [];
+
         const serverTable = $("#server-table").DataTable({
             dom: "i",
             columns: [
@@ -77,7 +209,7 @@
             deferRender: true,
             bDeferRender: true,
             pageLength: -1,
-            drawCallback: function(settings) {
+            drawCallback: function (settings) {
                 var api = this.api();
                 var rows = api.rows({page: 'current'}).nodes()
                 var last = null;
@@ -89,22 +221,23 @@
                             const server = ip2server[ip];
 
                             let hex = "", bin = "";
-                            if (server.gamestate && query.hasOwnProperty("debug")) {
-                                hex = base64ToHex(server.gamestate);
+                            if (server?.gamestate?.raw && query.hasOwnProperty("debug")) {
+                                hex = base64ToHex(server?.gamestate?.raw);
                                 bin = hex2bin(hex);
 
                                 let bits = []
                                 let sections = []
                                 let descs = []
                                 let bin2 = bin;
-                                function readBin(len, desc, color) {
+
+                                function readBin(len, desc, color, func) {
                                     color = color || "cornflowerblue";
                                     const bitStr = bin2.slice(0, len);
                                     bits.push(`<td style="color:${color};border:2px dashed ${color};text-wrap: nowrap">${bitStr.split("").reverse().join("").replaceAll(/(\d{4})/g, '$1 ').trim().split("").reverse().join("")}</td>`)
                                     descs.push(`<td style="color:${color};border:2px dashed ${color}">${desc}</td>`)
                                     const value = parseInt(bitStr, 2);
                                     bin2 = bin2.slice(len)
-                                    sections.push(`<td style="color:${color};border:2px dashed ${color}">${value}</td>`)
+                                    sections.push(`<td style="color:${color};border:2px dashed ${color}">${func ? func(value) : value}</td>`)
                                     return value;
                                 }
 
@@ -112,13 +245,13 @@
                                 readBin(2, "_", "gray");
                                 const gamemode = readBin(4, "Game mode");
 
-                                readBin(4, "???", "yellowgreen");
-                                readBin(4, "???", "yellowgreen");
+                                // readBin(1, "_", "gray");
+                                const foo1 = readBin(8, "???", "yellowgreen");
 
                                 readBin(16, "???", "yellowgreen");
                                 const version = readBin(32, "Build/Version");
                                 const players = readBin(7, "Players");
-                                const official = readBin(1, "Official") === 1;
+                                const official = readBin(1, "Official", "cornflowerblue", val => val === 1);
 
                                 readBin(1, "_", "gray") === 1;
                                 const currentVips = readBin(7, "Curr VIP");
@@ -131,66 +264,15 @@
                                 const maxQueue = readBin(3, "Max Que");
 
                                 readBin(4, "???", "yellowgreen");
-                                const crossplay = readBin(1, "Crss Play") === 1;
+                                const crossplay = readBin(1, "Crss Play", "cornflowerblue", val => val === 1);
                                 const attackers = readBin(3, "Off. Attk");
                                 const map = readBin(8, "Map");
                                 const timeOfDay = readBin(8, "Time o Day");
                                 const weather = readBin(8, "Weather");
 
-                                // Ver:572092818
-                                const mapDecode = [
-                                    "",
-                                    "Foy",
-                                    "St Marie du Mont (SMDM)",
-                                    "Hurtgen",
-                                    "Utah Beach",
-                                    "Omaha Beach",
-                                    "St Mere Eglise (SME)",
-                                    "Purple Heart Lane",
-                                    "Hill 400",
-                                    "Carentan",
-                                    "Kursk",
-                                    "Stalingrad",
-                                    "Remagen",
-                                    "Kharkov",
-                                    "El Alamein",
-                                    "Driel",
-                                    "Mortain",
-                                ]
-                                const modeDecode = [
-                                    "Warfare", // 0
-                                    "",
-                                    "Warfare",  // 2
-                                    "Offensive",  // 3
-                                    "",
-                                    "",
-                                    "",
-                                    "Skirmish",  // 7
-                                    "",
-                                    "",
-                                    "Objective?", // 10
-                                ]
-                                const offAttackValues = [
-                                    "GER",
-                                    "US",
-                                    "RUS",
-                                    "GB",
-                                    "DAK",
-                                    "B8A"
-                                ]
-                                const wthrDecode = [
-                                    "",
-                                    "Default",
-                                    "Overcast",
-                                    "",
-                                ]
-                                const tmodDecode = [
-                                    "",
-                                    "Day",
-                                    "Night/Dusk",
-                                    "",
-                                    "Dawn",
-                                ]
+                                if (bin2) {
+                                    readBin(bin2.length, "Remaining", "red")
+                                }
 
                                 // ${bin.replaceAll(/(\d{4})/g, '$1 ')}<br>
                                 // ${hex.replaceAll(/(\w{2})/g, '$1 ')}<br>
@@ -206,11 +288,11 @@
                                                 </tbody>
                                                 </table>
                                                 Map & Mode: 
-                                                    ${mapDecode[map]} 
-                                                    ${modeDecode[gamemode]} 
-                                                    ${gamemode === 3 ? offAttackValues[attackers] : ""}
-                                                    ${weather !== 1 ? wthrDecode[weather] : ""}
-                                                    ${timeOfDay !== 1 ? tmodDecode[timeOfDay] : ""}
+                                                    ${gs.mapDecode[map]} 
+                                                    ${gs.modeDecode[gamemode]} 
+                                                    ${gamemode === 3 ? gs.offAttackSide[attackers] : ""}
+                                                    ${weather !== 1 ? gs.weatherDecode[weather] : ""}
+                                                    ${timeOfDay !== 1 ? gs.timeOfDayDecode[timeOfDay] : ""}
                                                 <br>VIP:
                                                     [${currentVips} / ${maxVips}]
                                                 <br>Queue:
@@ -318,6 +400,7 @@
         const btnConnectSeeding = $("#join-seeding");
         const btnConnectPopulated = $("#join-populated");
         const btnConnectAny = $("#join-any");
+        const checkLatestOnly = $("#latest-only");
         const checkHidePassworded = $("#hide-passworded");
         const checkHideEmpty = $("#hide-empty");
         const checkMax100 = $("#max-100-only");
@@ -331,7 +414,7 @@
         const checkMapKeywords = $("#map-keywords");
         const mapWordsTextbox = $("#mapWords");
 
-        [checkHidePassworded, checkHideEmpty, checkMax100, checkIgnoreKeywords, checkOnlyKeywords, crossplayEnabled, crossplayAny, crossplayDisabled, checkMapKeywords].forEach(el => {
+        [checkLatestOnly, checkHidePassworded, checkHideEmpty, checkMax100, checkIgnoreKeywords, checkOnlyKeywords, crossplayEnabled, crossplayAny, crossplayDisabled, checkMapKeywords].forEach(el => {
             el.change(() => {
                 serverTable.draw()
                 serverTable.column(2).visible(!checkHidePassworded.is(":checked"))
@@ -571,7 +654,12 @@
             }
             details.push(`<li><div class="property">Status(es): </div><div class="value">${statusLines.join(", ")}</div></li>`)
             if (info.status !== 'O') {
-                details.push(`<li><div class="property">Player Count: </div><div class="value">${info.players} / ${info.maxPlayers}</div></li>`)
+                const decoded = info?.gamestate?.decoded;
+                let queues = ""
+                if (decoded) {
+                    queues = `<li>(${decoded?.currentVip}/${decoded?.maxVip}) VIP slots, (${decoded?.currentQueue} / ${decoded?.maxQueue}) in QUEUE</li>`
+                }
+                details.push(`<li><div class="property">Player Count: </div><div class="value">${info.players} / ${info.maxPlayers}</div><ul>${queues}</ul></li>`)
                 if (info.player_list) {
                     let serverSteam = 0;
                     let serverWin = 0;
@@ -584,9 +672,13 @@
                     }
                     details.push(`<li><div class="property">Platform Count: </div><div class="value"><i class="bi bi-steam mr-4"></i> ${serverSteam} : <i class="bi bi-windows mr-4"></i> ${serverWin}</div></li>`)
                 }
-                let map = mapName.hasOwnProperty(info.map) ? mapName[info.map] + ` — ${info.map}` :
-                    `<span class='unknown_map'>${info.map}</span>`
-                details.push(`<li><div class="property">Current Map: </div><div class="value">${map}</div></li>`)
+                let name = gs.determineDisplayMapName(info)
+                if (!name || unknownMapNames.includes(info.map)) {
+                    name = `<span class='unknown_map'>${info.map}</span>`
+                } else {
+                    name += ` — ${info.map}`
+                }
+                details.push(`<li><div class="property">Current Map: </div><div class="value">${name}</div></li>`)
             }
             if (info.rules) {
                 const rules = []
@@ -709,6 +801,10 @@
                 return false
             }
 
+            if (checkLatestOnly.is(":checked") && server?.gamestate?.decoded?.version !== LATEST_SERVER_VERSION) {
+                return false
+            }
+
             if (checkHideEmpty.is(":checked") && server.players === 0 && !favorites.includes(server.query) && !server.hasOwnProperty("last_success")) {
                 // console.log(`empty [${server.players}] ${server.name}`)
                 return false
@@ -764,7 +860,7 @@
 
             if (checkMapKeywords.is(":checked")) {
                 const terms = mapWordsTextbox.val().split(",")
-                const map = mapName[server.map] || server.map;
+                const map = gs.determineDisplayMapName(server) || server.map;
                 let containsAny = false
                 let checkedAny = false
                 for (let i = 0; i < terms.length; i++) {
@@ -886,62 +982,9 @@
             }
         }, 100);
 
-        const night = `<span class='night'>Night</span>`
-        const mapName = {
-            CT: `Carentan`,
-            CT_N: `Carentan ${night}`,
-            Driel: `Driel`,
-            Driel_N: `Driel ${night}`,
-            Driel_Day: `Driel Offensive`,
-            elalamein: `El Alamein`,
-            elalamein_N: `El Alamein ${night}`,
-            Foy: `Foy`,
-            Foy_N: `Foy ${night}`,
-            Hill400: `Hill 400`,
-            Hill400_N: `Hill 400 ${night}`,
-            Hurtgen: `Hurtgen Forest`,
-            Hurtgen_N: `Hurtgen Forest ${night}`,
-            Kharkov: `Kharkov`,
-            Kharkov_N: `Kharkov ${night}`,
-            Kursk: `Kursk`,
-            Kursk_N: `Kursk ${night}`,
-            Mortain: `Mortain`,
-            Mortain_O: `Mortain Overcast`,
-            Omaha: `Omaha Beach`,
-            Omaha_N: `Omaha Beach ${night}`,
-            PHL: `Purple Heart Lane`,
-            PHL_N: `Purple Heart Lane ${night}`,
-            Remagen: `Remagen`,
-            Remagen_N: `Remagen ${night}`,
-            Stalin: `Stalingrad`,
-            Stalin_N: `Stalingrad ${night}`,
-            StMarie: `St Marie du Mont (SMDM)`,
-            StMarie_N: `St Marie du Mont (SMDM) ${night}`,
-            SME: `St Mere Eglise (SME)`,
-            SME_N: `St Mere Eglise (SME) ${night}`,
-            Utah: `Utah Beach`,
-            Utah_N: `Utah Beach ${night}`,
-            DEV_C_Day_SKM: `Driel Skirmish Day`,
-            DEV_C_Night_SKM: `Driel Skirmish ${night}`,
-            DEV_C_SKM: `Driel Skirmish Dusk`,
-            DEV_D_Day_SKM: `El Alamein Skirmish Day`,
-            DEV_D_Night_SKM: `El Alamein Skirmish ${night}`,
-            DEV_D_SKM: `El Alamein Skirmish Dusk`,
-            DEV_F_DAY_SKM: `Carentan Skirmish Day`,
-            DEV_F_DUSK_SKM: `Carentan Skirmish Dusk`,
-            DEV_F_RAIN_SKM: `Carentan Skirmish Rain`,
-            DEV_I_SKM: `St Mere Eglise (SME) Skirmish`,
-            DEV_I_MORNING_SKM: `St Mere Eglise (SME) Skirmish Dawn`,
-            DEV_I_NIGHT_SKM: `St Mere Eglise (SME) Skirmish Night`,
-            DEV_M_Night_SKM: `St Maria du Mont (SMDM) Skirmish ${night}`,
-            DEV_M_Rain_SKM: `St Maria du Mont (SMDM) Skirmish Rain`,
-            DEV_M_SKM: `St Maria du Mont (SMDM) Skirmish`,
-            Mortain_SKM_Day: `Mortain Skirmish Day`,
-            Mortain_SKM_Overcast: `Mortain Skirmish Overcast`,
-        }
+        function getMapImage(name) {
+            name = name || "";
 
-        function getMapImage(map) {
-            const name = mapName[map] || "";
             if (name.includes("Carentan")) {
                 return "carentan.webp"
             } else if (name.includes("Foy")) {
@@ -983,6 +1026,9 @@
             const baseUrl = location.origin + location.pathname;
             const params = []
 
+            if (!checkLatestOnly.is(":checked")) {
+                params.push("latest_only=false")
+            }
             if (checkHideEmpty.is(":checked")) {
                 params.push("hide_e=true")
             }
@@ -1020,6 +1066,10 @@
             query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
         }
 
+        if (query.hasOwnProperty("latest_only")) {
+            checkLatestOnly.prop("checked", query.latest_only.toLowerCase() === "true")
+            checkLatestOnly.trigger("change")
+        }
         if (query.hasOwnProperty("hide_pw")) {
             checkHidePassworded.prop("checked", !(query.hide_pw.toLowerCase() === "false"))
             checkHidePassworded.trigger("change")
@@ -1102,6 +1152,7 @@
                 return "Err: " + base64
             }
         }
+
         const hex2bin = (hex) => hex.split('').map(i =>
             parseInt(i, 16).toString(2).padStart(4, '0')).join('');
 
@@ -1148,6 +1199,7 @@
                 live = []
 
                 message.failures.forEach(server => message.servers.push(server));
+                unknownMapNames = Object.keys(message.unknown_maps) || []
 
                 let totalPlayers = 0;
                 let officialPlayers = 0;
@@ -1213,8 +1265,10 @@
 
                     server.connect_url = connectUrl
 
-                    let map = mapName.hasOwnProperty(server.map) ? mapName[server.map] :
-                        `<span class='unknown_map'>${server.map}</span>`
+                    let map = gs.determineDisplayMapName(server)
+                    if (!map || unknownMapNames.includes(server.map)) {
+                        map = `<span class='unknown_map'>${server.map}</span>`
+                    }
                     if (server.status.includes("O")) {
                         map = "Offline"
                     }
@@ -1267,18 +1321,32 @@
                         if (crossplayIs(server, "true")) {
                             crossplayOn += 1;
                             tooltipText = "Crossplay enabled: Steam + Windows Store"
-                            text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i> Enabled</span>"
+                            text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-check2\"></i></span>"
                         } else if (crossplayIs(server, "false")) {
                             crossplayOff += 1;
                             tooltipText = "Crossplay disabled: Steam only or Windows Store only"
-                            text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i> Disabled</span>"
+                            text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-x-lg\"></i></span>"
                         } else {
                             crossplayUnknown += 1;
                             tooltipText = "Crossplay unknown"
-                            text = "<span class='crossplay unknown'><i class=\"bi bi-controller\"></i> Unknown</span>"
+                            text = "<span class='crossplay unknown'><i class=\"bi bi-controller\"></i><i class=\"bi bi-question-lg\"></i></span>"
                         }
 
                         crossplay = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+                    }
+
+                    const version = server?.gamestate?.decoded?.version;
+                    let wrongVersion = ""
+                    if (version && LATEST_SERVER_VERSION !== version) {
+                        let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${version}</span>`
+                        let tooltipText = `Server version does not match. This server is not joinable.`
+                        wrongVersion = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+                    }
+
+                    let queues = ""
+                    if (server?.gamestate?.decoded) {
+                        const decoded = server?.gamestate?.decoded;
+                        queues = `(${decoded?.currentVip}/${decoded?.maxVip}) VIP slots, (${decoded?.currentQueue} / ${decoded?.maxQueue}) in QUEUE`
                     }
 
                     let offline_time = ""
@@ -1369,7 +1437,7 @@
                                 },
                                 `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                                     <div style="display:inline-block; height: 0px">
-                                        <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.map)}">
+                                        <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(map)}">
                                     </div>
                                     <div style="display:inline-block">
                                         ${server.name}<br>
@@ -1411,7 +1479,7 @@
                         // server title and map
                         `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                             <div style="display:inline-block; height: 0px">
-                                <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.map)}">
+                                <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(map)}">
                             </div>
                             <div style="display:inline-block">
                                 ${server.name}<br>
@@ -1419,6 +1487,7 @@
                                     <span class="map-name">${map}</span>
                                     ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
                                     ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
+                                    ${wrongVersion ? "<span class='separator'></span><span class='separator'></span>" + wrongVersion : ""}
                                 </small>
                                 ${server.whois ? `<br>` + (server.whois.match("netname:.+\n") || [""])[0].replace('\n', '') : ""}
                                 ${server.whois ? `<br>` + (server.whois.match("country:.+\n") || [""])[0].replace('\n', '') : ""}

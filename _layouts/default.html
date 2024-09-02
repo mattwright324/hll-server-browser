@@ -137,6 +137,13 @@
             </div>
 
             <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="latest-only" checked>
+                <label class="form-check-label" for="latest-only">
+                    Latest server version only (v15.2)
+                </label>
+            </div>
+
+            <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="" id="hide-empty">
                 <label class="form-check-label" for="hide-empty">
                     Hide empty servers
@@ -240,17 +247,12 @@
         Things I wish were possible but are not:
     </p>
     <ul class="text-muted">
-        <li>The map name from steam does not differentiate between offensive and warfare and there is no game mode returned anywhere.</li>
         <li>I can only guess how much time is left when the query detects a map change. There is no game mode and no game time returned by the server.</li>
         <li>
             HLL does not use Steam region filters so the only way is to go off region/lang terms (or lack of) in server names.
             Free geo-ip is not reliable - several times I have seen US servers reported as outside the US.
         </li>
         <li>Since the server queries are centralized, I cannot display ping as it would be different for everyone.</li>
-        <li>
-            There is no detail on queue status. It has to operate on the assumption of the standard 2 vip slots and 6 queue slots.
-            When factoring that in, a player count of 91 should guarantee an instant join without a queue.
-        </li>
     </ul>
     <br>
 </div>

@@ -460,3 +460,6 @@ html.dark .btn-outline-primary {
 .bit-table td {
     padding: 0 5px;
 }
+.wrong-version {
+    color: orange;
+}
