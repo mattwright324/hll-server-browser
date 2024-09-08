@@ -61,7 +61,9 @@
                 SME: "St Mere Eglise (SME)",
                 DEV_I: "St Mere Eglise (SME)",
                 PHL: "Purple Heart Lane",
+                DEV_K: "Purple Heart Lane",
                 Hill400: "Hill 400",
+                DEV_H: "Hill 400",
                 CT: "Carentan",
                 DEV_F: "Carentan",
                 Kursk: "Kursk",
@@ -73,6 +75,7 @@
                 Driel: "Driel",
                 DEV_C: "Driel",
                 Mortain: "Mortain",
+                DEV_Z: "Mortain"
             },
 
             determineDisplayMapName: function (server) {
@@ -672,13 +675,12 @@
                     }
                     details.push(`<li><div class="property">Platform Count: </div><div class="value"><i class="bi bi-steam mr-4"></i> ${serverSteam} : <i class="bi bi-windows mr-4"></i> ${serverWin}</div></li>`)
                 }
-                let name = gs.determineDisplayMapName(info)
-                if (!name || unknownMapNames.includes(info.map)) {
-                    name = `<span class='unknown_map'>${info.map}</span>`
-                } else {
-                    name += ` — ${info.map}`
+                let gsMap = gs.determineDisplayMapName(info)
+                let mapDisplay = gsMap ? gsMap + " — " + info.map : info.map
+                if (unknownMapNames.includes(info.map)) {
+                    mapDisplay = `<span class='unknown_map'>${mapDisplay}</span>`
                 }
-                details.push(`<li><div class="property">Current Map: </div><div class="value">${name}</div></li>`)
+                details.push(`<li><div class="property">Current Map: </div><div class="value">${mapDisplay}</div></li>`)
             }
             if (info.rules) {
                 const rules = []
@@ -801,7 +803,7 @@
                 return false
             }
 
-            if (checkLatestOnly.is(":checked") && server?.gamestate?.decoded?.version !== LATEST_SERVER_VERSION) {
+            if (checkLatestOnly.is(":checked") && server?.gamestate && server?.gamestate?.decoded?.version !== LATEST_SERVER_VERSION) {
                 return false
             }
 
@@ -1266,8 +1268,8 @@
                     server.connect_url = connectUrl
 
                     let map = gs.determineDisplayMapName(server)
-                    if (!map || unknownMapNames.includes(server.map)) {
-                        map = `<span class='unknown_map'>${server.map}</span>`
+                    if (unknownMapNames.includes(server.map)) {
+                        map = `<span class='unknown_map'>${map || server.map}</span>`
                     }
                     if (server.status.includes("O")) {
                         map = "Offline"
@@ -1290,21 +1292,21 @@
 
                         let tooltipText;
                         let text;
-                        if (server.map.includes("SKM")) {
+                        if (map.includes("Warfare") && duration.asMinutes() <= 92) {
+                            tooltipText = "Map time remaining<br>(Warfare)"
+                            text = `${formatDuration(warfareDurationUntilEnd, true)} left`
+                        } else if (map.includes("Skirmish") && duration.asMinutes() <= 32) {
                             tooltipText = "Map time remaining<br>(Skirmish)"
                             text = `${formatDuration(skirmishDurationUntilEnd, true)} left`
-                        } else if (duration.asMinutes() <= 92) {
-                            tooltipText = "Map time remaining<br>(if warfare)"
-                            text = `${formatDuration(warfareDurationUntilEnd, true)} left`
-                        } else if (duration.asMinutes() <= 152) {
-                            tooltipText = "Time passed 1h 30m"
-                            text = "Offensive"
+                        } else if (map.includes("Offensive") && duration.asMinutes() <= 152) {
+                            tooltipText = "Map time elapsed<br>(Offensive)"
+                            text = `${formatDuration(duration, true)} elapsed`
                         } else {
-                            tooltipText = "Passed maximum possible runtime of 2h 30m (offensive)"
-                            text = "Unknown"
+                            tooltipText = "Map time elapsed<br>Same map more than once?"
+                            text = `<span style="color:darkgoldenrod">${formatDuration(duration, true)} elapsed</span>`
                         }
 
-                        runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+                        runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}"><i class="bi bi-clock-history"></i> ${text}</span>`
                     }
 
                     totalServers += 1;
@@ -1446,12 +1448,21 @@
                                             ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
                                             ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
                                         </small>
-                                        ${server.whois ? `<br>` + (server.whois.match("netname:.+\n") || [""])[0].replace('\n', '') : ""}
-                                        ${server.whois ? `<br>` + (server.whois.match("country:.+\n") || [""])[0].replace('\n', '') : ""}
                                     </div>
                                  </div>`,
                             ])
                         }
+                    }
+
+                    const serverDetails = [`<span class="map-name">${map}</span>`]
+                    if (offline_time || runtime) {
+                        serverDetails.push(offline_time || runtime)
+                    }
+                    if (crossplay) {
+                        serverDetails.push(crossplay)
+                    }
+                    if (wrongVersion) {
+                        serverDetails.push(wrongVersion)
                     }
 
                     rows.push([
@@ -1484,13 +1495,8 @@
                             <div style="display:inline-block">
                                 ${server.name}<br>
                                 <small class="text-muted">
-                                    <span class="map-name">${map}</span>
-                                    ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
-                                    ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
-                                    ${wrongVersion ? "<span class='separator'></span><span class='separator'></span>" + wrongVersion : ""}
+                                    ${serverDetails.join("<span class='separator'></span>")}
                                 </small>
-                                ${server.whois ? `<br>` + (server.whois.match("netname:.+\n") || [""])[0].replace('\n', '') : ""}
-                                ${server.whois ? `<br>` + (server.whois.match("country:.+\n") || [""])[0].replace('\n', '') : ""}
                             </div>
                          </div>`,
                         // vip button
