@@ -675,8 +675,7 @@
                     }
                     details.push(`<li><div class="property">Platform Count: </div><div class="value"><i class="bi bi-steam mr-4"></i> ${serverSteam} : <i class="bi bi-windows mr-4"></i> ${serverWin}</div></li>`)
                 }
-                let gsMap = gs.determineDisplayMapName(info)
-                let mapDisplay = gsMap ? gsMap + " — " + info.map : info.map
+                let mapDisplay = info.mapDisplay ? info.mapDisplay + " — " + info.map : info.map
                 if (unknownMapNames.includes(info.map)) {
                     mapDisplay = `<span class='unknown_map'>${mapDisplay}</span>`
                 }
@@ -1267,12 +1266,15 @@
 
                     server.connect_url = connectUrl
 
-                    let map = gs.determineDisplayMapName(server)
+                    server.mapDisplay = gs.determineDisplayMapName(server);
+                    server.mapDisplayHtml = server.mapDisplay
                     if (unknownMapNames.includes(server.map)) {
-                        map = `<span class='unknown_map'>${map || server.map}</span>`
+                        server.mapDisplay = server.mapDisplay || server.map;
+                        server.mapDisplayHtml = `<span class='unknown_map'>${server.mapDisplay}</span>`
                     }
                     if (server.status.includes("O")) {
-                        map = "Offline"
+                        server.mapDisplay = "Offline";
+                        server.mapDisplayHtml = server.mapDisplay
                     }
 
                     const statuses = server.status.split("");
@@ -1292,13 +1294,13 @@
 
                         let tooltipText;
                         let text;
-                        if (map.includes("Warfare") && duration.asMinutes() <= 92) {
+                        if (server.mapDisplay.includes("Warfare") && duration.asMinutes() <= 92) {
                             tooltipText = "Map time remaining<br>(Warfare)"
                             text = `${formatDuration(warfareDurationUntilEnd, true)} left`
-                        } else if (map.includes("Skirmish") && duration.asMinutes() <= 32) {
+                        } else if (server.mapDisplay.includes("Skirmish") && duration.asMinutes() <= 32) {
                             tooltipText = "Map time remaining<br>(Skirmish)"
                             text = `${formatDuration(skirmishDurationUntilEnd, true)} left`
-                        } else if (map.includes("Offensive") && duration.asMinutes() <= 152) {
+                        } else if (server.mapDisplay.includes("Offensive") && duration.asMinutes() <= 152) {
                             tooltipText = "Map time elapsed<br>(Offensive)"
                             text = `${formatDuration(duration, true)} elapsed`
                         } else {
@@ -1439,12 +1441,12 @@
                                 },
                                 `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                                     <div style="display:inline-block; height: 0px">
-                                        <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(map)}">
+                                        <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay)}">
                                     </div>
                                     <div style="display:inline-block">
                                         ${server.name}<br>
                                         <small class="text-muted">
-                                            <span class="map-name">${map}</span>
+                                            <span class="map-name">${server.mapDisplayHtml}</span>
                                             ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
                                             ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
                                         </small>
@@ -1454,7 +1456,7 @@
                         }
                     }
 
-                    const serverDetails = [`<span class="map-name">${map}</span>`]
+                    const serverDetails = [`<span class="map-name">${server.mapDisplayHtml}</span>`]
                     if (offline_time || runtime) {
                         serverDetails.push(offline_time || runtime)
                     }
@@ -1490,7 +1492,7 @@
                         // server title and map
                         `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                             <div style="display:inline-block; height: 0px">
-                                <img class="map-icon ${map.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(map)}">
+                                <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay)}">
                             </div>
                             <div style="display:inline-block">
                                 ${server.name}<br>
