@@ -4,9 +4,12 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        // 572092818: v15.2
-        const LATEST_SERVER_VERSION = 572092818;
+        const LATEST_SERVER_VERSION = 1945600328;
         const gs = {
+            serverVersion: {
+                572092818: "v15.2",
+                1945600328: "v15.2.1"
+            },
             mapDecode: {
                 1: "Foy",
                 2: "St Marie du Mont (SMDM)",
