@@ -56,11 +56,14 @@
 
             steamMapStartsWith: {
                 Foy: "Foy",
+                DEV_B: "Foy",
                 StMarie: "St Marie du Mont (SMDM)",
                 DEV_M: "St Marie du Mont (SMDM)",
+                DEV_E: "Brecourt (SMDM)",
                 Hurtgen: "Hurtgen",
                 Utah: "Utah Beach",
                 Omaha: "Omaha Beach",
+                DEV_L: "Omaha Beach",
                 SME: "St Mere Eglise (SME)",
                 DEV_I: "St Mere Eglise (SME)",
                 PHL: "Purple Heart Lane",
@@ -72,12 +75,15 @@
                 Kursk: "Kursk",
                 Stalin: "Stalingrad",
                 Remagen: "Remagen",
+                DEV_J: "Remagen",
                 Kharkov: "Kharkov",
+                DEV_A: "Kharkov",
                 elalamein: "El Alamein",
                 DEV_D: "El Alamein",
                 Driel: "Driel",
                 DEV_C: "Driel",
                 Mortain: "Mortain",
+                DEV_G: "Mortain",
                 DEV_Z: "Mortain"
             },
 
