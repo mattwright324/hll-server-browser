@@ -544,7 +544,7 @@
                 checkIgnore: true,
                 ignore: commonIgnore,
                 checkOnly: true,
-                only: "hll official"
+                only: "$hll_official$"
             },
             "other": {
                 checkIgnore: true,
@@ -800,6 +800,12 @@
             "$regex_cn$": /([\u4e00-\u9fff\u3400-\u4dbf\ufa0e\ufa0f\ufa11\ufa13\ufa14\ufa1f\ufa21\ufa23\ufa24\ufa27\ufa28\ufa29\u3006\u3007]|[\ud840-\ud868\ud86a-\ud879\ud880-\ud887][\udc00-\udfff]|\ud869[\udc00-\udedf\udf00-\udfff]|\ud87a[\udc00-\udfef]|\ud888[\udc00-\udfaf])([\ufe00-\ufe0f]|\udb40[\udd00-\uddef])?/g
         }
 
+        const customChecks = {
+            "$hll_official$": function (server) {
+                return server?.gamestate?.decoded?.isOfficial || server?.name?.toLowerCase().includes("hll official");
+            }
+        }
+
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             if (settings.sInstance !== "server-table") {
                 return true
@@ -841,6 +847,9 @@
                     if (term && termRegexes.hasOwnProperty(term) && server.name.match(termRegexes[term])) {
                         return false
                     }
+                    if (term && customChecks.hasOwnProperty(term) && customChecks[term](server)) {
+                        return false
+                    }
                 }
             }
 
@@ -862,6 +871,10 @@
                         containsAny = true
                         break
                     }
+                    if (term && customChecks.hasOwnProperty(term) && customChecks[term](server)) {
+                        containsAny = true
+                        break
+                    }
                 }
                 if (checkedAny && !containsAny) {
                     return false
@@ -870,7 +883,7 @@
 
             if (checkMapKeywords.is(":checked")) {
                 const terms = mapWordsTextbox.val().split(",")
-                const map = gs.determineDisplayMapName(server) || server.map;
+                const map = server.mapDisplay;
                 let containsAny = false
                 let checkedAny = false
                 for (let i = 0; i < terms.length; i++) {
@@ -884,6 +897,10 @@
                         break
                     }
                     if (term && termRegexes.hasOwnProperty(term) && map.match(termRegexes[term])) {
+                        containsAny = true
+                        break
+                    }
+                    if (term && customChecks.hasOwnProperty(term) && customChecks[term](server)) {
                         containsAny = true
                         break
                     }
@@ -1387,6 +1404,8 @@
                     }
 
                     tooltipPlayers = tooltipPlayers.replaceAll('"', '&quot;')
+                        .replaceAll('[', '')
+                        .replaceAll(']', '')
 
                     totalPlayers += server.players;
                     if (server.name.startsWith("HLL Official")) {
