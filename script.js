@@ -32,7 +32,7 @@
                 2: "Warfare",
                 3: "Offensive",
                 7: "Skirmish",
-                10: "Objective?"
+                // 10: "Objective", // Maybe?
             },
             offAttackSide: {
                 0: "GER",
@@ -84,7 +84,8 @@
                 DEV_C: "Driel",
                 Mortain: "Mortain",
                 DEV_G: "Mortain",
-                DEV_Z: "Mortain"
+                DEV_Z: "Mortain",
+                DEV_N: "Elsenborn",
             },
 
             determineDisplayMapName: function (server) {
@@ -148,8 +149,10 @@
 
         let unknownMapNames = [];
 
-        const serverTable = $("#server-table").DataTable({
-            dom: "i",
+        const serverTable = new DataTable("#server-table", {
+            layout: {
+                topStart: 'info'
+            },
             columns: [
                 {
                     title: "IP",
@@ -183,7 +186,7 @@
                 {
                     title: "Players",
                     type: "num",
-                    className: "dt-nowrap  dt-center",
+                    className: "dt-nowrap dt-center",
                     render: {
                         _: 'display',
                         sort: 'num'
@@ -193,7 +196,7 @@
                 {
                     title: "<i class='bi bi-award' title='VIP'></i>",
                     type: "num",
-                    className: "dt-nowrap  dt-center",
+                    className: "dt-nowrap dt-center",
                     render: {
                         _: 'display',
                         sort: 'num'
@@ -202,7 +205,7 @@
                 {
                     title: "<i class='bi bi-star-half' title='Favorite'></i>",
                     type: "num",
-                    className: "dt-nowrap  dt-center",
+                    className: "dt-nowrap dt-center",
                     render: {
                         _: 'display',
                         sort: 'num'
@@ -320,7 +323,7 @@
             }
         });
 
-        const findPlayerTable = $("#find-players-table").DataTable({
+        const findPlayerTable = new DataTable("#find-players-table", {
             columns: [
                 {
                     title: "Player",
@@ -330,7 +333,7 @@
                 {
                     title: "Duration",
                     type: "num",
-                    className: "dt-nowrap",
+                    className: "dt-nowrap dt-left",
                     render: {
                         _: 'display',
                         sort: 'num'
@@ -362,8 +365,11 @@
             bDeferRender: true,
         });
 
-        const winPlayerServerTable = $("#winplayer-server-table").DataTable({
-            dom: "i",
+        const winPlayerServerTable = new DataTable("#winplayer-server-table", {
+            layout: {
+                topStart: 'info'
+            },
+            paging: false,
             columns: [
                 {
                     title: "Players",
@@ -605,8 +611,11 @@
 
         const infoModal = $("#infoModal");
         const divAdditionalInfo = $("#additional-info");
-        const playersTable = $("#player-table").DataTable({
-            dom: "i",
+        const playersTable = new DataTable("#player-table", {
+            layout: {
+                topStart: 'info'
+            },
+            paging: false,
             columns: [
                 {
                     title: "Name",
@@ -657,7 +666,9 @@
             infoModal.find(".join-link").attr("href", info.connect_url);
 
             const details = []
-            details.push(`<li><div class="property">Server IP: </div><div class="value">${info.query.split(":")[0]}</div></li>`)
+            const serverIp = info.query.split(":")[0];
+            const bmSearchLink = `<a target="_blank" href="https://www.battlemetrics.com/servers/search?q=%22${serverIp}%22&sort=score&status=online">Search for other servers on the same box (BattleMetrics)</a>`
+            details.push(`<li><div class="property">Server IP: </div><div class="value">${serverIp}</div><ul><li>${bmSearchLink}</li></ul></li>`)
             details.push(`<li><div class="property">Query Port: </div><div class="value">${info.query}</div></li>`)
             const statuses = info.status.split("");
             const statusLines = []
@@ -802,7 +813,7 @@
 
         const customChecks = {
             "$hll_official$": function (server) {
-                return server?.gamestate?.decoded?.isOfficial || server?.name?.toLowerCase().includes("hll official");
+                return server?.gamestate?.decoded?.isOfficial;
             }
         }
 
@@ -1202,7 +1213,7 @@
             return copy;
         }
 
-        let socket = io('https://hell-let-loose-servers-cc54717d86be.herokuapp.com/');
+        let socket = io('https://hllsb-socket.apps.mattw.io/');
         // let socket = io('localhost:3000');
 
         let scrolledToFindPlayerTable = false;
@@ -1238,12 +1249,17 @@
                 let winOfficialPlayers = 0;
                 let winCommunityPlayers = 0;
                 let platformUnknownPlayers = 0;
+
                 let totalServers = 0;
                 let officialServers = 0;
                 let communityServers = 0;
                 let crossplayOn = 0;
                 let crossplayOff = 0;
                 let crossplayUnknown = 0;
+
+                let mapCounts = {}
+                let modeCounts = {}
+                let versionCounts = {}
 
                 const findPlayersRows = []
                 const rows = [];
@@ -1338,11 +1354,56 @@
                     }
 
                     totalServers += 1;
-                    if (server.name.startsWith("HLL Official")) {
-                        officialServers += 1
+                    if (server?.gamestate?.decoded?.isOfficial) {
+                        officialServers += 1;
                     } else {
                         communityServers += 1;
                     }
+
+                    if (!statuses.includes("O")) {
+                        const gsMap = server?.gamestate?.decoded?.map;
+                        const mapDecoded = gs.mapDecode[gsMap] || "Unknown (dev/old)";
+                        if (!mapCounts.hasOwnProperty(mapDecoded)) {
+                            mapCounts[mapDecoded] = {
+                                servers: 1,
+                                players: server?.players,
+                                list: [server]
+                            }
+                        } else {
+                            mapCounts[mapDecoded].servers += 1
+                            mapCounts[mapDecoded].players += server?.players
+                            mapCounts[mapDecoded].list.push(server)
+                        }
+
+                        const gsMode = server?.gamestate?.decoded?.gamemode;
+                        const modeDecoded = gs.modeDecode[gsMode] || "Unknown (dev/new)";
+                        if (!modeCounts.hasOwnProperty(modeDecoded)) {
+                            modeCounts[modeDecoded] = {
+                                servers: 1,
+                                players: server?.players,
+                                list: [server]
+                            }
+                        } else {
+                            modeCounts[modeDecoded].servers += 1
+                            modeCounts[modeDecoded].players += server?.players
+                            modeCounts[modeDecoded].list.push(server)
+                        }
+
+                        const gsVersion = server?.gamestate?.decoded?.version;
+                        const versionDecoded = gs.serverVersion[gsVersion] || "Unknown (dev/old)";
+                        if (!versionCounts.hasOwnProperty(versionDecoded)) {
+                            versionCounts[versionDecoded] = {
+                                servers: 1,
+                                players: server?.players,
+                                list: [server]
+                            }
+                        } else {
+                            versionCounts[versionDecoded].servers += 1
+                            versionCounts[versionDecoded].players += server?.players
+                            versionCounts[versionDecoded].list.push(server)
+                        }
+                    }
+
 
                     let crossplay = ""
                     if (server.hasOwnProperty("rules")) {
@@ -1571,6 +1632,34 @@
                     return Number(Number(x / total).toFixed(4) * 100).toFixed(2)
                 }
 
+                function sortObjectDesc(obj) {
+                    var arr = [];
+                    for (var prop in obj) {
+                        if (obj.hasOwnProperty(prop)) {
+                            arr.push({
+                                'key': prop,
+                                'value': obj[prop]
+                            });
+                        }
+                    }
+                    arr.sort(function(a, b) { return (b.value.players + b.value.servers) - (a.value.players + a.value.servers); });
+                    return arr;
+                }
+                mapCounts = sortObjectDesc(mapCounts)
+                modeCounts = sortObjectDesc(modeCounts)
+                versionCounts = sortObjectDesc(versionCounts)
+
+                // console.log(mapCounts, modeCounts, versionCounts)
+
+                function makeList(groupTitle, list) {
+                    const listItems = []
+                    list.forEach((item) => {
+                        listItems.push(`<li>${item.key} &mdash; ${item.value.players} players, ${item.value.servers} servers</li>`)
+                    })
+
+                    return `<li>${groupTitle}<ul>${listItems.join("")}</ul></li>`
+                }
+
                 $("#player-stats").html(`
                     <li>${totalPlayers} total players
                         <ul>
@@ -1605,6 +1694,10 @@
                             <li>${communityServers} community servers (${percent(communityServers, totalServers)}%)</li>
                         </ul>
                     </li>
+                    
+                    ${makeList("Mode Breakdown", modeCounts)}
+                    ${makeList("Map Breakdown", mapCounts)}
+                    ${makeList("Server Version Breakdown", versionCounts)}
                 `)
                 initTooltip()
                 tryUpdateInfoModal()

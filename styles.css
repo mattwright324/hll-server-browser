@@ -22,11 +22,6 @@ body {
     font-size: 22px;
 }
 
-html.dark .accordion-button:not(.collapsed) {
-    color: inherit !important;
-    background-color: inherit !important;
-}
-
 canvas {
     /*border: 2px rgba(127,127,127,0.25) dashed;*/
     border-radius: 5px;
@@ -171,24 +166,6 @@ button.loading .countdown, button.loading .spinner {
     background-color: gray;
 }
 
-/* Dark mode tweaks */
-html.dark .tag {
-    background-color: royalblue;
-}
-
-html.dark .btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-html.dark a, html.dark .btn-link {
-    color: lightskyblue;
-}
-
-html.dark .progress-bar {
-    color: #fff;
-}
-
 .session-panel {
     padding: 10px;
     border-radius: 5px;
@@ -275,11 +252,6 @@ html.dark .progress-bar {
 
 table.dataTable tbody td {
     vertical-align: middle;
-}
-
-html.dark .btn-outline-primary {
-    color: #0d6efd;
-    outline-color: #0d6efd;
 }
 
 .badge.S, .badge.S.L, .badge.S.E {
@@ -375,23 +347,23 @@ html.dark .btn-outline-primary {
 }
 
 #join-seeding {
+    border: 1px solid greenyellow;
     color: greenyellow;
-    border-color: greenyellow;
 }
 #join-seeding::before {
     background-image: url("./seeding.webp");
 }
 
 #join-populated {
+    border: 1px solid deepskyblue;
     color: deepskyblue;
-    border-color: deepskyblue;
 }
 #join-populated::before {
     background-image: url("./populated.webp");
 }
 #join-any {
+    border: 1px solid magenta;
     color: magenta;
-    border-color: magenta;
 }
 #join-any::before {
     background-image: url("./any.png");
@@ -462,4 +434,16 @@ html.dark .btn-outline-primary {
 }
 .wrong-version {
     color: orange;
+}
+
+.dt-center {
+    text-align: center !important;
+}
+
+.dt-left {
+    text-align: left !important;
+}
+
+.dt-container .row > * {
+    padding: 0;
 }
