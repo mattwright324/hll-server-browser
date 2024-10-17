@@ -4,11 +4,12 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        const LATEST_SERVER_VERSION = 1945600328;
+        const LATEST_SERVER_VERSION = 2386721110;
         const gs = {
             serverVersion: {
                 572092818: "v15.2",
-                1945600328: "v15.2.1"
+                1945600328: "v15.2.1",
+                2386721110: "v15.3",
             },
             mapDecode: {
                 1: "Foy",
