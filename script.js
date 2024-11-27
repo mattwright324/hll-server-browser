@@ -4,12 +4,13 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        const LATEST_SERVER_VERSION = 2386721110;
+        const LATEST_SERVER_VERSION = 3988232635;
         const gs = {
             serverVersion: {
                 572092818: "v15.2",
                 1945600328: "v15.2.1",
                 2386721110: "v15.3",
+                3988232635: "v16"
             },
             mapDecode: {
                 1: "Foy",
@@ -28,6 +29,7 @@
                 14: "El Alamein",
                 15: "Driel",
                 16: "Mortain",
+                17: "Elsenborn",
             },
             modeDecode: {
                 2: "Warfare",
@@ -46,7 +48,8 @@
             weatherDecode: {
                 1: "Clear",
                 2: "Overcast",
-                3: "Rain"
+                3: "Rain",
+                4: "Snow"
             },
             timeOfDayDecode: {
                 1: "Day",
@@ -87,6 +90,8 @@
                 DEV_G: "Mortain",
                 DEV_Z: "Mortain",
                 DEV_N: "Elsenborn",
+                DEN_O: "Tobruk",
+                DEV_P: "Juno Beach",
             },
 
             determineDisplayMapName: function (server) {
@@ -116,11 +121,13 @@
                         displayMap += " " + this.offAttackSide[gsOffAttkSide];
                     }
                     let modifiers = []
-                    if (gsTimeOfDay && gsTimeOfDay !== 1) {
-                        modifiers.push(this.timeOfDayDecode[gsTimeOfDay]);
+                    const timeOfDay = this.timeOfDayDecode[gsTimeOfDay];
+                    if (timeOfDay && gsTimeOfDay !== 1) {
+                        modifiers.push(timeOfDay);
                     }
-                    if (gsWeather && gsWeather !== 1) {
-                        modifiers.push(this.weatherDecode[gsWeather])
+                    const weather = this.weatherDecode[gsWeather]
+                    if (weather && gsWeather !== 1) {
+                        modifiers.push(weather)
                     }
                     if (modifiers.length) {
                         displayMap += ` (${modifiers.join(", ")})`
@@ -668,8 +675,9 @@
 
             const details = []
             const serverIp = info.query.split(":")[0];
-            const bmSearchLink = `<a target="_blank" href="https://www.battlemetrics.com/servers/search?q=%22${serverIp}%22&sort=score&status=online">Search for other servers on the same box (BattleMetrics)</a>`
-            details.push(`<li><div class="property">Server IP: </div><div class="value">${serverIp}</div><ul><li>${bmSearchLink}</li></ul></li>`)
+            const searchLink1 = `<a target="_blank" href="https://api.steampowered.com/ISteamApps/GetServersAtAddress/v1/?addr=${serverIp}">Search for other servers on the same box (SteamAPI)</a>`
+            const searchLink2 = `<a target="_blank" href="https://www.battlemetrics.com/servers/search?q=%22${serverIp}%22&sort=score&status=online">Search for other servers on the same box (BattleMetrics)</a>`
+            details.push(`<li><div class="property">Server IP: </div><div class="value">${serverIp}</div><ul><li>${searchLink1}</li><li>${searchLink2}</li></ul></li>`)
             details.push(`<li><div class="property">Query Port: </div><div class="value">${info.query}</div></li>`)
             const statuses = info.status.split("");
             const statusLines = []
@@ -1017,12 +1025,16 @@
                 const diff = moment().diff(moment(lastUpdatedTime));
                 const duration = moment.duration(diff);
                 const time = formatDuration(duration)
-                $("#last-updated").text(time + " ago")
+                $(".last-updated").text(time + " ago")
             }
         }, 100);
 
-        function getMapImage(name) {
+        function getMapImage(name, status) {
             name = name || "";
+
+            if (status.includes("O")) {
+                return "offline.jpg"
+            }
 
             if (name.includes("Carentan")) {
                 return "carentan.webp"
@@ -1056,6 +1068,8 @@
                 return "utahbeach.webp"
             } else if (name.includes("Mortain")) {
                 return "mortain.webp"
+            } else if (name.includes("Elsenborn")) {
+                return "elsenborn.webp"
             } else {
                 return "unknown.jpg"
             }
@@ -1304,7 +1318,6 @@
                     }
 
                     const query = server.query;
-                    const game = `${server.query.split(":")[0]}:${server.port}`
                     const connectUrl = `steam://connect/${query}?appid=686810`;
 
                     server.connect_url = connectUrl
@@ -1352,6 +1365,11 @@
                         }
 
                         runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}"><i class="bi bi-clock-history"></i> ${text}</span>`
+
+                        // Server died and the map likely won't change anytime soon
+                        if (duration.asHours() >= 4 && server.players === 0) {
+                            runtime = ""
+                        }
                     }
 
                     totalServers += 1;
@@ -1430,9 +1448,16 @@
                     const version = server?.gamestate?.decoded?.version;
                     let wrongVersion = ""
                     if (version && LATEST_SERVER_VERSION !== version) {
-                        let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${version}</span>`
-                        let tooltipText = `Server version does not match. This server is not joinable.`
+                        let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${gs.serverVersion[version] || version}</span>`
+                        let tooltipText = `Server version does not match latest. This server is not joinable.`
                         wrongVersion = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+                    }
+
+                    let wrongGameId = ""
+                    if (server?.gameId !== 686810) {
+                        let text = `<span class="wrong-gameid"><i class="bi bi-exclamation-diamond"></i> ${server?.gameId || "???"}</span>`
+                        let tooltipText = `Server is not for the base game (686810).`
+                        wrongGameId = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
                     }
 
                     let queues = ""
@@ -1531,7 +1556,7 @@
                                 },
                                 `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                                     <div style="display:inline-block; height: 0px">
-                                        <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay)}">
+                                        <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay, server.status)}">
                                     </div>
                                     <div style="display:inline-block">
                                         ${server.name}<br>
@@ -1555,6 +1580,9 @@
                     }
                     if (wrongVersion) {
                         serverDetails.push(wrongVersion)
+                    }
+                    if (wrongGameId) {
+                        serverDetails.push(wrongGameId)
                     }
 
                     rows.push([
@@ -1582,7 +1610,7 @@
                         // server title and map
                         `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                             <div style="display:inline-block; height: 0px">
-                                <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay)}">
+                                <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay, server.status)}">
                             </div>
                             <div style="display:inline-block">
                                 ${server.name}<br>

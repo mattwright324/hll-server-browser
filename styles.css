@@ -435,6 +435,9 @@ table.dataTable tbody td {
 .wrong-version {
     color: orange;
 }
+.wrong-gameid {
+    color: orangered;
+}
 
 .dt-center {
     text-align: center !important;
