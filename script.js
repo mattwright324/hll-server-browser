@@ -822,7 +822,7 @@
 
         const customChecks = {
             "$hll_official$": function (server) {
-                return server?.gamestate?.decoded?.isOfficial;
+                return server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official");
             }
         }
 
@@ -1373,7 +1373,7 @@
                     }
 
                     totalServers += 1;
-                    if (server?.gamestate?.decoded?.isOfficial) {
+                    if (server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official")) {
                         officialServers += 1;
                     } else {
                         communityServers += 1;
