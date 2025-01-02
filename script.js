@@ -469,13 +469,23 @@
         });
 
         function initTooltip() {
-            try {
-                const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-            } catch (e) {
-                console.warn("Failed to init tooltips")
-            }
+            // try {
+            //     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            //     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+            // } catch (e) {
+            //     console.warn("Failed to init tooltips")
+            // }
         }
+
+        $(document).on('mouseover', '[data-bs-toggle="tooltip"]', function (e) {
+            const target = e.currentTarget;
+            if (target && !target.hasAttribute("tooltip-hovered")) {
+                target.setAttribute("tooltip-hovered", "true")
+
+                new bootstrap.Tooltip(target)
+                $(target).tooltip('show')
+            }
+        })
 
         const commonIgnore = "event, training, test, team17, dev team"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
@@ -971,7 +981,6 @@
             updateShareLink()
 
             $('.tooltip').remove(); // remove hanging tooltips on table update
-            initTooltip()
         })
 
         btnConnectSeeding.click(function () {
@@ -1739,7 +1748,6 @@
                     ${makeList("Map Breakdown", mapCounts)}
                     ${makeList("Server Version Breakdown", versionCounts)}
                 `)
-                initTooltip()
                 tryUpdateInfoModal()
             } catch (e) {
                 console.error(e)
