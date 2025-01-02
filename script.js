@@ -1502,6 +1502,20 @@
                         communityPlayers += server.players;
                     }
 
+                    const serverDetails = [`<span class="map-name">${server.mapDisplayHtml}</span>`]
+                    if (offline_time || runtime) {
+                        serverDetails.push(offline_time || runtime)
+                    }
+                    if (crossplay) {
+                        serverDetails.push(crossplay)
+                    }
+                    if (wrongVersion) {
+                        serverDetails.push(wrongVersion)
+                    }
+                    if (wrongGameId) {
+                        serverDetails.push(wrongGameId)
+                    }
+
                     if (!server.player_list && server.players) {
                         platformUnknownPlayers += server.players;
                     }
@@ -1562,28 +1576,12 @@
                                     <div style="display:inline-block">
                                         ${server.name}<br>
                                         <small class="text-muted">
-                                            <span class="map-name">${server.mapDisplayHtml}</span>
-                                            ${offline_time || runtime ? "<span class='separator'></span>" + (offline_time || runtime) : ""}
-                                            ${crossplay ? "<span class='separator'></span><span class='separator'></span>" + crossplay : ""}
+                                            ${serverDetails.join("<span class='separator'></span>")}
                                         </small>
                                     </div>
                                  </div>`,
                             ])
                         }
-                    }
-
-                    const serverDetails = [`<span class="map-name">${server.mapDisplayHtml}</span>`]
-                    if (offline_time || runtime) {
-                        serverDetails.push(offline_time || runtime)
-                    }
-                    if (crossplay) {
-                        serverDetails.push(crossplay)
-                    }
-                    if (wrongVersion) {
-                        serverDetails.push(wrongVersion)
-                    }
-                    if (wrongGameId) {
-                        serverDetails.push(wrongGameId)
                     }
 
                     rows.push([
