@@ -93,7 +93,7 @@
     </div>
 </div>
 <div class="container pt-3 pb-3" align="center">
-    <h3>Quick Join</h3>
+    <h3>Steam Quick Join</h3>
     <div class="row justify-content-md-center">
         <div class="col col-md-auto mb-3" hidden>
             <div class="input-group mb-3">
@@ -271,7 +271,10 @@
     <p class="text-muted">Note:</p>
     <ul class="text-muted">
         <li>Numbers are live, in the moment. Use <a target="_blank" href="https://steamcharts.com/app/686810">steamcharts</a> for historical data.</li>
-        <li>Windows player names come back blank with a huge and incorrect join duration so are not listed in the find a player table.</li>
+        <li>
+            Windows & Epic player names come back blank with a huge and incorrect join duration so are not listed in the find a player table.
+            I believe this incorrect join duration is the server uptime value (how long since it last restarted) and it would be very weird if it actually is.
+        </li>
     </ul>
     <div id="serverCharts"></div>
 </div>
@@ -304,10 +307,27 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Servers with Windows Players</h1>
+                <h1 class="modal-title fs-5">Servers with Non-Steam Players</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <p>
+                    The game on PC is currently available on two other platforms than steam.
+                </p>
+                <ul>
+                    <li><a href="https://www.xbox.com/en-US/games/store/hell-let-loose/9n44wk3wv2hj?ocid=storeforweb">
+                        https://www.xbox.com/en-US/games/store/hell-let-loose/9n44wk3wv2hj?ocid=storeforweb
+                    </a></li>
+                    <li><a href="">
+
+                    </a></li>
+                </ul>
+                <p>
+                    Prior to the release on Epic, the average percentage of Windows players was around ~6%.
+                    Using that we can approximate that
+                </p>
+                <ul id="non-steam-approx">
+                </ul>
                 <div class="table-responsive">
                     <table id="winplayer-server-table" class="table table-hover" style="width:100%"></table>
                 </div>

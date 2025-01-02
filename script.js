@@ -390,7 +390,7 @@
                     },
                 },
                 {
-                    title: "Win Players",
+                    title: "Non-Steam<br>Players",
                     type: "num",
                     className: "dt-nowrap  dt-center",
                     render: {
@@ -695,15 +695,15 @@
                 details.push(`<li><div class="property">Player Count: </div><div class="value">${info.players} / ${info.maxPlayers}</div><ul>${queues}</ul></li>`)
                 if (info.player_list) {
                     let serverSteam = 0;
-                    let serverWin = 0;
+                    let serverNonSteam = 0;
                     for (let i = 0; i < info.player_list.length; i++) {
                         if (!info.player_list[i].name && info.player_list[i].duration > 180) {
-                            serverWin += 1;
+                            serverNonSteam += 1;
                         } else {
                             serverSteam += 1;
                         }
                     }
-                    details.push(`<li><div class="property">Platform Count: </div><div class="value"><i class="bi bi-steam mr-4"></i> ${serverSteam} : <i class="bi bi-windows mr-4"></i> ${serverWin}</div></li>`)
+                    details.push(`<li><div class="property">Platform Count: </div><div class="value"><i class="bi bi-steam mr-4"></i> ${serverSteam} : <i class="bi bi-controller mr-4"></i> ${serverNonSteam}</div></li>`)
                 }
                 let mapDisplay = info.mapDisplay ? info.mapDisplay + " — " + info.map : info.map
                 if (unknownMapNames.includes(info.map)) {
@@ -736,7 +736,7 @@
                     let nameDisplay;
                     if (!player.name) {
                         if (player.duration > 180) {
-                            nameDisplay = `<small class="text-muted"><i class="bi bi-windows mr-4"></i>Unnamed Windows Player</small>`
+                            nameDisplay = `<small class="text-muted"><i class="bi bi-controller mr-4"></i>Unnamed Non-Steam Player</small>`
                         } else {
                             nameDisplay = `<small class="text-muted"><i class="bi bi-steam mr-4"></i>Unnamed Steam Player</small>`
                         }
@@ -1261,9 +1261,9 @@
                 let steamPlayers = 0;
                 let steamOfficialPlayers = 0;
                 let steamCommunityPlayers = 0;
-                let windowsPlayers = 0;
-                let winOfficialPlayers = 0;
-                let winCommunityPlayers = 0;
+                let nonSteamPlayers = 0;
+                let nonSteamOfficialPlayers = 0;
+                let nonSteamCommunityPlayers = 0;
                 let platformUnknownPlayers = 0;
 
                 let totalServers = 0;
@@ -1431,11 +1431,11 @@
                         let text;
                         if (crossplayIs(server, "true")) {
                             crossplayOn += 1;
-                            tooltipText = "Crossplay enabled: Steam + Windows Store"
+                            tooltipText = "Crossplay enabled: Steam+Windows+Epic"
                             text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-check2\"></i></span>"
                         } else if (crossplayIs(server, "false")) {
                             crossplayOff += 1;
-                            tooltipText = "Crossplay disabled: Steam only or Windows Store only"
+                            tooltipText = "Crossplay disabled"
                             text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-x-lg\"></i></span>"
                         } else {
                             crossplayUnknown += 1;
@@ -1511,14 +1511,14 @@
                         server.player_list.forEach(player => {
 
                             // Steam players can have a blank name briefly when joining but quickly resolve.
-                            // Windows players always have a blank name and incorrect large duration time
+                            // Non-Steam players always have a blank name and incorrect large duration time
                             if (!player.name && player.duration > 180) {
                                 thisServerWinPlayers += 1;
-                                windowsPlayers += 1
+                                nonSteamPlayers += 1
                                 if (server.name.startsWith("HLL Official")) {
-                                    winOfficialPlayers += 1;
+                                    nonSteamOfficialPlayers += 1;
                                 } else {
-                                    winCommunityPlayers += 1;
+                                    nonSteamCommunityPlayers += 1;
                                 }
                             } else {
                                 steamPlayers += 1
@@ -1552,7 +1552,7 @@
                                     "num": Number(server.players)
                                 },
                                 {
-                                    "display": `<i class="bi bi-windows mr-4"></i> ${thisServerWinPlayers}`,
+                                    "display": `<i class="bi bi-controller mr-4"></i> ${thisServerWinPlayers}`,
                                     "num": thisServerWinPlayers
                                 },
                                 `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
@@ -1690,6 +1690,13 @@
                     return `<li>${groupTitle}<ul>${listItems.join("")}</ul></li>`
                 }
 
+                const approxWindows = Math.trunc(Math.max(steamPlayers * 0.06, 0))
+                const approxEpic = Math.trunc(Math.max(nonSteamPlayers - approxWindows, 0));
+
+                $("#non-steam-approx").html(`
+                    <li>~<i class="bi bi-windows"></i> ${approxWindows} windows players</li>
+                    <li>~<i class="bi bi-controller"></i> ${approxEpic} epic players</li>`)
+
                 $("#player-stats").html(`
                     <li>${totalPlayers} total players
                         <ul>
@@ -1699,11 +1706,11 @@
                                     <li>${steamCommunityPlayers} on community servers (${percent(steamCommunityPlayers, steamPlayers)}%)</li>
                                 </ul>
                             </li>
-                            <li>${windowsPlayers} windows players (${percent(windowsPlayers, totalPlayers)}%) 
+                            <li>${nonSteamPlayers} non-steam players (${percent(nonSteamPlayers, totalPlayers)}%) 
                                 <i class="bi bi-info-circle" data-bs-toggle="modal" data-bs-target="#winPlayersModal" style="cursor:pointer;color:cornflowerblue" title="Server breakdown"></i>
                                 <ul hidden>
-                                    <li>${winOfficialPlayers} on official servers (${percent(winOfficialPlayers, windowsPlayers)}%)</li>
-                                    <li>${winCommunityPlayers} on community servers (${percent(winCommunityPlayers, windowsPlayers)}%)</li>
+                                    <li>${nonSteamOfficialPlayers} on official servers (${percent(nonSteamOfficialPlayers, nonSteamPlayers)}%)</li>
+                                    <li>${nonSteamCommunityPlayers} on community servers (${percent(nonSteamCommunityPlayers, nonSteamPlayers)}%)</li>
                                 </ul>
                             </li>
                             <li>${platformUnknownPlayers} 
