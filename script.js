@@ -1694,8 +1694,8 @@
                 const approxEpic = Math.trunc(Math.max(nonSteamPlayers - approxWindows, 0));
 
                 $("#non-steam-approx").html(`
-                    <li>~<i class="bi bi-windows"></i> ${approxWindows} windows players</li>
-                    <li>~<i class="bi bi-controller"></i> ${approxEpic} epic players</li>`)
+                    <li><i class="bi bi-windows"></i> ~${approxWindows} Windows players</li>
+                    <li><i class="bi bi-controller"></i> ~${approxEpic} Epic Games players</li>`)
 
                 $("#player-stats").html(`
                     <li>${totalPlayers} total players
