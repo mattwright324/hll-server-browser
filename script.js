@@ -1267,6 +1267,7 @@
                 let platformUnknownPlayers = 0;
 
                 let totalServers = 0;
+                let offlineServers = 0;
                 let officialServers = 0;
                 let communityServers = 0;
                 let crossplayOn = 0;
@@ -1316,6 +1317,8 @@
                     }
                     if (server.status.includes("O")) {
                         server.status_num = 0
+
+                        offlineServers += 1;
                     }
 
                     const query = server.query;
@@ -1695,6 +1698,7 @@
                     <li><i class="bi bi-windows"></i> ~${approxWindows} Windows players</li>
                     <li><i class="bi bi-controller"></i> ~${approxEpic} Epic Games players</li>`)
 
+                const onlineServers = totalServers - offlineServers;
                 $("#player-stats").html(`
                     <li>${totalPlayers} total players
                         <ul>
@@ -1722,11 +1726,12 @@
                     
                     <li>${totalServers} total servers
                         <ul>
-                            <li>${crossplayOn} servers have crossplay on (${percent(crossplayOn, totalServers)}%)</li>
-                            <li>${crossplayOff} servers have crossplay off (${percent(crossplayOff, totalServers)}%)</li>
-                            <li>${crossplayUnknown} servers do not have crossplay status (${percent(crossplayUnknown, totalServers)}%)</li>
-                            <li>${officialServers} official servers (${percent(officialServers, totalServers)}%)</li>
-                            <li>${communityServers} community servers (${percent(communityServers, totalServers)}%)</li>
+                            <li>${offlineServers} servers are currently offline</li>
+                            <li>${crossplayOn} servers have crossplay on (${percent(crossplayOn, onlineServers)}%)</li>
+                            <li>${crossplayOff} servers have crossplay off (${percent(crossplayOff, onlineServers)}%)</li>
+                            <li>${crossplayUnknown} servers do not have crossplay status (${percent(crossplayUnknown, onlineServers)}%)</li>
+                            <li>${officialServers} official servers (${percent(officialServers, onlineServers)}%)</li>
+                            <li>${communityServers} community servers (${percent(communityServers, onlineServers)}%)</li>
                         </ul>
                     </li>
                     
