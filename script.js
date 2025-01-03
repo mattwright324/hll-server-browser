@@ -1335,7 +1335,7 @@
 
                     server.connect_url = connectUrl
 
-                    server.mapDisplay = gs.determineDisplayMapName(server);
+                    server.mapDisplay = gs.determineDisplayMapName(server) || "undefined";
                     server.mapDisplayHtml = server.mapDisplay
                     if (unknownMapNames.includes(server.map)) {
                         server.mapDisplay = server.mapDisplay || server.map;
