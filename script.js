@@ -1264,28 +1264,135 @@
                 message.failures.forEach(server => message.servers.push(server));
                 unknownMapNames = Object.keys(message.unknown_maps) || []
 
-                let totalPlayers = 0;
-                let officialPlayers = 0;
-                let communityPlayers = 0;
-                let steamPlayers = 0;
-                let steamOfficialPlayers = 0;
-                let steamCommunityPlayers = 0;
-                let nonSteamPlayers = 0;
-                let nonSteamOfficialPlayers = 0;
-                let nonSteamCommunityPlayers = 0;
-                let platformUnknownPlayers = 0;
+                const stats = {
+                    players: {
+                        total: 0,
+                        official: 0,
+                        community: 0,
+                        dev: 0,
+                        steam: 0,
+                        nonSteam: 0,
+                        unknownPlatform: 0,
+                    },
+                    servers: {
+                        online: {
+                            total: 0,
+                            official: 0,
+                            community: 0,
+                            dev: 0,
+                            crossplay: {
+                                on: 0,
+                                off: 0,
+                                unknown: 0,
+                            }
+                        },
+                        offline: 0,
+                    },
+                    mapCounts: {},
+                    modeCounts: {},
+                    versionCounts: {},
+                }
 
-                let totalServers = 0;
-                let offlineServers = 0;
-                let officialServers = 0;
-                let communityServers = 0;
-                let crossplayOn = 0;
-                let crossplayOff = 0;
-                let crossplayUnknown = 0;
+                function statsCount(server) {
+                    if (server.status.includes("O")) {
+                        stats.servers.offline += 1
+                        return
+                    }
 
-                let mapCounts = {}
-                let modeCounts = {}
-                let versionCounts = {}
+                    const players = server?.gamestate?.decoded?.players || server?.players || 0;
+                    const isOfficial = server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official") || false;
+                    const isDev = server?.name?.includes("DevQA") || server?.name?.includes("HLL Dev Team") || server?.name?.includes("QA Testing") || false;
+
+                    const serverStats = stats.servers.online;
+                    serverStats.total += 1
+                    if (isDev) {
+                        serverStats.dev += 1
+                    } else if (isOfficial) {
+                        serverStats.official += 1
+                    } else {
+                        serverStats.community += 1
+                    }
+
+                    if (server.hasOwnProperty("rules")) {
+                        if (crossplayIs(server, "true")) {
+                            serverStats.crossplay.on += 1
+                        } else if (crossplayIs(server, "false")) {
+                            serverStats.crossplay.off += 1
+                        } else {
+                            serverStats.crossplay.unknown += 1
+                        }
+                    } else {
+                        serverStats.crossplay.unknown += 1
+                    }
+
+                    const gsMap = server?.gamestate?.decoded?.map;
+                    const mapDecoded = gs.mapDecode[gsMap] || "Unknown (dev/old)";
+                    if (!stats.mapCounts.hasOwnProperty(mapDecoded)) {
+                        stats.mapCounts[mapDecoded] = {
+                            servers: 1,
+                            players: server?.players,
+                            list: [server]
+                        }
+                    } else {
+                        stats.mapCounts[mapDecoded].servers += 1
+                        stats.mapCounts[mapDecoded].players += server?.players
+                        stats.mapCounts[mapDecoded].list.push(server)
+                    }
+
+                    const gsMode = server?.gamestate?.decoded?.gamemode;
+                    const modeDecoded = gs.modeDecode[gsMode] || "Unknown (dev/new)";
+                    if (!stats.modeCounts.hasOwnProperty(modeDecoded)) {
+                        stats.modeCounts[modeDecoded] = {
+                            servers: 1,
+                            players: server?.players,
+                            list: [server]
+                        }
+                    } else {
+                        stats.modeCounts[modeDecoded].servers += 1
+                        stats.modeCounts[modeDecoded].players += server?.players
+                        stats.modeCounts[modeDecoded].list.push(server)
+                    }
+
+                    const gsVersion = server?.gamestate?.decoded?.version;
+                    const versionDecoded = gs.serverVersion[gsVersion] || "Unknown (dev/old)";
+                    if (!stats.versionCounts.hasOwnProperty(versionDecoded)) {
+                        stats.versionCounts[versionDecoded] = {
+                            servers: 1,
+                            players: server?.players,
+                            list: [server]
+                        }
+                    } else {
+                        stats.versionCounts[versionDecoded].servers += 1
+                        stats.versionCounts[versionDecoded].players += server?.players
+                        stats.versionCounts[versionDecoded].list.push(server)
+                    }
+
+                    if (!players) {
+                        return
+                    }
+
+                    const playerStats = stats.players;
+                    playerStats.total += players;
+                    if (!server.player_list) {
+                        playerStats.unknownPlatform += players;
+                    } else {
+                        if (isDev) {
+                            playerStats.dev += players
+                        } else if (isOfficial) {
+                            playerStats.official += players
+                        } else {
+                            playerStats.community += players
+                        }
+
+                        server.player_list.forEach(player => {
+                            if (!player.name && player.duration > 180) {
+                                playerStats.nonSteam += 1
+                            } else {
+                                playerStats.steam += 1
+                            }
+                        })
+                    }
+                }
 
                 const findPlayersRows = []
                 const rows = [];
@@ -1326,9 +1433,9 @@
                     }
                     if (server.status.includes("O")) {
                         server.status_num = 0
-
-                        offlineServers += 1;
                     }
+
+                    statsCount(server)
 
                     const query = server.query;
                     const connectUrl = `steam://connect/${query}?appid=686810`;
@@ -1385,72 +1492,17 @@
                         }
                     }
 
-                    totalServers += 1;
-                    if (server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official")) {
-                        officialServers += 1;
-                    } else {
-                        communityServers += 1;
-                    }
-
-                    if (!statuses.includes("O")) {
-                        const gsMap = server?.gamestate?.decoded?.map;
-                        const mapDecoded = gs.mapDecode[gsMap] || "Unknown (dev/old)";
-                        if (!mapCounts.hasOwnProperty(mapDecoded)) {
-                            mapCounts[mapDecoded] = {
-                                servers: 1,
-                                players: server?.players,
-                                list: [server]
-                            }
-                        } else {
-                            mapCounts[mapDecoded].servers += 1
-                            mapCounts[mapDecoded].players += server?.players
-                            mapCounts[mapDecoded].list.push(server)
-                        }
-
-                        const gsMode = server?.gamestate?.decoded?.gamemode;
-                        const modeDecoded = gs.modeDecode[gsMode] || "Unknown (dev/new)";
-                        if (!modeCounts.hasOwnProperty(modeDecoded)) {
-                            modeCounts[modeDecoded] = {
-                                servers: 1,
-                                players: server?.players,
-                                list: [server]
-                            }
-                        } else {
-                            modeCounts[modeDecoded].servers += 1
-                            modeCounts[modeDecoded].players += server?.players
-                            modeCounts[modeDecoded].list.push(server)
-                        }
-
-                        const gsVersion = server?.gamestate?.decoded?.version;
-                        const versionDecoded = gs.serverVersion[gsVersion] || "Unknown (dev/old)";
-                        if (!versionCounts.hasOwnProperty(versionDecoded)) {
-                            versionCounts[versionDecoded] = {
-                                servers: 1,
-                                players: server?.players,
-                                list: [server]
-                            }
-                        } else {
-                            versionCounts[versionDecoded].servers += 1
-                            versionCounts[versionDecoded].players += server?.players
-                            versionCounts[versionDecoded].list.push(server)
-                        }
-                    }
-
-
                     let crossplay = ""
                     if (server.hasOwnProperty("rules")) {
                         let tooltipText;
                         let text;
                         if (crossplayIs(server, "true")) {
-                            crossplayOn += 1;
                             tooltipText = "Crossplay enabled: Steam+Windows+Epic"
                             text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-check2\"></i></span>"
                         } else if (crossplayIs(server, "false")) {
-                            crossplayOff += 1;
                             tooltipText = "Crossplay disabled"
                             text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-x-lg\"></i></span>"
                         } else {
-                            crossplayUnknown += 1;
                             tooltipText = "Crossplay unknown"
                             text = "<span class='crossplay unknown'><i class=\"bi bi-controller\"></i><i class=\"bi bi-question-lg\"></i></span>"
                         }
@@ -1507,13 +1559,6 @@
                         .replaceAll('[', '')
                         .replaceAll(']', '')
 
-                    totalPlayers += server.players;
-                    if (server.name.startsWith("HLL Official")) {
-                        officialPlayers += server.players;
-                    } else {
-                        communityPlayers += server.players;
-                    }
-
                     const serverDetails = [`<span class="map-name">${server.mapDisplayHtml}</span>`]
                     if (offline_time || runtime) {
                         serverDetails.push(offline_time || runtime)
@@ -1528,31 +1573,25 @@
                         serverDetails.push(wrongGameId)
                     }
 
-                    if (!server.player_list && server.players) {
-                        platformUnknownPlayers += server.players;
-                    }
+                    const serverInfoHtml = `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
+                            <div style="display:inline-block; height: 0px">
+                                <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay, server.status)}">
+                            </div>
+                            <div style="display:inline-block">
+                                ${server.name}<br>
+                                <small class="text-muted">
+                                    ${serverDetails.join("<span class='separator'></span>")}
+                                </small>
+                            </div>
+                         </div>`;
 
                     if (server.player_list) {
-                        let thisServerWinPlayers = 0;
+                        let thisServerNonSteamPlayers = 0;
                         server.player_list.forEach(player => {
-
                             // Steam players can have a blank name briefly when joining but quickly resolve.
                             // Non-Steam players always have a blank name and incorrect large duration time
                             if (!player.name && player.duration > 180) {
-                                thisServerWinPlayers += 1;
-                                nonSteamPlayers += 1
-                                if (server.name.startsWith("HLL Official")) {
-                                    nonSteamOfficialPlayers += 1;
-                                } else {
-                                    nonSteamCommunityPlayers += 1;
-                                }
-                            } else {
-                                steamPlayers += 1
-                                if (server.name.startsWith("HLL Official")) {
-                                    steamOfficialPlayers += 1
-                                } else {
-                                    steamCommunityPlayers += 1;
-                                }
+                                thisServerNonSteamPlayers += 1;
                             }
 
                             if (!player.name) {
@@ -1571,27 +1610,17 @@
                             ])
                         })
 
-                        if (thisServerWinPlayers > 0) {
+                        if (thisServerNonSteamPlayers > 0) {
                             winServers.push([
                                 {
                                     "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${server.players}/${server.maxPlayers}</span>`,
                                     "num": Number(server.players)
                                 },
                                 {
-                                    "display": `<i class="bi bi-controller mr-4"></i> ${thisServerWinPlayers}`,
-                                    "num": thisServerWinPlayers
+                                    "display": `<i class="bi bi-controller mr-4"></i> ${thisServerNonSteamPlayers}`,
+                                    "num": thisServerNonSteamPlayers
                                 },
-                                `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
-                                    <div style="display:inline-block; height: 0px">
-                                        <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay, server.status)}">
-                                    </div>
-                                    <div style="display:inline-block">
-                                        ${server.name}<br>
-                                        <small class="text-muted">
-                                            ${serverDetails.join("<span class='separator'></span>")}
-                                        </small>
-                                    </div>
-                                 </div>`,
+                                serverInfoHtml,
                             ])
                         }
                     }
@@ -1619,17 +1648,7 @@
                             "num": Number(server.players)
                         },
                         // server title and map
-                        `<div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
-                            <div style="display:inline-block; height: 0px">
-                                <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay, server.status)}">
-                            </div>
-                            <div style="display:inline-block">
-                                ${server.name}<br>
-                                <small class="text-muted">
-                                    ${serverDetails.join("<span class='separator'></span>")}
-                                </small>
-                            </div>
-                         </div>`,
+                        serverInfoHtml,
                         // vip button
                         {
                             display: `<i id="fav-${server.query}" class='bi bi-award vip ${server_vip.includes(server.query) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${server.query}' title='I have VIP here'></i>`,
@@ -1685,68 +1704,64 @@
                     arr.sort(function(a, b) { return (b.value.players + b.value.servers) - (a.value.players + a.value.servers); });
                     return arr;
                 }
-                mapCounts = sortObjectDesc(mapCounts)
-                modeCounts = sortObjectDesc(modeCounts)
-                versionCounts = sortObjectDesc(versionCounts)
+                stats.mapCounts = sortObjectDesc(stats.mapCounts)
+                stats.modeCounts = sortObjectDesc(stats.modeCounts)
+                stats.versionCounts = sortObjectDesc(stats.versionCounts)
 
                 // console.log(mapCounts, modeCounts, versionCounts)
 
                 function makeList(groupTitle, list) {
                     const listItems = []
                     list.forEach((item) => {
-                        listItems.push(`<li>${item.key} &mdash; ${item.value.players} players, ${item.value.servers} servers</li>`)
+                        listItems.push(`<li>${item.key} &mdash; ${item.value.players.toLocaleString()} players ${item.value.servers.toLocaleString()} servers</li>`)
                     })
 
                     return `<li>${groupTitle}<ul>${listItems.join("")}</ul></li>`
                 }
 
-                const approxWindows = Math.trunc(Math.max(steamPlayers * 0.06, 0))
-                const approxEpic = Math.trunc(Math.max(nonSteamPlayers - approxWindows, 0));
+                const serverStats = stats.servers.online;
+                const playerStats = stats.players;
+
+                const approxWindows = Math.trunc(Math.max(playerStats.steam * 0.06, 0))
+                const approxEpic = Math.trunc(Math.max(playerStats.nonSteam - approxWindows, 0));
 
                 $("#non-steam-approx").html(`
-                    <li><i class="bi bi-windows"></i> ~${approxWindows} Windows players</li>
-                    <li><i class="bi bi-controller"></i> ~${approxEpic} Epic Games players</li>`)
+                    <li><i class="bi bi-windows"></i> ~${approxWindows.toLocaleString()} Windows players</li>
+                    <li><i class="bi bi-controller"></i> ~${approxEpic.toLocaleString()} Epic Games players</li>`)
 
-                const onlineServers = totalServers - offlineServers;
                 $("#player-stats").html(`
-                    <li>${totalPlayers} total players
+                    <li>${playerStats.total.toLocaleString()} total players
                         <ul>
-                            <li>${steamPlayers} steam players (${percent(steamPlayers, totalPlayers)}%)
-                                <ul hidden>
-                                    <li>${steamOfficialPlayers} on official servers (${percent(steamOfficialPlayers, steamPlayers)}%)</li>
-                                    <li>${steamCommunityPlayers} on community servers (${percent(steamCommunityPlayers, steamPlayers)}%)</li>
-                                </ul>
+                            <li>${playerStats.steam.toLocaleString()} steam players (${percent(playerStats.steam, playerStats.total)}%)
                             </li>
-                            <li>${nonSteamPlayers} non-steam players (${percent(nonSteamPlayers, totalPlayers)}%) 
+                            <li>${playerStats.nonSteam.toLocaleString()} non-steam players (${percent(playerStats.nonSteam, playerStats.total)}%) 
                                 <i class="bi bi-info-circle" data-bs-toggle="modal" data-bs-target="#winPlayersModal" style="cursor:pointer;color:cornflowerblue" title="Server breakdown"></i>
-                                <ul hidden>
-                                    <li>${nonSteamOfficialPlayers} on official servers (${percent(nonSteamOfficialPlayers, nonSteamPlayers)}%)</li>
-                                    <li>${nonSteamCommunityPlayers} on community servers (${percent(nonSteamCommunityPlayers, nonSteamPlayers)}%)</li>
-                                </ul>
                             </li>
-                            <li>${platformUnknownPlayers} 
+                            <li>${playerStats.unknownPlatform.toLocaleString()} 
                                 <span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Steam player_list query failed">unknown platform</span>
-                                (${percent(platformUnknownPlayers, totalPlayers)}%)
+                                (${percent(playerStats.unknownPlatform, playerStats.total)}%)
                             </li>
-                            <li>${officialPlayers} on official servers (${percent(officialPlayers, totalPlayers)}%)</li>
-                            <li>${communityPlayers} on community servers (${percent(communityPlayers, totalPlayers)}%)</li>
+                            <li>${playerStats.official.toLocaleString()} on official servers (${percent(playerStats.official, playerStats.total)}%)</li>
+                            <li>${playerStats.community.toLocaleString()} on community servers (${percent(playerStats.community, playerStats.total)}%)</li>
+                            <li>${playerStats.dev.toLocaleString()} on dev/qa servers (${percent(playerStats.dev, playerStats.total)}%)</li>
                         </ul>
                     </li>
-                    
-                    <li>${totalServers} total servers
+                    <li>${serverStats.total.toLocaleString()} servers online
                         <ul>
-                            <li>${offlineServers} servers are currently offline</li>
-                            <li>${crossplayOn} servers have crossplay on (${percent(crossplayOn, onlineServers)}%)</li>
-                            <li>${crossplayOff} servers have crossplay off (${percent(crossplayOff, onlineServers)}%)</li>
-                            <li>${crossplayUnknown} servers do not have crossplay status (${percent(crossplayUnknown, onlineServers)}%)</li>
-                            <li>${officialServers} official servers (${percent(officialServers, onlineServers)}%)</li>
-                            <li>${communityServers} community servers (${percent(communityServers, onlineServers)}%)</li>
+                            <li>${serverStats.official.toLocaleString()} official servers (${percent(serverStats.official, serverStats.total)}%)</li>
+                            <li>${serverStats.community.toLocaleString()} community servers (${percent(serverStats.community, serverStats.total)}%)</li>
+                            <li>${serverStats.dev.toLocaleString()} dev/qa servers (${percent(serverStats.dev, serverStats.total)}%)</li>
+                            <li>${serverStats.crossplay.on.toLocaleString()} servers have crossplay on (${percent(serverStats.crossplay.on, serverStats.total)}%)</li>
+                            <li>${serverStats.crossplay.off.toLocaleString()} servers have crossplay off (${percent(serverStats.crossplay.off, serverStats.total)}%)</li>
+                            <li>${serverStats.crossplay.unknown.toLocaleString()} servers do not have crossplay status (${percent(serverStats.crossplay.unknown, serverStats.total)}%)</li>
                         </ul>
                     </li>
+                    <li>${stats.servers.offline.toLocaleString()} servers offline (or address changed)</li>
+                    <br>
                     
-                    ${makeList("Mode Breakdown", modeCounts)}
-                    ${makeList("Map Breakdown", mapCounts)}
-                    ${makeList("Server Version Breakdown", versionCounts)}
+                    ${makeList("Mode Breakdown", stats.modeCounts)}
+                    ${makeList("Map Breakdown", stats.mapCounts)}
+                    ${makeList("Server Version Breakdown", stats.versionCounts)}
                 `)
                 tryUpdateInfoModal()
             } catch (e) {
