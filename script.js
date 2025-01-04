@@ -1301,7 +1301,8 @@
 
                     const players = server?.gamestate?.decoded?.players || server?.players || 0;
                     const isOfficial = server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official") || false;
-                    const isDev = server?.name?.includes("DevQA") || server?.name?.includes("HLL Dev Team") || server?.name?.includes("QA Testing") || false;
+                    const isDev = server?.name?.includes("DevQA") || server?.name?.includes("HLL Dev Team") || server?.name?.includes("QA Testing") ||
+                        server?.name?.includes("HLL Playtest") || false;
 
                     const serverStats = stats.servers.online;
                     serverStats.total += 1
@@ -1335,7 +1336,7 @@
                         }
                     } else {
                         stats.mapCounts[mapDecoded].servers += 1
-                        stats.mapCounts[mapDecoded].players += server?.players
+                        stats.mapCounts[mapDecoded].players += players
                         stats.mapCounts[mapDecoded].list.push(server)
                     }
 
@@ -1349,7 +1350,7 @@
                         }
                     } else {
                         stats.modeCounts[modeDecoded].servers += 1
-                        stats.modeCounts[modeDecoded].players += server?.players
+                        stats.modeCounts[modeDecoded].players += players
                         stats.modeCounts[modeDecoded].list.push(server)
                     }
 
@@ -1363,7 +1364,7 @@
                         }
                     } else {
                         stats.versionCounts[versionDecoded].servers += 1
-                        stats.versionCounts[versionDecoded].players += server?.players
+                        stats.versionCounts[versionDecoded].players += players
                         stats.versionCounts[versionDecoded].list.push(server)
                     }
 
