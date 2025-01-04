@@ -1749,14 +1749,14 @@
                             </li>
                             <li>${playerStats.official.toLocaleString()} on official servers (${percent(playerStats.official, playerStats.total)}%)</li>
                             <li>${playerStats.community.toLocaleString()} on community servers (${percent(playerStats.community, playerStats.total)}%)</li>
-                            <li>${playerStats.dev.toLocaleString()} on dev/qa servers (${percent(playerStats.dev, playerStats.total)}%)</li>
+                            <li>${playerStats.dev.toLocaleString()} on pte/dev/qa servers (${percent(playerStats.dev, playerStats.total)}%)</li>
                         </ul>
                     </li>
                     <li>${serverStats.total.toLocaleString()} servers online
                         <ul>
                             <li>${serverStats.official.toLocaleString()} official servers (${percent(serverStats.official, serverStats.total)}%)</li>
                             <li>${serverStats.community.toLocaleString()} community servers (${percent(serverStats.community, serverStats.total)}%)</li>
-                            <li>${serverStats.dev.toLocaleString()} dev/qa servers (${percent(serverStats.dev, serverStats.total)}%)</li>
+                            <li>${serverStats.dev.toLocaleString()} pte/dev/qa servers (${percent(serverStats.dev, serverStats.total)}%)</li>
                             <li>${serverStats.crossplay.on.toLocaleString()} servers have crossplay on (${percent(serverStats.crossplay.on, serverStats.total)}%)</li>
                             <li>${serverStats.crossplay.off.toLocaleString()} servers have crossplay off (${percent(serverStats.crossplay.off, serverStats.total)}%)</li>
                             <li>${serverStats.crossplay.unknown.toLocaleString()} servers do not have crossplay status (${percent(serverStats.crossplay.unknown, serverStats.total)}%)</li>
