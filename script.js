@@ -852,8 +852,8 @@
                 return false
             }
 
-            if (checkHideEmpty.is(":checked") && server.players === 0 && !favorites.includes(server.query) && !server.hasOwnProperty("last_success")) {
-                // console.log(`empty [${server.players}] ${server.name}`)
+            if (checkHideEmpty.is(":checked") && players === 0 && !favorites.includes(server.query) && !server.hasOwnProperty("last_success")) {
+                // console.log(`empty [${players}] ${server.name}`)
                 return false
             }
 
@@ -960,14 +960,15 @@
             serverTable.rows({"search": "applied"}).every(function () {
                 const data = this.data();
                 const server = ip2server[data[0]];
+                const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
 
                 if (server.status.includes("S")) {
                     seeding.push(server)
                 }
-                if (server.status.includes("L") || server_vip.includes(server.query) && server.players <= 99 && server.players >= 40) {
+                if (server.status.includes("L") || server_vip.includes(server.query) && players <= 99 && players >= 40) {
                     live.push(server)
                 }
-                if (server.players >= 1 && server.players <= 99) {
+                if (players >= 1 && players <= 99) {
                     any.push(server)
                 }
             });
@@ -1299,7 +1300,7 @@
                         return
                     }
 
-                    const players = server?.gamestate?.decoded?.players || server?.players || 0;
+                    const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
                     const isOfficial = server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official") || false;
                     const isDev = server?.name?.includes("DevQA") || server?.name?.includes("HLL Dev Team") || server?.name?.includes("QA Testing") ||
                         server?.name?.includes("HLL Playtest") || false;
@@ -1331,7 +1332,7 @@
                     if (!stats.mapCounts.hasOwnProperty(mapDecoded)) {
                         stats.mapCounts[mapDecoded] = {
                             servers: 1,
-                            players: server?.players,
+                            players: players,
                             list: [server]
                         }
                     } else {
@@ -1345,7 +1346,7 @@
                     if (!stats.modeCounts.hasOwnProperty(modeDecoded)) {
                         stats.modeCounts[modeDecoded] = {
                             servers: 1,
-                            players: server?.players,
+                            players: players,
                             list: [server]
                         }
                     } else {
@@ -1359,7 +1360,7 @@
                     if (!stats.versionCounts.hasOwnProperty(versionDecoded)) {
                         stats.versionCounts[versionDecoded] = {
                             servers: 1,
-                            players: server?.players,
+                            players: players,
                             list: [server]
                         }
                     } else {
@@ -1401,20 +1402,22 @@
                 message.servers.forEach(server => {
                     ip2server[server.query] = server;
 
+                    const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
+
                     server.status = ""
-                    if (server.players === 0) {
+                    if (players === 0) {
                         server.status += "E" // Empty
                     }
-                    if (server.players >= 1 && server.players < 3) {
+                    if (players >= 1 && players < 3) {
                         server.status += "P" // People (Empty)
                     }
-                    if (server.players >= 3 && server.players <= 50) {
+                    if (players >= 3 && players <= 50) {
                         server.status += "S" // Seeding
                     }
-                    if (server.players >= 40 && server.players <= 91) {
+                    if (players >= 40 && players <= 91) {
                         server.status += "L" // Populated
                     }
-                    if (server.players > 91) {
+                    if (players > 91) {
                         server.status += "F" // Full
                     }
                     if (server.hasOwnProperty("last_success")) {
@@ -1488,7 +1491,7 @@
                         runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}"><i class="bi bi-clock-history"></i> ${text}</span>`
 
                         // Server died and the map likely won't change anytime soon
-                        if (duration.asHours() >= 4 && server.players === 0) {
+                        if (duration.asHours() >= 4 && players === 0) {
                             runtime = ""
                         }
                     }
@@ -1544,11 +1547,11 @@
                     }
 
                     let tooltipPlayers = ""
-                    if (server.players === 0) {
+                    if (players === 0) {
                         tooltipPlayers = "Empty"
-                    } else if (server.players > 0 && (server.player_list || []).length === 0) {
+                    } else if (players > 0 && (server.player_list || []).length === 0) {
                         tooltipPlayers = "Failed players query"
-                    } else if (server.players > 0 && (server.player_list || []).length > 0) {
+                    } else if (players > 0 && (server.player_list || []).length > 0) {
                         tooltipPlayers = server.player_list.slice(0, 7).map(x => x?.name || "").join(", ");
 
                         if (server.player_list.length > 7) {
@@ -1614,8 +1617,8 @@
                         if (thisServerNonSteamPlayers > 0) {
                             winServers.push([
                                 {
-                                    "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${server.players}/${server.maxPlayers}</span>`,
-                                    "num": Number(server.players)
+                                    "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${players}/${server.maxPlayers}</span>`,
+                                    "num": Number(players)
                                 },
                                 {
                                     "display": `<i class="bi bi-controller mr-4"></i> ${thisServerNonSteamPlayers}`,
@@ -1645,8 +1648,8 @@
                         },
                         // players
                         {
-                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${server.players}/${server.maxPlayers}</span>`,
-                            "num": Number(server.players)
+                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${players}/${server.maxPlayers}</span>`,
+                            "num": Number(players)
                         },
                         // server title and map
                         serverInfoHtml,
