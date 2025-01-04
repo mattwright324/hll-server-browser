@@ -852,6 +852,7 @@
                 return false
             }
 
+            const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
             if (checkHideEmpty.is(":checked") && players === 0 && !favorites.includes(server.query) && !server.hasOwnProperty("last_success")) {
                 // console.log(`empty [${players}] ${server.name}`)
                 return false
