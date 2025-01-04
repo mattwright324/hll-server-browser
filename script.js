@@ -1743,8 +1743,9 @@
                                 <i class="bi bi-info-circle" data-bs-toggle="modal" data-bs-target="#winPlayersModal" style="cursor:pointer;color:cornflowerblue" title="Server breakdown"></i>
                             </li>
                             <li>${playerStats.unknownPlatform.toLocaleString()} 
-                                <span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Steam player_list query failed">unknown platform</span>
+                                unknown platform
                                 (${percent(playerStats.unknownPlatform, playerStats.total)}%)
+                                <i class="bi bi-info-circle" data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Total from servers that the steam A2S_PLAYER query failed. Platform (steam or not) is determined if a player's name comes back blank from the players query."></i>
                             </li>
                             <li>${playerStats.official.toLocaleString()} on official servers (${percent(playerStats.official, playerStats.total)}%)</li>
                             <li>${playerStats.community.toLocaleString()} on community servers (${percent(playerStats.community, playerStats.total)}%)</li>
