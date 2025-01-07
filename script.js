@@ -487,7 +487,7 @@
             }
         })
 
-        const commonIgnore = "event, training, test, team17, dev team"
+        const commonIgnore = "event, training, test, team17, dev team, devqa, hll playtest"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
         const euOnly = "(eu, [eu, eu], euro, eu/, /eu, /en, eng/, en/, english, exd, ww, [taw, wth"
         const frOnly = "fr o, fr -, [fr, fr/, /fr"
