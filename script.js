@@ -7,6 +7,7 @@
         const LATEST_SERVER_VERSION = 2194511626;
         const gs = {
             serverVersion: {
+                24371034: "v14.?",
                 572092818: "v15.2",
                 1945600328: "v15.2.1",
                 2386721110: "v15.3",
@@ -112,7 +113,7 @@
                     }
                 })
                 if (!steamDisplay) {
-                    return;
+                    return steamMap;
                 }
 
                 let displayMap;
@@ -835,6 +836,11 @@
         const customChecks = {
             "$hll_official$": function (server) {
                 return server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official");
+            },
+            "$wrong_version$": function (server) {
+                return server?.gameId !== 686810 || // not the main game
+                    !server?.gamestate?.decoded || // missing gamestate property
+                    server?.gamestate?.decoded?.version !== LATEST_SERVER_VERSION // not the latest version
             }
         }
 
