@@ -93,7 +93,7 @@
                 DEV_G: "Mortain",
                 DEV_Z: "Mortain",
                 DEV_N: "Elsenborn",
-                DEN_O: "Tobruk",
+                DEV_O: "Tobruk",
                 DEV_P: "Juno Beach",
             },
 
