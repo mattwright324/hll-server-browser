@@ -492,14 +492,14 @@
         const commonIgnore = "event, training, test, team17, dev team, devqa, hll playtest"
         const commonIgnoreOfficial = `${commonIgnore}, hll official`
         const euOnly = "(eu, [eu, eu], euro, eu/, /eu, /en, eng/, en/, english, exd, ww, [taw, wth"
-        const frOnly = "fr o, fr -, [fr, fr/, /fr"
+        const frOnly = "fr o, fr -, [fr, fr/, /fr, serveur fr, hllfrance"
         const cnOnly = "cn, kook, violet, qq, $regex_cn$"
-        const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, ger), deut, ger+, ♦ GER, aut, ★ GER, [ GER"
-        const spaOnly = "spa o, esp, hisp, .es, south a"
+        const gerOnly = "german, ger mic, .de, de/, [ger, ger/, /ger, ger), deut, ger+, ♦ GER, aut, ★ GER, [ GER, GER -"
+        const spaOnly = "spa o, esp, hisp, .es, south a, latam, brazil"
         const rusOnly = "[rus, only ru, russia, /ru, ru/, pkka"
-        const ausOnly = ".au, /aus, /aus, bigd, aust, auss, kiwi, koala"
+        const ausOnly = ".au, /aus, /aus, bigd, aust, auss, kiwi, koala, sea region"
         const nlOnly = "[nl, dutch, dll, nl/, /nl"
-        const otherOnly = "brasil, ita, danish, norway, scandin, [pl"
+        const otherOnly = "brasil, ita, danish, norway, scandin, [pl, tr]"
         const langFilters = {
             "all": {
                 checkIgnore: true,
@@ -509,7 +509,7 @@
             },
             "en": {
                 checkIgnore: true,
-                ignore: `${commonIgnoreOfficial}, ${frOnly}, ${cnOnly}, ${gerOnly}, ${spaOnly}, ${rusOnly}, ${ausOnly}, ${otherOnly}`,
+                ignore: `${commonIgnoreOfficial}, ${frOnly}, ${cnOnly}, ${gerOnly}, ${spaOnly}, ${rusOnly}, ${otherOnly}`,
                 checkOnly: true,
                 only: ""
             },
