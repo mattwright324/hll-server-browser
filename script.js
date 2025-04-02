@@ -1092,6 +1092,8 @@
                 return "mortain.webp"
             } else if (name.includes("Elsenborn")) {
                 return "elsenborn.webp"
+            } else if (name.includes("Tobruk")) {
+                return "tobruk.webp"
             } else {
                 return "unknown.jpg"
             }
