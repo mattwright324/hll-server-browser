@@ -4,7 +4,7 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        const LATEST_SERVER_VERSION = 2194511626;
+        const LATEST_SERVER_VERSION = 1421582404;
         const gs = {
             serverVersion: {
                 24371034: "v14.?",
@@ -14,6 +14,7 @@
                 3988232635: "v16",
                 757054685: "v16.0.1",
                 2194511626: "v16.0.2",
+                1421582404: "v17",
             },
             mapDecode: {
                 1: "Foy",
@@ -33,6 +34,7 @@
                 15: "Driel",
                 16: "Mortain",
                 17: "Elsenborn",
+                18: "Tobruk",
             },
             modeDecode: {
                 2: "Warfare",
