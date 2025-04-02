@@ -159,6 +159,7 @@
                 }
             }
         }
+        document.getElementById("ver-text").innerText = gs.serverVersion[LATEST_SERVER_VERSION];
 
         let unknownMapNames = [];
 
