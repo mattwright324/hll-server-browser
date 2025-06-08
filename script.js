@@ -1643,6 +1643,21 @@
                         }
                     }
 
+                    let queueBadge = `<span data-bs-toggle="tooltip" data-bs-title="No gamestate info" data-bs-html="true" class="badge text-bg-dark">?</span>`
+                    if (server?.gamestate?.decoded?.hasOwnProperty('currentQueue')) {
+                        const currentQueue = server.gamestate.decoded.currentQueue;
+                        let badge = 'text-bg-secondary'
+                        if (currentQueue <= 2) {
+                            badge = 'text-bg-success'
+                        }
+
+                        if (currentQueue || server.players > 91) {
+                            queueBadge = `<sup><span data-bs-toggle="tooltip" data-bs-title="Players in Queue" data-bs-html="true" class="badge ${badge}">${currentQueue}/${server.gamestate.decoded.maxQueue}</span></sup>`
+                        } else {
+                            queueBadge = ""
+                        }
+                    }
+
                     rows.push([
                         // ip:query (hidden)
                         server.query,
@@ -1662,7 +1677,7 @@
                         },
                         // players
                         {
-                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${players}/${server.maxPlayers}</span>`,
+                            "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${players}/${server.maxPlayers}</span> ${queueBadge}`,
                             "num": Number(players)
                         },
                         // server title and map
