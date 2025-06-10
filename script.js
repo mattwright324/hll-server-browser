@@ -1757,13 +1757,6 @@
                 const serverStats = stats.servers.online;
                 const playerStats = stats.players;
 
-                const approxWindows = Math.trunc(Math.max(playerStats.steam * 0.06, 0))
-                const approxEpic = Math.trunc(Math.max(playerStats.nonSteam - approxWindows, 0));
-
-                $("#non-steam-approx").html(`
-                    <li><i class="bi bi-windows"></i> ~${approxWindows.toLocaleString()} Windows players</li>
-                    <li><i class="bi bi-controller"></i> ~${approxEpic.toLocaleString()} Epic Games players</li>`)
-
                 $("#player-stats").html(`
                     <li>${playerStats.total.toLocaleString()} total players
                         <ul>
