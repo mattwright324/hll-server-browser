@@ -420,6 +420,37 @@
             pageLength: -1
         })
 
+        const failedPlayerServerTable = new DataTable("#failedplayers-server-table", {
+            layout: {
+                topStart: 'info'
+            },
+            paging: false,
+            columns: [
+                {
+                    title: "Players",
+                    type: "num",
+                    className: "dt-nowrap  dt-center",
+                    render: {
+                        _: 'display',
+                        sort: 'num'
+                    },
+                },
+                {title: "Server"},
+            ],
+            columnDefs: [{
+                "defaultContent": "",
+                "targets": "_all"
+            }, {
+                "width": "100%",
+                "targets": 1
+            }],
+            order: [[0, 'desc'], [1, 'asc']],
+            lengthMenu: [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
+            deferRender: true,
+            bDeferRender: true,
+            pageLength: -1
+        })
+
         let favorites = []
         if (localStorage && localStorage.getItem("favorites")) {
             favorites = JSON.parse(localStorage.favorites);
@@ -1415,6 +1446,7 @@
                 const findPlayersRows = []
                 const rows = [];
                 const winServers = [];
+                const failedPlayersServers = [];
                 message.servers.forEach(server => {
                     ip2server[server.query] = server;
 
@@ -1643,6 +1675,15 @@
                                 serverInfoHtml,
                             ])
                         }
+                    } else if (server.players) {
+                        // Server has players but there's no player list
+                        failedPlayersServers.push([
+                            {
+                                "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${players}/${server.maxPlayers}</span>`,
+                                "num": Number(players)
+                            },
+                            serverInfoHtml,
+                        ])
                     }
 
                     let queueBadge = `<span data-bs-toggle="tooltip" data-bs-title="No gamestate info" data-bs-html="true" class="badge text-bg-dark">?</span>`
@@ -1722,6 +1763,10 @@
                 winPlayerServerTable.rows.add(winServers).draw(false);
                 winPlayerServerTable.columns.adjust().draw(false);
 
+                failedPlayerServerTable.clear()
+                failedPlayerServerTable.rows.add(failedPlayersServers).draw(false);
+                failedPlayerServerTable.columns.adjust().draw(false);
+
                 function percent(x, total) {
                     return Number(Number(x / total).toFixed(4) * 100).toFixed(2)
                 }
@@ -1768,7 +1813,9 @@
                             <li>${playerStats.unknownPlatform.toLocaleString()} 
                                 unknown platform
                                 (${percent(playerStats.unknownPlatform, playerStats.total)}%)
-                                <i class="bi bi-info-circle" data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Total from servers that the steam A2S_PLAYER query failed. Platform (steam or not) is determined if a player's name comes back blank from the players query."></i>
+                                <span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Total from servers that the steam A2S_PLAYER query failed. Platform (steam or not) is determined if a player's name comes back blank from the players query.">
+                                    <i class="bi bi-info-circle" data-bs-toggle="modal" data-bs-target="#failedPlayersModal" style="cursor:pointer;color:cornflowerblue"></i>
+                                </span>
                             </li>
                             <li>${playerStats.official.toLocaleString()} on official servers (${percent(playerStats.official, playerStats.total)}%)</li>
                             <li>${playerStats.community.toLocaleString()} on community servers (${percent(playerStats.community, playerStats.total)}%)</li>

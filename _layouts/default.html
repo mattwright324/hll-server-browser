@@ -344,6 +344,30 @@
     </div>
 </div>
 
+<div class="modal fade" id="failedPlayersModal" tabindex="-1" aria-labelledby="infoModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Servers that failed A2S_PLAYERS</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    These are the servers which the
+                    <a target="_blank" href="https://developer.valvesoftware.com/wiki/Server_queries#A2S_PLAYER">a2s_players query</a>
+                    timed out or failed for any potential number of reasons.
+                </p>
+                <div class="table-responsive">
+                    <table id="failedplayers-server-table" class="table table-hover" style="width:100%"></table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="ui container" style="padding-top:3%;padding-bottom:3%;color:darkgray;text-align:center">
     mattwright324 | 2025 | <a href="/">home</a> | <a target="_blank" href="https://github.com/mattwright324">github</a>
     | <a target="_blank" href="https://github.com/mattwright324/hll-server-browser">hll-server-browser</a>
