@@ -1783,7 +1783,7 @@
                         </ul>
                     </li>
                     <li>${playerStats.inQueue.toLocaleString()} players sitting in a queue 
-                        <i class="bi bi-info-circle" data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="How many people are idling in a server queue waiting a join."></i>
+                        <i class="bi bi-info-circle" data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="How many people are idling in a server queue waiting to join"></i>
                     </li>
                     <br>
                     <li>${serverStats.total.toLocaleString()} servers online
