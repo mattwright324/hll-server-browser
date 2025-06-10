@@ -1288,6 +1288,7 @@
                         steam: 0,
                         nonSteam: 0,
                         unknownPlatform: 0,
+                        inQueue: 0,
                     },
                     servers: {
                         online: {
@@ -1389,6 +1390,7 @@
 
                     const playerStats = stats.players;
                     playerStats.total += players;
+                    playerStats.inQueue += server?.gamestate?.decoded?.currentQueue || 0;
                     if (!server.player_list) {
                         playerStats.unknownPlatform += players;
                     } else {
@@ -1775,6 +1777,7 @@
                                 (${percent(playerStats.unknownPlatform, playerStats.total)}%)
                                 <i class="bi bi-info-circle" data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Total from servers that the steam A2S_PLAYER query failed. Platform (steam or not) is determined if a player's name comes back blank from the players query."></i>
                             </li>
+                            <li>${playerStats.inQueue.toLocaleString()} sitting in a queue</li>
                             <li>${playerStats.official.toLocaleString()} on official servers (${percent(playerStats.official, playerStats.total)}%)</li>
                             <li>${playerStats.community.toLocaleString()} on community servers (${percent(playerStats.community, playerStats.total)}%)</li>
                             <li>${playerStats.dev.toLocaleString()} on pte/dev/qa servers (${percent(playerStats.dev, playerStats.total)}%)</li>
