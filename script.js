@@ -1777,12 +1777,15 @@
                                 (${percent(playerStats.unknownPlatform, playerStats.total)}%)
                                 <i class="bi bi-info-circle" data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="Total from servers that the steam A2S_PLAYER query failed. Platform (steam or not) is determined if a player's name comes back blank from the players query."></i>
                             </li>
-                            <li>${playerStats.inQueue.toLocaleString()} sitting in a queue (${percent(playerStats.inQueue, playerStats.total)}%)</li>
                             <li>${playerStats.official.toLocaleString()} on official servers (${percent(playerStats.official, playerStats.total)}%)</li>
                             <li>${playerStats.community.toLocaleString()} on community servers (${percent(playerStats.community, playerStats.total)}%)</li>
                             <li>${playerStats.dev.toLocaleString()} on pte/dev/qa servers (${percent(playerStats.dev, playerStats.total)}%)</li>
                         </ul>
                     </li>
+                    <li>${playerStats.inQueue.toLocaleString()} players sitting in a queue 
+                        <i class="bi bi-info-circle" data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="How many people are idling in a server queue waiting a join."></i>
+                    </li>
+                    <br>
                     <li>${serverStats.total.toLocaleString()} servers online
                         <ul>
                             <li>${serverStats.official.toLocaleString()} official servers (${percent(serverStats.official, serverStats.total)}%)</li>
