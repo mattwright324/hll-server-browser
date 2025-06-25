@@ -4,7 +4,7 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        const LATEST_SERVER_VERSION = 3648679879;
+        const LATEST_SERVER_VERSION = 2378492222;
         const gs = {
             serverVersion: {
                 24371034: "v14.?",
@@ -16,6 +16,7 @@
                 2194511626: "v16.0.2",
                 1421582404: "v17",
                 3648679879: "v17.0.1",
+                2378492222: "17.1",
             },
             mapDecode: {
                 1: "Foy",
@@ -299,6 +300,10 @@
                                 const map = readBin(8, "Map");
                                 const timeOfDay = readBin(8, "Time o Day");
                                 const weather = readBin(8, "Weather");
+                                readBin(8, "Match Time (Min)");
+                                readBin(12, "???", "yellowgreen");
+                                readBin(4, "Warmup Time (Min)");
+                                readBin(8,"???", "yellowgreen");
 
                                 if (bin2) {
                                     readBin(bin2.length, "Remaining", "red")
