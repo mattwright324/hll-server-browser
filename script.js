@@ -301,7 +301,8 @@
                                 const timeOfDay = readBin(8, "Time o Day");
                                 const weather = readBin(8, "Weather");
                                 readBin(8, "Match Time (Min)");
-                                readBin(12, "???", "yellowgreen");
+                                readBin(11, "???", "yellowgreen");
+                                readBin(1, "Dyn Wthr Disabled", "cornflowerblue", val => val === 1);
                                 readBin(4, "Warmup Time (Min)");
                                 readBin(8,"???", "yellowgreen");
 
