@@ -298,7 +298,8 @@
                                 const crossplay = readBin(1, "Crss Play", "cornflowerblue", val => val === 1);
                                 const attackers = readBin(3, "Off. Attk");
                                 const map = readBin(8, "Map");
-                                const timeOfDay = readBin(8, "Time o Day");
+                                readBin(4, "???", "yellowgreen");
+                                const timeOfDay = readBin(4, "Time o Day");
                                 const weather = readBin(8, "Weather");
                                 readBin(8, "Match Time (Min)");
                                 readBin(11, "???", "yellowgreen");
