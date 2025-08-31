@@ -1683,7 +1683,7 @@
                                 serverInfoHtml,
                             ])
                         }
-                    } else if (server.players) {
+                    } else if (server.players && !server.last_success) {
                         // Server has players but there's no player list
                         failedPlayersServers.push([
                             {
