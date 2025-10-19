@@ -4,6 +4,22 @@
     function init() {
         new ClipboardJS(".clipboard");
 
+        const mostLikelyHost = function (port) {
+            if (port >= 7000 && port <= 7999) {
+                return "Qonzer (7xxx)"
+            } else if (port >= 20000 && port <= 20999) {
+                return "Nitrado (20xxx)"
+            } else if (port >= 26000 && port <= 27999) {
+                return "GTX or Low.MS (26xxx, 27xxx)"
+            } else if (port >= 29000 && port <= 30999) {
+                return "Streamline (29xxx, 30xxx)"
+            } else if (port >= 28000 && port <= 28999 || port >= 32000 && port <= 32999) {
+                return "GPortal (29xxx, 31xxx-32xxx)"
+            }
+
+            return "Unknown"
+        }
+
         const LATEST_SERVER_VERSION = 1597335087;
         const gs = {
             serverVersion: {
@@ -732,10 +748,12 @@
 
             const details = []
             const serverIp = info.query.split(":")[0];
+            const host = mostLikelyHost(Number(info.query.split(":")[1]))
             const searchLink1 = `<a target="_blank" href="https://api.steampowered.com/ISteamApps/GetServersAtAddress/v1/?addr=${serverIp}">Search for other servers on the same box (SteamAPI)</a>`
             const searchLink2 = `<a target="_blank" href="https://www.battlemetrics.com/servers/search?q=%22${serverIp}%22&sort=score&status=online">Search for other servers on the same box (BattleMetrics)</a>`
             details.push(`<li><div class="property">Server IP: </div><div class="value">${serverIp}</div><ul><li>${searchLink1}</li><li>${searchLink2}</li></ul></li>`)
             details.push(`<li><div class="property">Query Port: </div><div class="value">${info.query}</div></li>`)
+            details.push(`<li><div class="property">Most Likely GSP: </div><div class="value">${host}</div></li>`)
             const statuses = info.status.split("");
             const statusLines = []
             for (let i = 0; i < statuses.length; i++) {
@@ -1347,6 +1365,7 @@
                     mapCounts: {},
                     modeCounts: {},
                     versionCounts: {},
+                    hostCounts: {},
                 }
 
                 function statsCount(server) {
@@ -1422,6 +1441,19 @@
                         stats.versionCounts[versionDecoded].servers += 1
                         stats.versionCounts[versionDecoded].players += players
                         stats.versionCounts[versionDecoded].list.push(server)
+                    }
+
+                    const host = mostLikelyHost(Number(server.query.split(":")[1]))
+                    if (!stats.hostCounts.hasOwnProperty(host)) {
+                        stats.hostCounts[host] = {
+                            servers: 1,
+                            players: players,
+                            list: [server]
+                        }
+                    } else {
+                        stats.hostCounts[host].servers += 1
+                        stats.hostCounts[host].players += players
+                        stats.hostCounts[host].list.push(server)
                     }
 
                     if (!players) {
@@ -1796,6 +1828,7 @@
                 stats.mapCounts = sortObjectDesc(stats.mapCounts)
                 stats.modeCounts = sortObjectDesc(stats.modeCounts)
                 stats.versionCounts = sortObjectDesc(stats.versionCounts)
+                stats.hostCounts = sortObjectDesc(stats.hostCounts)
 
                 // console.log(mapCounts, modeCounts, versionCounts)
 
@@ -1851,6 +1884,7 @@
                     ${makeList("Mode Breakdown", stats.modeCounts)}
                     ${makeList("Map Breakdown", stats.mapCounts)}
                     ${makeList("Server Version Breakdown", stats.versionCounts)}
+                    ${makeList("Server Host Breakdown", stats.hostCounts)}
                 `)
                 tryUpdateInfoModal()
             } catch (e) {
