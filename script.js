@@ -14,7 +14,7 @@
             } else if (port >= 29000 && port <= 30999) {
                 return "Streamline (29xxx, 30xxx)"
             } else if (port >= 28000 && port <= 28999 || port >= 32000 && port <= 32999) {
-                return "GPortal (29xxx, 31xxx-32xxx)"
+                return "GPortal (28xxx, 31xxx-32xxx)"
             }
 
             return "Unknown"
@@ -1325,7 +1325,7 @@
             } catch (e) {
                 message.servers = serversCopy;
             }
-            console.log(message)
+            console.log("list-update", message)
 
             lastUpdatedTime = message.time;
 
@@ -1843,6 +1843,8 @@
 
                 const serverStats = stats.servers.online;
                 const playerStats = stats.players;
+
+                console.log("stats", stats)
 
                 $("#player-stats").html(`
                     <li>${playerStats.total.toLocaleString()} total players
