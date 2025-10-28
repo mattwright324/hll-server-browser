@@ -625,7 +625,7 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        const LATEST_SERVER_VERSION = 4070365318;
+        const LATEST_SERVER_VERSION = 3608556217;
         const gs = {
             serverVersion: {
                 24371034: "v14.?",
