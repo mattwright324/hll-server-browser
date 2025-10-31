@@ -932,6 +932,14 @@
                                 readBin(4, "Warmup Time (Min)");
                                 readBin(8,"???", "yellowgreen");
 
+                                readBin(8,"Time?", "yellowgreen");
+                                readBin(8,"Time?", "yellowgreen");
+                                readBin(21,"_", "gray");
+                                readBin(3,"Allies Score");
+                                readBin(29,"_", "gray");
+                                readBin(3,"Axis Score");
+                                readBin(24,"_", "gray");
+
                                 if (bin2) {
                                     readBin(bin2.length, "Remaining", "red")
                                 }
