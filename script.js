@@ -662,6 +662,7 @@
                 16: "Mortain",
                 17: "Elsenborn",
                 18: "Tobruk",
+                19: "Smolensk",
             },
             modeDecode: {
                 2: "Warfare",
@@ -710,6 +711,7 @@
                 DEV_F: "Carentan",
                 Kursk: "Kursk",
                 Stalin: "Stalingrad",
+                DEV_R: "Stalingrad",
                 Remagen: "Remagen",
                 DEV_J: "Remagen",
                 Kharkov: "Kharkov",
@@ -724,6 +726,7 @@
                 DEV_N: "Elsenborn",
                 DEV_O: "Tobruk",
                 DEV_P: "Juno Beach",
+                DEV_Q: "Smolensk",
             },
 
             determineDisplayMapName: function (server) {
