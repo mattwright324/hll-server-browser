@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
+    {% assign cache_buster = site.time | date_to_xmlschema -%}
+
     <meta charset="UTF-8">
     <meta name="description"
           content="Web server browser for Hell Let Loose. Quickly connect to any server. Continually refreshes roughly every 15 seconds.">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="build" content="{{ site.time | date_to_xmlschema }}">
+    <meta name="build" content="{{ cache_buster }}">
     <title>{{ page.title }}</title>
     <link rel="icon" href="./icon.png">
 
@@ -23,8 +25,19 @@
     <script src="//cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
 
     <!-- Apps -->
-    <link href="./styles.css?v={{ site.time | date_to_xmlschema }}" rel="stylesheet"/>
-    <script src="./script.js?v={{ site.time | date_to_xmlschema }}" type="text/javascript"></script>
+    <link href="./styles.css?v={{ cache_buster }}" rel="stylesheet"/>
+<!--    <script src="./script.js?v={{ cache_buster }}" type="text/javascript"></script>-->
+    <script type="importmap">
+        {"imports": {
+            "dom": "./js/dom.js?v={{ cache_buster }}",
+            "events": "./js/events.js?v={{ cache_buster }}",
+            "util": "./js/util.js?v={{ cache_buster }}",
+            "server": "./js/server.js?v={{ cache_buster }}",
+            "gamestate": "./js/gamestate.js?v={{ cache_buster }}",
+            "gsp": "./js/gsp.js?v={{ cache_buster }}"
+        }}
+    </script>
+    <script type="module" src="./js/main.js?v={{ cache_buster }}"></script>
 
     <!-- Analytics -->
     <script defer data-domain="mattw.io" src="https://plausible.io/js/plausible.js"></script>
