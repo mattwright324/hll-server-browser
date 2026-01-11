@@ -22,6 +22,8 @@ import {Server} from "server";
         console.error("Failed to initialize:", e)
     }
 
+    let lastUpdatedTime = 0;
+
     socket.on('list-update', message => {
         console.log("Socket [list-update]", message)
 
@@ -47,5 +49,15 @@ import {Server} from "server";
         controls.serverTable.columns.adjust().draw(false);
 
         console.log("Data", newData)
+        lastUpdatedTime = message.time;
     })
+
+    setInterval(function () {
+        if (lastUpdatedTime) {
+            const diff = moment().diff(moment(lastUpdatedTime));
+            const duration = moment.duration(diff);
+            const time = util.formatDuration(duration)
+            $(".last-updated").text(time + " ago")
+        }
+    }, 100);
 }());

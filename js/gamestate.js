@@ -1,5 +1,5 @@
-export const LATEST_SERVER_VERSION = 3608556217;
-export const gs = {
+export const LATEST_SERVER_VERSION = 1710849786;
+export const determine = {
     serverVersion: {
         24371034: "v14.?",
         572092818: "v15.2",
@@ -116,7 +116,7 @@ export const gs = {
         DEV_Q: "Smolensk",
     },
 
-    determineDisplayMapName: function (server) {
+    mapDisplayName: function (server) {
         const decodedGs = server?.gamestate?.decoded;
         const gsMap = decodedGs?.map;
         const gsMode = decodedGs?.gamemode;

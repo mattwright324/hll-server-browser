@@ -2,15 +2,6 @@ import * as util from "util";
 import * as gamestate from "gamestate";
 import * as gsp from "gsp";
 
-const statusDesc = {
-    O: "Offline",
-    E: "Empty (0 pop)",
-    P: "People (empty)",
-    S: "Seeding (3-50)",
-    L: "Live (40-91, no queue)",
-    F: "Full (92-100, likely queue)",
-}
-
 export class Server {
     /**
      * {
@@ -25,9 +16,11 @@ export class Server {
      *             name: string,
      *         },
      *     ],
-     *     query: string (ip:port, query port),
+     *     query: string (ip:query port),
      *     port: num (join port),
      *     visibility: num (0 = public, 1 = password protected),
+     *     map_change: string (ISO 8601; present when last map change detected),
+     *     last_success: string (ISO 8601; present when query failed),
      *     rules: [
      *         {
      *             name: string,
@@ -45,7 +38,7 @@ export class Server {
      *             isDynWthrDisabled: bool,
      *             isOfficial: bool,
      *             map: num,
-     *             matchTimeMin: 0,
+     *             matchTimeMin: num,
      *             maxQueue: num,
      *             maxVip: num,
      *             offensiveSide: num,
@@ -63,13 +56,27 @@ export class Server {
         this.#data = data;
         this.#gamestate = this.#data?.gamestate?.decoded;
 
+        this.#connect_url = `steam://connect/${this.#data.query}?appid=${this.#data.gameId}`;
+
+        this.#is_offline = this.#data.hasOwnProperty("last_success");
+        this.#is_password_protected = this.#data.visibility === 1;
+        this.#is_official = this.#gamestate?.isOfficial || this.data?.name?.startsWith("HLL Official");
+        this.#is_dev = this.data?.gameId !== 686810 ||
+            (this.#gamestate?.isOfficial && !this.data?.name?.startsWith("HLL Official")) ||
+            this.#data?.name?.includes("DevQA") ||
+            this.#data?.name.includes("HLL Dev Team") ||
+            this.#data?.name.includes("QA Testing") ||
+            this.#data?.name.includes("Playtest");
+
         this.#players = this.#data?.players || this.#gamestate?.players || this.#data?.player_list?.length || 0;
+
         let status = "";
         if (this.#players <= 0) status += "E"; // Empty
         if (this.#players >= 1 && this.#players < 3) status += "P"; // People (empty)
         if (this.#players >= 3 && this.#players <= 50) status += "S"; // Seeding
         if (this.#players >= 40 && this.#players <= 91) status += "L"; // Live/populated
         if (this.#players > 91) status += "F"; // Full
+        if (this.#data.hasOwnProperty("last_success")) status = "O"; // Offline
         this.#status = status;
 
         let status_sort = -1;
@@ -81,7 +88,7 @@ export class Server {
         if (this.#status.includes("O")) status_sort = 0;
         this.#status_sort = status_sort;
 
-        this.connect_url = `steam://connect/${this.#data.query}?appid=${this.#data.gameId}`;
+        this.#map_display = gamestate.determine.mapDisplayName(this.#data);
 
         this.#row_data = this.#build_row_data();
     }
@@ -90,50 +97,90 @@ export class Server {
     #gamestate;
     #row_data;
 
+    #connect_url;
     #players;
+    #map_display;
     #status;
     #status_sort;
-    #connect_url;
+
+    #is_offline;
+    #is_password_protected;
+    #is_official;
+    #is_dev;
 
     get data() {
         return this.#data;
-    }
-
-    get row_data() {
-        return this.#row_data;
     }
 
     get gamestate() {
         return this.#gamestate;
     }
 
-    get isOffline() {
-        return this.#data.hasOwnProperty("last_success");
+    get row_data() {
+        return this.#row_data;
     }
 
-    get isPasswordProtected() {
-        return this.#data.visibility === 1;
+    #map_image() {
+        const name = this.#map_display;
+
+        if (this.#is_offline) return "offline.jpg";
+
+        if (name.includes("Foy")) return "foy.webp";
+        else if (name.includes("du Mont")) return "stmariedumont.webp";
+        else if (name.includes("Hurtgen")) return "hurtgenforest.webp";
+        else if (name.includes("Utah")) return "utahbeach.webp";
+        else if (name.includes("Omaha")) return "omahabeach.webp";
+        else if (name.includes("Eglise")) return "stmereeglise.webp";
+        else if (name.includes("Purple")) return "purpleheartlane.webp";
+        else if (name.includes("Hill 400")) return "hill400.webp";
+        else if (name.includes("Carentan")) return "carentan.webp";
+        else if (name.includes("Kursk")) return "kursk.webp";
+        else if (name.includes("Stalin")) return "stalingrad.webp";
+        else if (name.includes("Remagen")) return "remagen.webp";
+        else if (name.includes("Kharkov")) return "kharkov.webp";
+        else if (name.includes("Alamein")) return "elalamein.webp";
+        else if (name.includes("Driel")) return "driel.webp";
+        else if (name.includes("Mortain")) return "mortain.webp";
+        else if (name.includes("Elsenborn")) return "elsenborn.webp";
+        else if (name.includes("Tobruk")) return "tobruk.webp";
+        else if (name.includes("Smolensk")) return "smolensk.webp";
+
+        return "unknown.jpg";
     }
 
-    get isOfficial() {
-        return this.#gamestate?.isOfficial ||
-            this.data?.name?.startsWith("HLL Official");
-    }
+    #crossplay_is(enabled) {
+        if (this.#data.hasOwnProperty("rules")) {
+            const stringify = JSON.stringify(this.#data.rules);
+            if (enabled === "true" && stringify.includes("crossplayenabled") ||
+                enabled === "false" && stringify.includes("crossplaydisabled")) {
+                return true
+            }
 
-    get isDev() {
-        return this.data?.gameId !== 686810 ||
-            (this.#gamestate?.isOfficial && !this.data?.name?.startsWith("HLL Official")) ||
-            this.#data?.name?.includes("DevQA") ||
-            this.#data?.name.includes("HLL Dev Team") ||
-            this.#data?.name.includes("QA Testing") ||
-            this.#data?.name.includes("Playtest");
+            // New crossplay status
+            for (let i = 0; i < this.#data.rules.length; i++) {
+                const rule = this.#data.rules[i];
+                if (rule.name.toLowerCase() === "crossplay_b" && rule.value === enabled) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     #build_row_data() {
+        const statusDesc = {
+            O: "Offline",
+            E: "Empty (0 pop)",
+            P: "People (empty)",
+            S: "Seeding (3-50)",
+            L: "Live (40-91, no queue)",
+            F: "Full (92-100, likely queue)",
+        }
+
         const statuses = this.#status.split("");
-        const tooltipLines = []
+        const tooltipStatus = []
         for (let i = 0; i < statuses.length; i++) {
-            tooltipLines.push(statusDesc[statuses[i]])
+            tooltipStatus.push(statusDesc[statuses[i]])
         }
 
         let tooltipPlayers = ""
@@ -152,7 +199,84 @@ export class Server {
             .replaceAll('[', '')
             .replaceAll(']', '');
 
-        const serverDetails = [`<span class="map-name">${server.mapDisplayHtml}</span>`]
+        let offline_time = ""
+        if (this.#data.hasOwnProperty("last_success")) {
+            const changeTime = moment(this.#data.last_success);
+            const duration = moment.duration(moment().diff(changeTime))
+
+            let tooltipText = "Time since last successful query";
+            let text = util.formatDuration(duration, true)
+
+            offline_time = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+        }
+
+        let runtime = ""
+        if (this.#data.hasOwnProperty("map_change")) {
+            const changeTime = moment(this.#data.map_change);
+            const duration = moment.duration(moment().diff(changeTime))
+            const warfareEndTime = moment(this.#data.map_change).add(1.5, 'hour')
+            const warfareDurationUntilEnd = moment.duration(warfareEndTime.diff(moment()))
+            const skirmishEndTime = moment(this.#data.map_change).add(30, 'minute')
+            const skirmishDurationUntilEnd = moment.duration(skirmishEndTime.diff(moment()))
+
+            let tooltipText;
+            let text;
+            if (this.#map_display.includes("Warfare") && duration.asMinutes() <= 92) {
+                tooltipText = "Map time remaining<br>(Warfare)"
+                text = `${util.formatDuration(warfareDurationUntilEnd, true)} left`
+            } else if (this.#map_display.includes("Skirmish") && duration.asMinutes() <= 32) {
+                tooltipText = "Map time remaining<br>(Skirmish)"
+                text = `${util.formatDuration(skirmishDurationUntilEnd, true)} left`
+            } else if (this.#map_display.includes("Offensive") && duration.asMinutes() <= 152) {
+                tooltipText = "Map time elapsed<br>(Offensive)"
+                text = `${util.formatDuration(duration, true)} elapsed`
+            } else {
+                tooltipText = "Map time elapsed<br>Same map more than once?"
+                text = `<span style="color:darkgoldenrod">${util.formatDuration(duration, true)} elapsed</span>`
+            }
+
+            runtime = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}"><i class="bi bi-clock-history"></i> ${text}</span>`
+
+            // Server died and the map likely won't change anytime soon
+            if (duration.asHours() >= 4 && this.#players === 0) {
+                runtime = ""
+            }
+        }
+
+        let crossplay = ""
+        if (this.#data.hasOwnProperty("rules")) {
+            let tooltipText;
+            let text;
+            if (this.#crossplay_is("true")) {
+                tooltipText = "Crossplay enabled: Steam+Windows+Epic"
+                text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-check2\"></i></span>"
+            } else if (this.#crossplay_is("false")) {
+                tooltipText = "Crossplay disabled"
+                text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-x-lg\"></i></span>"
+            } else {
+                tooltipText = "Crossplay unknown"
+                text = "<span class='crossplay unknown'><i class=\"bi bi-controller\"></i><i class=\"bi bi-question-lg\"></i></span>"
+            }
+
+            crossplay = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+        }
+
+        const version = this?.#gamestate?.version;
+        let wrongVersion = ""
+        if (version && gamestate.LATEST_SERVER_VERSION !== version) {
+            let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${gamestate.determine.serverVersion[version] || version}</span>`
+            let tooltipText = `Server version does not match latest. This server is not joinable.`
+            wrongVersion = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+        }
+
+        let wrongGameId = ""
+        if (this.#data.gameId !== 686810) {
+            let text = `<span class="wrong-gameid"><i class="bi bi-exclamation-diamond"></i> ${this.#data.gameId || "???"}</span>`
+            let tooltipText = `Server is not for the base game (686810).`
+            wrongGameId = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+        }
+
+        const serverDetails = [`<span class="map-name">${this.#map_display}</span>`]
         if (offline_time || runtime) {
             serverDetails.push(offline_time || runtime)
         }
@@ -169,10 +293,10 @@ export class Server {
         const serverInfoHtml = `
             <div style="white-space: nowrap; text-overflow: ellipsis; min-width: 100px" class="server-info ${statuses.join(" ")}">
                 <div style="display:inline-block; height: 0px">
-                    <img class="map-icon ${server.mapDisplay.includes("Night") ? "night" : ""}" src="./maps/${getMapImage(server.mapDisplay, server.status)}">
+                    <img class="map-icon ${this.#map_display.includes("Night") ? "night" : ""}" src="./maps/${this.#map_image()}">
                 </div>
                 <div style="display:inline-block">
-                    ${server.name}<br>
+                    ${this.#data.name}<br>
                     <small class="text-muted">
                         ${serverDetails.join("<span class='separator'></span>")}
                     </small>
@@ -203,8 +327,6 @@ export class Server {
             server_vip = JSON.parse(localStorage.server_vip);
         }
 
-        const serverQuery = this.#data.query;
-
         return [
             // 0: serverMap key; hidden
             this.#data.query,
@@ -218,8 +340,8 @@ export class Server {
             },
             // 3: status s/p/e/f
             {
-                "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipLines.join('<br>') || " "}" data-bs-html="true">
-                                             ${this.#data.status}</span>`,
+                "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipStatus.join('<br>') || " "}" data-bs-html="true">
+                                             ${this.#status}</span>`,
                 "num": this.#status_sort
             },
             // 4: players, max players, queue
@@ -231,17 +353,13 @@ export class Server {
             serverInfoHtml,
             // 6: "I have vip here" button
             {
-                display: `<i id="fav-${serverQuery}" class='bi bi-award vip ${server_vip.includes(serverQuery) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${serverQuery}' title='I have VIP here'></i>`,
-                num: function () {
-                    return server_vip.includes(serverQuery) ? 1 : 0
-                }
+                display: `<i id="fav-${this.#data.query}" class='bi bi-award vip ${server_vip.includes(this.#data.query) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${this.#data.query}' title='I have VIP here'></i>`,
+                num: () =>  server_vip.includes(this.#data.query) ? 1 : 0
             },
             // 7: favorite button
             {
-                display: `<i id="fav-${serverQuery}" class='bi bi-star fav ${favorites.includes(serverQuery) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${serverQuery}' title='Favorite'></i>`,
-                num: function () {
-                    return favorites.includes(serverQuery) ? 1 : 0
-                }
+                display: `<i id="fav-${this.#data.query}" class='bi bi-star fav ${favorites.includes(this.#data.query) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${this.#data.query}' title='Favorite'></i>`,
+                num: () => favorites.includes(this.#data.query) ? 1 : 0
             }
         ]
     }
