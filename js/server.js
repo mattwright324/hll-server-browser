@@ -54,21 +54,21 @@ export class Server {
      */
     constructor(data) {
         this.#data = data;
-        this.#gamestate = this.#data?.gamestate?.decoded;
+        this.#gs_decoded = this.#data?.gamestate?.decoded;
 
         this.#connect_url = `steam://connect/${this.#data.query}?appid=${this.#data.gameId}`;
 
         this.#is_offline = this.#data.hasOwnProperty("last_success");
         this.#is_password_protected = this.#data.visibility === 1;
-        this.#is_official = this.#gamestate?.isOfficial || this.data?.name?.startsWith("HLL Official");
+        this.#is_official = this.#gs_decoded?.isOfficial || this.data?.name?.startsWith("HLL Official");
         this.#is_dev = this.data?.gameId !== 686810 ||
-            (this.#gamestate?.isOfficial && !this.data?.name?.startsWith("HLL Official")) ||
+            (this.#gs_decoded?.isOfficial && !this.data?.name?.startsWith("HLL Official")) ||
             this.#data?.name?.includes("DevQA") ||
             this.#data?.name.includes("HLL Dev Team") ||
             this.#data?.name.includes("QA Testing") ||
             this.#data?.name.includes("Playtest");
 
-        this.#players = this.#data?.players || this.#gamestate?.players || this.#data?.player_list?.length || 0;
+        this.#players = this.#data?.players || this.#gs_decoded?.players || this.#data?.player_list?.length || 0;
 
         let status = "";
         if (this.#players <= 0) status += "E"; // Empty
@@ -94,7 +94,7 @@ export class Server {
     }
 
     #data;
-    #gamestate;
+    #gs_decoded;
     #row_data;
 
     #connect_url;
@@ -112,12 +112,36 @@ export class Server {
         return this.#data;
     }
 
-    get gamestate() {
-        return this.#gamestate;
+    get gs_decoded() {
+        return this.#gs_decoded;
     }
 
     get row_data() {
         return this.#row_data;
+    }
+
+    get players() {
+        return this.#players;
+    }
+
+    get status() {
+        return this.#status;
+    }
+
+    get is_favorite() {
+        let favorites = []
+        if (localStorage && localStorage.getItem("favorites")) {
+            favorites = JSON.parse(localStorage.favorites);
+        }
+        return favorites.includes(this.#data.query);
+    }
+
+    get is_vip() {
+        let server_vip = []
+        if (localStorage && localStorage.getItem("server_vip")) {
+            server_vip = JSON.parse(localStorage.server_vip);
+        }
+        return server_vip.includes(this.#data.query);
     }
 
     #map_image() {
@@ -148,7 +172,7 @@ export class Server {
         return "unknown.jpg";
     }
 
-    #crossplay_is(enabled) {
+    crossplay_is(enabled) {
         if (this.#data.hasOwnProperty("rules")) {
             const stringify = JSON.stringify(this.#data.rules);
             if (enabled === "true" && stringify.includes("crossplayenabled") ||
@@ -247,10 +271,10 @@ export class Server {
         if (this.#data.hasOwnProperty("rules")) {
             let tooltipText;
             let text;
-            if (this.#crossplay_is("true")) {
+            if (this.crossplay_is("true")) {
                 tooltipText = "Crossplay enabled: Steam+Windows+Epic"
                 text = "<span class='crossplay enabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-check2\"></i></span>"
-            } else if (this.#crossplay_is("false")) {
+            } else if (this.crossplay_is("false")) {
                 tooltipText = "Crossplay disabled"
                 text = "<span class='crossplay disabled'><i class=\"bi bi-controller\"></i><i class=\"bi bi-x-lg\"></i></span>"
             } else {
@@ -261,7 +285,7 @@ export class Server {
             crossplay = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
         }
 
-        const version = this?.#gamestate?.version;
+        const version = this?.#gs_decoded?.version;
         let wrongVersion = ""
         if (version && gamestate.LATEST_SERVER_VERSION !== version) {
             let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${gamestate.determine.serverVersion[version] || version}</span>`
@@ -304,27 +328,18 @@ export class Server {
              </div>`;
 
         let queueBadge = `<span data-bs-toggle="tooltip" data-bs-title="No gamestate info" data-bs-html="true" class="badge text-bg-dark">?</span>`
-        if (this.#gamestate?.hasOwnProperty('currentQueue')) {
-            const currentQueue = this.#gamestate.currentQueue;
+        if (this.#gs_decoded?.hasOwnProperty('currentQueue')) {
+            const currentQueue = this.#gs_decoded.currentQueue;
             let badge = 'text-bg-secondary'
             if (currentQueue <= 2) {
                 badge = 'text-bg-success'
             }
 
             if (currentQueue || this.#players > 91) {
-                queueBadge = `<sup><span data-bs-toggle="tooltip" data-bs-title="Players in Queue" data-bs-html="true" class="badge ${badge}">${currentQueue}/${this.#gamestate.maxQueue}</span></sup>`
+                queueBadge = `<sup><span data-bs-toggle="tooltip" data-bs-title="Players in Queue" data-bs-html="true" class="badge ${badge}">${currentQueue}/${this.#gs_decoded.maxQueue}</span></sup>`
             } else {
                 queueBadge = ""
             }
-        }
-
-        let favorites = []
-        if (localStorage && localStorage.getItem("favorites")) {
-            favorites = JSON.parse(localStorage.favorites);
-        }
-        let server_vip = []
-        if (localStorage && localStorage.getItem("server_vip")) {
-            server_vip = JSON.parse(localStorage.server_vip);
         }
 
         return [
@@ -338,7 +353,7 @@ export class Server {
                 "display": this.#data.visibility === 1 ? `<i class="bi bi-key-fill ${statuses.join(" ")}" style="color:rgb(255, 193, 7)"></i>` : "",
                 "num": this.#data.visibility
             },
-            // 3: status s/p/e/f
+            // 3: status s/p/e/f/o
             {
                 "display": `<span class="badge ${statuses.join(" ")}" data-bs-toggle="tooltip" data-bs-title="${tooltipStatus.join('<br>') || " "}" data-bs-html="true">
                                              ${this.#status}</span>`,
@@ -353,13 +368,13 @@ export class Server {
             serverInfoHtml,
             // 6: "I have vip here" button
             {
-                display: `<i id="fav-${this.#data.query}" class='bi bi-award vip ${server_vip.includes(this.#data.query) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${this.#data.query}' title='I have VIP here'></i>`,
-                num: () =>  server_vip.includes(this.#data.query) ? 1 : 0
+                display: `<i id="fav-${this.#data.query}" class='bi bi-award vip ${this.is_vip ? 'selected' : ''} ${statuses.join(" ")}' data-for='${this.#data.query}' title='I have VIP here'></i>`,
+                num: () =>  this.is_vip ? 1 : 0
             },
             // 7: favorite button
             {
-                display: `<i id="fav-${this.#data.query}" class='bi bi-star fav ${favorites.includes(this.#data.query) ? 'selected' : ''} ${statuses.join(" ")}' data-for='${this.#data.query}' title='Favorite'></i>`,
-                num: () => favorites.includes(this.#data.query) ? 1 : 0
+                display: `<i id="fav-${this.#data.query}" class='bi bi-star fav ${this.is_favorite ? 'selected' : ''} ${statuses.join(" ")}' data-for='${this.#data.query}' title='Favorite'></i>`,
+                num: () => this.is_favorite ? 1 : 0
             }
         ]
     }

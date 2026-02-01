@@ -117,7 +117,7 @@ export const determine = {
     },
 
     mapDisplayName: function (server) {
-        const decodedGs = server?.gamestate?.decoded;
+        const decodedGs = server?.gs_decoded?.decoded;
         const gsMap = decodedGs?.map;
         const gsMode = decodedGs?.gamemode;
         const gsOffAttkSide = decodedGs?.offensiveSide;

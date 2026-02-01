@@ -354,19 +354,12 @@ table.dataTable tbody td {
     background-image: url("./seeding.webp");
 }
 
-#join-populated {
+#join-live {
     border: 1px solid deepskyblue;
     color: deepskyblue;
 }
-#join-populated::before {
+#join-live::before {
     background-image: url("./populated.webp");
-}
-#join-any {
-    border: 1px solid magenta;
-    color: magenta;
-}
-#join-any::before {
-    background-image: url("./any.png");
 }
 
 .fav {

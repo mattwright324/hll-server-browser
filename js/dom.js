@@ -12,17 +12,26 @@ export const doc_ready =  async () => {
     })
 }
 
+let enabledTooltips = false;
+
 /**
  * Listener to dynamically create tooltips for elements at hover time.
  * Significantly more efficient than creating all tooltips at page load and constantly recreating them on dynamically changing pages.
  */
 export function enable_bs_tooltips() {
-    $(document).on('mouseover', '[data-bs-toggle="tooltip"]', function (e) {
-        const target = e.currentTarget;
+    if (enabledTooltips) {
+        return
+    }
+    enabledTooltips = true;
+
+    console.log("Enabling dynamic tooltips");
+
+    document.addEventListener('mouseover', function (e) {
+        const target = e.target.closest('[data-bs-toggle="tooltip"]');
         if (target && !target.hasAttribute("bs-tt-added")) {
             target.setAttribute("bs-tt-added", true);
-            new bootstrap.Tooltip(target)
-            $(target).tooltip('show')
+            const tooltip = new bootstrap.Tooltip(target);
+            tooltip.show();
         }
     })
 }
@@ -261,6 +270,86 @@ const dom_load = async () => {
         //         })
         // }
     });
+
+    controls.btnConnectSeeding = document.getElementById("join-seeding");
+    elements.seedingCount = document.getElementById("seeding-count");
+    controls.btnConnectLive = document.getElementById("join-live");
+    elements.liveCount = document.getElementById("live-count");
+
+    let seeding = []
+    let live = []
+
+    controls.serverTable.on("draw.dt", function () {
+        $('.tooltip').remove(); // remove hanging tooltips on table update
+
+        seeding = []
+        live = []
+
+        controls.serverTable.rows({"search": "applied"}).every(function () {
+            const rowData = this.data();
+            const server = data.serverMap[rowData[0]];
+            if (server.status.includes("S")) {
+                seeding.push(server)
+            }
+            if (server.status.includes("L") || server.is_vip && server.players <= 99 && server.players >= 40) {
+                live.push(server)
+            }
+        });
+
+        if (seeding.length === 0) {
+            controls.btnConnectSeeding.setAttribute("disabled", "disabled")
+        } else {
+            controls.btnConnectSeeding.removeAttribute("disabled")
+        }
+        elements.seedingCount.innerText = seeding.length + " servers";
+
+        if (live.length === 0) {
+            controls.btnConnectLive.setAttribute("disabled", "disabled")
+        } else {
+            controls.btnConnectLive.removeAttribute("disabled")
+        }
+        elements.liveCount.innerText = live.length + " servers";
+
+        // updateShareLink()
+    })
+
+    function addTo(key, server) {
+        let value = []
+        if (localStorage && localStorage.getItem(key)) {
+            value = JSON.parse(localStorage[key]);
+            value.push(server);
+        }
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function removeFrom(key, server) {
+        let value = []
+        if (localStorage && localStorage.getItem(key)) {
+            value = JSON.parse(localStorage[key]);
+            value = value.filter(s => s !== server);
+        }
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    document.addEventListener("click", function (e) {
+        const target = e.target.closest('i');
+        if (!target) return;
+
+        const fav = target.classList.contains("fav");
+        const vip = target.classList.contains("vip");
+        if (fav || vip) {
+            const key = fav ? "favorites" : "server_vip";
+            const server = target.getAttribute("data-for");
+            if (target.classList.contains("selected")) {
+                removeFrom(key, server)
+            } else {
+                addTo(key, server);
+            }
+
+            target.classList.toggle("selected");
+            controls.serverTable.draw();
+        }
+    })
 
     console.log("Loaded [controls:", controls, "] [elements:", elements, "]")
 }

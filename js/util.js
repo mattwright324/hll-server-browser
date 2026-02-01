@@ -23,7 +23,7 @@ export function sortArrayOfObjects(items, getter) {
 
 /**
  *
- * @param duration
+ * @param duration moment.js
  * @param hideSec
  * @param includeMs
  * @param ignoreTime

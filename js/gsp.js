@@ -581,9 +581,9 @@ function inAnyRange(ip, ranges) {
 }
 
 export function findMostLikely(server) {
-    const name = server.data().name.toLowerCase();
-    const ip = server.data().query.split(":")[0];
-    const port = server.data().query.split(":")[1];
+    const name = server.data.name.toLowerCase();
+    const ip = server.data.query.split(":")[0];
+    const port = server.data.query.split(":")[1];
 
     if (inbetween(port, 7000, 7999)) {
         return "Qonzer (7xxx)"

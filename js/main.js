@@ -1,5 +1,6 @@
 import {controls, dom_ready, elements} from "dom";
-import * as events from "events";
+import * as dom from "dom";
+import {StatsCounter} from "stats";
 import * as util from "util";
 import {Server} from "server";
 
@@ -11,17 +12,18 @@ import {Server} from "server";
 
     window.data = {
         message: {},
-        servers: {},
-        serverMap: [],
+        servers: [],
+        serverMap: {},
     }
 
     try {
         await dom_ready();
-        events.enableDynamicTooltips();
+        dom.enable_bs_tooltips();
     } catch (e) {
         console.error("Failed to initialize:", e)
     }
 
+    const stats = new StatsCounter();
     let lastUpdatedTime = 0;
 
     socket.on('list-update', message => {
@@ -35,14 +37,19 @@ import {Server} from "server";
         }
         const newData = {message: message, servers: [], serverMap: {}};
 
+        stats.reset();
         const rows = []
         for (const data of [...message.servers, ...message.failures]) {
             const server = new Server(data);
             newData.servers.push(server);
             newData.serverMap[server.data.query] = server;
-            rows.push(server.row_data)
+            rows.push(server.row_data);
+
+            stats.count(server);
         }
         window.data = newData;
+
+        document.getElementById("player-stats").innerHTML = stats.to_html();
 
         controls.serverTable.clear()
         controls.serverTable.rows.add(rows).draw(false);
