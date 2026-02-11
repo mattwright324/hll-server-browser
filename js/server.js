@@ -62,7 +62,7 @@ export class Server {
         this.#is_password_protected = this.#data.visibility === 1;
         this.#is_official = this.#gs_decoded?.isOfficial || this.data?.name?.startsWith("HLL Official");
         this.#is_dev = this.data?.gameId !== 686810 ||
-            (this.#gs_decoded?.isOfficial && !this.data?.name?.startsWith("HLL Official")) ||
+            (this.#is_official && !this.data?.name?.startsWith("HLL Official")) ||
             this.#data?.name?.includes("DevQA") ||
             this.#data?.name.includes("HLL Dev Team") ||
             this.#data?.name.includes("QA Testing") ||
@@ -126,6 +126,22 @@ export class Server {
 
     get status() {
         return this.#status;
+    }
+
+    get is_offline() {
+        return this.#is_offline;
+    }
+
+    get is_password_protected() {
+        return this.#is_password_protected;
+    }
+
+    get is_official() {
+        return this.#is_official;
+    }
+
+    get is_dev() {
+        return this.#is_dev;
     }
 
     get is_favorite() {
@@ -362,7 +378,7 @@ export class Server {
             // 4: players, max players, queue
             {
                 "display": `<span data-bs-toggle="tooltip" data-bs-title="${tooltipPlayers || " "}" data-bs-html="true" class="player-count ${statuses.join(" ")}">${this.#data.players}/${this.#data.maxPlayers}</span> ${queueBadge}`,
-                "num": Number(this.#data.players)
+                "num": this.#data.players
             },
             // 5: server name and map
             serverInfoHtml,

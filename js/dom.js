@@ -271,6 +271,48 @@ const dom_load = async () => {
         // }
     });
 
+    controls.findPlayerTable = new DataTable("#find-players-table", {
+        columns: [
+            {
+                title: "Player",
+                className: "dt-nowrap",
+                type: "html"
+            },
+            {
+                title: "Duration",
+                type: "num",
+                className: "dt-nowrap dt-left",
+                render: {
+                    _: 'display',
+                    sort: 'num'
+                },
+                searchable: false,
+            },
+            {
+                title: "Server",
+                className: "dt-nowrap",
+                searchable: false,
+            },
+            {
+                title: "",
+                className: "dt-nowrap",
+                sortable: false,
+                searchable: false,
+            },
+        ],
+        columnDefs: [{
+            "defaultContent": "",
+            "targets": "_all"
+        }, {
+            "width": "100%",
+            "targets": 2
+        }],
+        order: [[1, 'desc'], [2, 'desc']],
+        lengthMenu: [[10, 25, 50, 100, 250], [10, 25, 50, 100, 250]],
+        deferRender: true,
+        bDeferRender: true,
+    })
+
     controls.btnConnectSeeding = document.getElementById("join-seeding");
     elements.seedingCount = document.getElementById("seeding-count");
     controls.btnConnectLive = document.getElementById("join-live");

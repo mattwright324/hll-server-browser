@@ -52,18 +52,11 @@ export class StatsCounter {
             return
         }
 
-        const players = server.players;
-        const isOfficial = server?.gs_decoded?.isOfficial || server.data?.name?.startsWith("HLL Official") || false;
-        const isDev = server.data?.name?.includes("DevQA") ||
-            server.data?.name?.includes("HLL Dev Team") ||
-            server.data?.name?.includes("QA Testing") ||
-            server.data?.name?.includes("HLL Playtest") || false;
-
         const serverStats = this.#data.servers.online;
         serverStats.total += 1
-        if (isDev) {
+        if (server.is_dev) {
             serverStats.dev += 1
-        } else if (isOfficial) {
+        } else if (server.is_official) {
             serverStats.official += 1
         } else {
             serverStats.community += 1
@@ -80,6 +73,8 @@ export class StatsCounter {
         } else {
             serverStats.crossplay.unknown += 1
         }
+
+        const players = server.players;
 
         const gsMap = server.gs_decoded?.map;
         const mapDecoded = gamestate.determine.mapDecode[gsMap] || "Unknown (dev/old)";
@@ -146,9 +141,9 @@ export class StatsCounter {
         if (!server.data.player_list) {
             playerStats.unknownPlatform += players;
         } else {
-            if (isDev) {
+            if (server.is_dev) {
                 playerStats.dev += players
-            } else if (isOfficial) {
+            } else if (server.is_official) {
                 playerStats.official += players
             } else {
                 playerStats.community += players

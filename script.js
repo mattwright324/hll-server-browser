@@ -734,7 +734,7 @@
             },
 
             determineDisplayMapName: function (server) {
-                const decodedGs = server?.gs_decoded?.decoded;
+                const decodedGs = server?.gamestate?.decoded;
                 const gsMap = decodedGs?.map;
                 const gsMode = decodedGs?.gamemode;
                 const gsOffAttkSide = decodedGs?.offensiveSide;
@@ -884,8 +884,8 @@
                             const server = ip2server[ip];
 
                             let hex = "", bin = "";
-                            if (server?.gs_decoded?.raw && query.hasOwnProperty("debug")) {
-                                hex = base64ToHex(server?.gs_decoded?.raw);
+                            if (server?.gamestate?.raw && query.hasOwnProperty("debug")) {
+                                hex = base64ToHex(server?.gamestate?.raw);
                                 bin = hex2bin(hex);
 
                                 let bits = []
@@ -1383,7 +1383,7 @@
             }
             details.push(`<li><div class="property">Status(es): </div><div class="value">${statusLines.join(", ")}</div></li>`)
             if (info.status !== 'O') {
-                const decoded = info?.gs_decoded?.decoded;
+                const decoded = info?.gamestate?.decoded;
                 let queues = ""
                 if (decoded) {
                     queues = `<li>(${decoded?.currentVip}/${decoded?.maxVip}) VIP slots, (${decoded?.currentQueue} / ${decoded?.maxQueue}) in QUEUE</li>`
@@ -1519,12 +1519,12 @@
 
         const customChecks = {
             "$hll_official$": function (server) {
-                return server?.gs_decoded?.decoded?.isOfficial || server?.name?.startsWith("HLL Official");
+                return server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official");
             },
             "$wrong_version$": function (server) {
                 return server?.gameId !== 686810 || // not the main game
-                    !server?.gs_decoded?.decoded || // missing gamestate property
-                    server?.gs_decoded?.decoded?.version !== LATEST_SERVER_VERSION // not the latest version
+                    !server?.gamestate?.decoded || // missing gamestate property
+                    server?.gamestate?.decoded?.version !== LATEST_SERVER_VERSION // not the latest version
             }
         }
 
@@ -1539,11 +1539,11 @@
                 return false
             }
 
-            if (checkLatestOnly.is(":checked") && server?.gs_decoded && server?.gs_decoded?.decoded?.version !== LATEST_SERVER_VERSION) {
+            if (checkLatestOnly.is(":checked") && server?.gamestate && server?.gamestate?.decoded?.version !== LATEST_SERVER_VERSION) {
                 return false
             }
 
-            const players = server?.players || server?.gs_decoded?.decoded?.players || server?.player_list?.length || 0;
+            const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
             if (checkHideEmpty.is(":checked") && players === 0 && !favorites.includes(server.query) && !server.hasOwnProperty("last_success")) {
                 // console.log(`empty [${players}] ${server.name}`)
                 return false
@@ -1652,7 +1652,7 @@
             serverTable.rows({"search": "applied"}).every(function () {
                 const data = this.data();
                 const server = ip2server[data[0]];
-                const players = server?.players || server?.gs_decoded?.decoded?.players || server?.player_list?.length || 0;
+                const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
 
                 if (server.status.includes("S")) {
                     seeding.push(server)
@@ -1998,8 +1998,8 @@
                         return
                     }
 
-                    const players = server?.players || server?.gs_decoded?.decoded?.players || server?.player_list?.length || 0;
-                    const isOfficial = server?.gs_decoded?.decoded?.isOfficial || server?.name?.startsWith("HLL Official") || false;
+                    const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
+                    const isOfficial = server?.gamestate?.decoded?.isOfficial || server?.name?.startsWith("HLL Official") || false;
                     const isDev = server?.name?.includes("DevQA") || server?.name?.includes("HLL Dev Team") || server?.name?.includes("QA Testing") ||
                         server?.name?.includes("HLL Playtest") || false;
 
@@ -2025,7 +2025,7 @@
                         serverStats.crossplay.unknown += 1
                     }
 
-                    const gsMap = server?.gs_decoded?.decoded?.map;
+                    const gsMap = server?.gamestate?.decoded?.map;
                     const mapDecoded = gs.mapDecode[gsMap] || "Unknown (dev/old)";
                     if (!stats.mapCounts.hasOwnProperty(mapDecoded)) {
                         stats.mapCounts[mapDecoded] = {
@@ -2039,7 +2039,7 @@
                         stats.mapCounts[mapDecoded].list.push(server)
                     }
 
-                    const gsMode = server?.gs_decoded?.decoded?.gamemode;
+                    const gsMode = server?.gamestate?.decoded?.gamemode;
                     const modeDecoded = gs.modeDecode[gsMode] || "Unknown (dev/new)";
                     if (!stats.modeCounts.hasOwnProperty(modeDecoded)) {
                         stats.modeCounts[modeDecoded] = {
@@ -2053,7 +2053,7 @@
                         stats.modeCounts[modeDecoded].list.push(server)
                     }
 
-                    const gsVersion = server?.gs_decoded?.decoded?.version;
+                    const gsVersion = server?.gamestate?.decoded?.version;
                     const versionDecoded = gs.serverVersion[gsVersion] || "Unknown (dev/old)";
                     if (!stats.versionCounts.hasOwnProperty(versionDecoded)) {
                         stats.versionCounts[versionDecoded] = {
@@ -2086,7 +2086,7 @@
 
                     const playerStats = stats.players;
                     playerStats.total += players;
-                    playerStats.inQueue += server?.gs_decoded?.decoded?.currentQueue || 0;
+                    playerStats.inQueue += server?.gamestate?.decoded?.currentQueue || 0;
                     if (!server.player_list) {
                         playerStats.unknownPlatform += players;
                     } else {
@@ -2115,7 +2115,7 @@
                 message.servers.forEach(server => {
                     ip2server[server.query] = server;
 
-                    const players = server?.players || server?.gs_decoded?.decoded?.players || server?.player_list?.length || 0;
+                    const players = server?.players || server?.gamestate?.decoded?.players || server?.player_list?.length || 0;
 
                     server.status = ""
                     if (players === 0) {
@@ -2227,7 +2227,7 @@
                         crossplay = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
                     }
 
-                    const version = server?.gs_decoded?.decoded?.version;
+                    const version = server?.gamestate?.decoded?.version;
                     let wrongVersion = ""
                     if (version && LATEST_SERVER_VERSION !== version) {
                         let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${gs.serverVersion[version] || version}</span>`
@@ -2243,8 +2243,8 @@
                     }
 
                     let queues = ""
-                    if (server?.gs_decoded?.decoded) {
-                        const decoded = server?.gs_decoded?.decoded;
+                    if (server?.gamestate?.decoded) {
+                        const decoded = server?.gamestate?.decoded;
                         queues = `(${decoded?.currentVip}/${decoded?.maxVip}) VIP slots, (${decoded?.currentQueue} / ${decoded?.maxQueue}) in QUEUE`
                     }
 
@@ -2352,15 +2352,15 @@
                     }
 
                     let queueBadge = `<span data-bs-toggle="tooltip" data-bs-title="No gamestate info" data-bs-html="true" class="badge text-bg-dark">?</span>`
-                    if (server?.gs_decoded?.decoded?.hasOwnProperty('currentQueue')) {
-                        const currentQueue = server.gs_decoded.decoded.currentQueue;
+                    if (server?.gamestate?.decoded?.hasOwnProperty('currentQueue')) {
+                        const currentQueue = server.gamestate.decoded.currentQueue;
                         let badge = 'text-bg-secondary'
                         if (currentQueue <= 2) {
                             badge = 'text-bg-success'
                         }
 
                         if (currentQueue || server.players > 91) {
-                            queueBadge = `<sup><span data-bs-toggle="tooltip" data-bs-title="Players in Queue" data-bs-html="true" class="badge ${badge}">${currentQueue}/${server.gs_decoded.decoded.maxQueue}</span></sup>`
+                            queueBadge = `<sup><span data-bs-toggle="tooltip" data-bs-title="Players in Queue" data-bs-html="true" class="badge ${badge}">${currentQueue}/${server.gamestate.decoded.maxQueue}</span></sup>`
                         } else {
                             queueBadge = ""
                         }
