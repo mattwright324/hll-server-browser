@@ -19,6 +19,7 @@ export const determine = {
         2320779165: "v19",
         3657783074: "v19.0.1",
         1710849786: "v19.0.2",
+        1234858027: "v19.0.3",
     },
     changeListVersion: {
         1028608: "v18",
@@ -29,6 +30,7 @@ export const determine = {
         1062385: "v19",
         1065184: "v19.0.1",
         1067107: "v19.0.2",
+        1069878: "v19.0.3",
     },
     mapDecode: {
         1: "Foy",
@@ -55,6 +57,7 @@ export const determine = {
         2: "Warfare",
         3: "Offensive",
         7: "Skirmish",
+        8: "Conquest"
         // 10: "Objective", // Maybe?
     },
     offAttackSide: {
