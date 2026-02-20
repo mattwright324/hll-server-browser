@@ -673,6 +673,7 @@
                 2: "Warfare",
                 3: "Offensive",
                 7: "Skirmish",
+                8: "Conquest",
                 // 10: "Objective", // Maybe?
             },
             offAttackSide: {
