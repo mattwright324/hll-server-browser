@@ -1,37 +1,70 @@
-export const LATEST_SERVER_VERSION = 1710849786;
+const versions = [
+    // 2023.06.22-2024.03.21 Exact version unknown
+    {display: "v14.?", gs_version: 24371034,},
+    // 2024.08.28 https://store.steampowered.com/news/app/686810/view/4589818379024009615
+    {display: "v15.2", gs_version: 572092818},
+    // 2024.09.11 https://discord.com/channels/316459644476456962/322320603350827010/1283412694397091993
+    {display: "v15.2.1", gs_version: 1945600328,},
+    // 2024.10.17 https://store.steampowered.com/news/app/686810/view/4544786821145411328
+    {display: "v15.3", gs_version: 2386721110,},
+    // 2024.11.27 https://store.steampowered.com/news/app/686810/view/4471607136529416231
+    {display: "v16", gs_version: 3988232635,},
+    // 2025.01.02 https://discord.com/channels/316459644476456962/322320603350827010/1324332287185129535
+    {display: "v16.0.1", gs_version: 757054685,},
+    // 2025.01.29 https://discord.com/channels/316459644476456962/322320603350827010/1334161814446936106
+    {display: "v16.0.2", gs_version: 2194511626,},
+    // 2025.04.02 https://store.steampowered.com/news/app/686810/view/528716440049550888
+    {display: "v17", gs_version: 1421582404,},
+    // 2025.04.08 https://store.steampowered.com/news/app/686810/view/528717074312201249
+    {display: "v17.0.1", gs_version: 3648679879,},
+    // 2025.06.25 https://www.hellletloose.com/blog/dev-brief-205-patch-17-1-changelog
+    {display: "v17.1", gs_version: 2378492222,},
+    // 2025.07.03 https://discord.com/channels/316459644476456962/322320603350827010/1390263490475724894
+    {display: "v17.1.1", gs_version: 1167549499,},
+    // 2025.10.07 https://www.hellletloose.com/blog/update-18-changelog
+    {display: "v18", gs_version: 1597335087, changelist: 1028608},
+    // 2025.10.12 https://www.hellletloose.com/blog/update-18-hotfix-1
+    {display: "v18.0.1", gs_version: 4070365318, changelist: 1036381},
+    // 2025.10.28 https://www.hellletloose.com/blog/server-and-stability-statement-update-18
+    {display: "v18.0.2", gs_version: 3608556217, changelist: 1039888},
+    // 2025.11.11 https://discord.com/channels/316459644476456962/322320603350827010/1437807802138624105
+    {display: "v18.0.3", gs_version: 4256193000, changelist: 1046112},
+    // 2025.12.03 https://www.hellletloose.com/blog/update-19-changelog
+    {display: "v19", gs_version: 2320779165, changelist: 1062385},
+    // 2025.12.15 https://store.steampowered.com/news/app/686810/view/650337184176406580
+    {display: "v19.0.1", gs_version: 3657783074, changelist: 1065184},
+    // 2025.12.18 https://discord.com/channels/316459644476456962/322320603350827010/1451169629656453282
+    {display: "v19.0.2", gs_version: 1710849786, changelist: 1067107},
+    // 2026.02.11 https://discord.com/channels/316459644476456962/322320603350827010/1471100130424782948
+    {display: "v19.0.3", gs_version: 1234858027, changelist: 1069878},
+]
+
+export const LATEST_VERSION = versions[versions.length - 1];
+export const LATEST_GS_VERSION = LATEST_VERSION.gs_version;
+
+export function getVersionDisplay(server) {
+    const gsVersion = server.gs_decoded?.version;
+    const changelist = server.rules?.["Changelist_s"];
+
+    for (let i = 0; i < versions.length; i++) {
+        const version = versions[i];
+        if (version.changelist === changelist || version.gs_version === gsVersion) {
+            return version.display;
+        }
+    }
+
+    return null;
+}
+
+export function getChangelistDiff(server) {
+    const changelist = server.rules?.["Changelist_s"];
+    if (changelist && LATEST_VERSION.changelist) {
+        return changelist - LATEST_VERSION.changelist;
+    }
+    return null;
+}
+
 export const determine = {
-    serverVersion: {
-        24371034: "v14.?",
-        572092818: "v15.2",
-        1945600328: "v15.2.1",
-        2386721110: "v15.3",
-        3988232635: "v16",
-        757054685: "v16.0.1",
-        2194511626: "v16.0.2",
-        1421582404: "v17",
-        3648679879: "v17.0.1",
-        2378492222: "v17.1",
-        1167549499: "v17.1.1",
-        1597335087: "v18",
-        4070365318: "v18.0.1",
-        3608556217: "v18.0.2",
-        4256193000: "v18.0.3",
-        2320779165: "v19",
-        3657783074: "v19.0.1",
-        1710849786: "v19.0.2",
-        1234858027: "v19.0.3",
-    },
-    changeListVersion: {
-        1028608: "v18",
-        1036285: "v18 (Test Branch)",
-        1036381: "v18.0.1",
-        1039888: "v18.0.2",
-        1046112: "v18.0.3",
-        1062385: "v19",
-        1065184: "v19.0.1",
-        1067107: "v19.0.2",
-        1069878: "v19.0.3",
-    },
     mapDecode: {
         1: "Foy",
         2: "St Marie du Mont (SMDM)",
@@ -248,17 +281,17 @@ export function decode(gsBase64) {
     readBin(11, "???", "yellowgreen");
     readBin(1, "Dyn Wthr Disabled", "cornflowerblue", val => val === 1);
     readBin(4, "Warmup Time (Min)");
-    readBin(8,"???", "yellowgreen");
+    readBin(8, "???", "yellowgreen");
 
-    readBin(4,"Time?", "yellowgreen");
-    readBin(4,"Time?", "yellowgreen");
-    readBin(4,"Time?", "yellowgreen");
-    readBin(4,"Time?", "yellowgreen");
-    readBin(21,"_", "yellowgreen");
-    readBin(3,"Allies Score");
-    readBin(29,"_", "yellowgreen");
-    readBin(3,"Axis Score");
-    readBin(24,"_", "yellowgreen");
+    readBin(4, "Time?", "yellowgreen");
+    readBin(4, "Time?", "yellowgreen");
+    readBin(4, "Time?", "yellowgreen");
+    readBin(4, "Time?", "yellowgreen");
+    readBin(21, "_", "yellowgreen");
+    readBin(3, "Allies Score");
+    readBin(29, "_", "yellowgreen");
+    readBin(3, "Axis Score");
+    readBin(24, "_", "yellowgreen");
 
     if (bin2) {
         readBin(bin2.length, "Remaining", "red")

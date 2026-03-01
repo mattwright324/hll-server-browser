@@ -90,11 +90,23 @@ export class Server {
 
         this.#map_display = gamestate.determine.mapDisplayName(this.#data);
 
+        try {
+            const rules = data?.rules || [];
+            this.#rules = rules.reduce((a, v) => {
+                const value = isNaN(v["value"]) ? v["value"] : parseFloat(v["value"]);
+                return ({ ...a, [v["name"]]: value})
+            }, {})
+        } catch (e) {
+            console.warn('Failed to parse rules list')
+            this.#rules = {}
+        }
+
         this.#row_data = this.#build_row_data();
     }
 
     #data;
     #gs_decoded;
+    #rules;
     #row_data;
 
     #connect_url;
@@ -114,6 +126,10 @@ export class Server {
 
     get gs_decoded() {
         return this.#gs_decoded;
+    }
+
+    get rules() {
+        return this.#rules;
     }
 
     get row_data() {
@@ -303,10 +319,24 @@ export class Server {
 
         const version = this?.#gs_decoded?.version;
         let wrongVersion = ""
-        if (version && gamestate.LATEST_SERVER_VERSION !== version) {
-            let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${gamestate.determine.serverVersion[version] || version}</span>`
+        if (version && gamestate.LATEST_GS_VERSION !== version) {
+            let text = `<span class="wrong-version"><i class="bi bi-exclamation-diamond"></i> ${gamestate.getVersionDisplay(this) || version}</span>`
             let tooltipText = `Server version does not match latest. This server is not joinable.`
             wrongVersion = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+        }
+
+        const diff = gamestate.getChangelistDiff(this);
+        let changelistDiff = "";
+        if (diff) {
+            if (diff > 0) {
+                let text = `<span style="color:green"><i class="bi bi-exclamation-diamond"></i> ${diff}</span>`
+                let tooltipText = `Changelist build is ahead of latest`
+                changelistDiff = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+            } else if (diff < 0) {
+                let text = `<span style="color:orange"><i class="bi bi-exclamation-diamond"></i> ${diff}</span>`
+                let tooltipText = `Changelist build is behind latest`
+                changelistDiff = `<span data-bs-html="true" data-bs-toggle="tooltip" data-bs-title="${tooltipText || " "}">${text}</span>`
+            }
         }
 
         let wrongGameId = ""
@@ -325,6 +355,9 @@ export class Server {
         }
         if (wrongVersion) {
             serverDetails.push(wrongVersion)
+        }
+        if(changelistDiff) {
+            serverDetails.push(changelistDiff)
         }
         if (wrongGameId) {
             serverDetails.push(wrongGameId)

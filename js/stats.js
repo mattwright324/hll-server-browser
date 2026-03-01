@@ -104,8 +104,7 @@ export class StatsCounter {
             this.#data.modeCounts[modeDecoded].list.push(server)
         }
 
-        const gsVersion = server.gs_decoded?.version;
-        const versionDecoded = gamestate.determine.serverVersion[gsVersion] || "Unknown (dev/old)";
+        const versionDecoded = gamestate.getVersionDisplay(server) || "Unknown (dev/old)";
         if (!this.#data.versionCounts.hasOwnProperty(versionDecoded)) {
             this.#data.versionCounts[versionDecoded] = {
                 servers: 1,
