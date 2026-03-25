@@ -356,7 +356,7 @@ export class Server {
         if (wrongVersion) {
             serverDetails.push(wrongVersion)
         }
-        if(changelistDiff) {
+        if (changelistDiff) {
             serverDetails.push(changelistDiff)
         }
         if (wrongGameId) {

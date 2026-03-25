@@ -37,6 +37,8 @@ const versions = [
     {display: "v19.0.2", gs_version: 1710849786, changelist: 1067107},
     // 2026.02.11 https://discord.com/channels/316459644476456962/322320603350827010/1471100130424782948
     {display: "v19.0.3", gs_version: 1234858027, changelist: 1069878},
+    // 2026.03.25 https://discord.com/channels/316459644476456962/322320603350827010/1471100130424782948
+    {display: "v19.1", gs_version: 2128735979, changelist: 1104082},
 ]
 
 export const LATEST_VERSION = versions[versions.length - 1];
