@@ -1783,6 +1783,8 @@
                 return "tobruk.webp"
             } else if (name.includes("Smolensk")) {
                 return "smolensk.webp"
+            } else if (name.includes("Juno")) {
+                return "junobeach.webp"
             } else {
                 return "unknown.jpg"
             }
