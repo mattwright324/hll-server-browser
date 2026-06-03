@@ -625,7 +625,7 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        const LATEST_SERVER_VERSION = 2925008402;
+        const LATEST_SERVER_VERSION = 2447967750;
         const gs = {
             serverVersion: {
                 24371034: "v14.?",
@@ -649,6 +649,7 @@
                 1234858027: "v19.0.3",
                 2128735979: "v19.1",
                 2925008402: "v19.1.1",
+                2447967750: "v20",
             },
             mapDecode: {
                 1: "Foy",
@@ -719,7 +720,7 @@
                 DEV_F: "Carentan",
                 Kursk: "Kursk",
                 Stalin: "Stalingrad",
-                DEV_R: "Stalingrad",
+                // DEV_R: "Stalingrad",
                 Remagen: "Remagen",
                 DEV_J: "Remagen",
                 Kharkov: "Kharkov",
@@ -735,6 +736,7 @@
                 DEV_O: "Tobruk",
                 DEV_P: "Juno Beach",
                 DEV_Q: "Smolensk",
+                DEV_R: "Lake Balaton"
             },
 
             determineDisplayMapName: function (server) {
