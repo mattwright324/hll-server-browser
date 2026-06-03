@@ -671,6 +671,7 @@
                 17: "Elsenborn",
                 18: "Tobruk",
                 19: "Smolensk",
+                20: "Juno Beach",
             },
             modeDecode: {
                 2: "Warfare",
