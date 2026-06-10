@@ -41,6 +41,10 @@ const versions = [
     {display: "v19.1", gs_version: 2128735979, changelist: 1104082},
     // 2026.03.25 https://www.hellletloose.com/blog/patch-19-1-hotfix
     {display: "v19.1.1", gs_version: 2925008402, changelist: 1110599},
+    // 2026.06.03 https://store.steampowered.com/news/app/686810/view/671744413105392452
+    {display: "v20", gs_version: 2447967750, changelist: 1145107},
+    // 2026.06.10 https://discord.com/channels/316459644476456962/322320603350827010/1513599414386688130
+    {display: "v20.0.1", gs_version: 78618853, changelist: 1148937},
 ]
 
 export const LATEST_VERSION = versions[versions.length - 1];
@@ -89,6 +93,7 @@ export const determine = {
         17: "Elsenborn",
         18: "Tobruk",
         19: "Smolensk",
+        20: "Juno Beach",
     },
     modeDecode: {
         2: "Warfare",
