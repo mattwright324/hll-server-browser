@@ -43,8 +43,10 @@ const versions = [
     {display: "v19.1.1", gs_version: 2925008402, changelist: 1110599},
     // 2026.06.03 https://store.steampowered.com/news/app/686810/view/671744413105392452
     {display: "v20", gs_version: 2447967750, changelist: 1145107},
-    // 2026.06.10 https://discord.com/channels/316459644476456962/322320603350827010/1513599414386688130
+    // 2026.06.10 https://store.steampowered.com/news/app/686810/view/705522678542368838
     {display: "v20.0.1", gs_version: 78618853, changelist: 1148937},
+    // 2026.06.17 https://store.steampowered.com/news/app/686810/view/706649212883830915
+    {display: "v20.0.2", gs_version: 3494127296, changelist: 1151242},
 ]
 
 export const LATEST_VERSION = versions[versions.length - 1];
