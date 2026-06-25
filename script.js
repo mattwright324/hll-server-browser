@@ -625,7 +625,7 @@
     function init() {
         new ClipboardJS(".clipboard");
 
-        const LATEST_SERVER_VERSION = 3494127296;
+        const LATEST_SERVER_VERSION = 4133762762;
         const gs = {
             serverVersion: {
                 24371034: "v14.?",
@@ -652,6 +652,7 @@
                 2447967750: "v20",
                 78618853: "v20.0.1",
                 3494127296: "v20.0.2",
+                4133762762: "v20.0.2",
             },
             mapDecode: {
                 1: "Foy",
