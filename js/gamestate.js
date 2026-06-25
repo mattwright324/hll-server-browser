@@ -47,6 +47,8 @@ const versions = [
     {display: "v20.0.1", gs_version: 78618853, changelist: 1148937},
     // 2026.06.17 https://store.steampowered.com/news/app/686810/view/706649212883830915
     {display: "v20.0.2", gs_version: 3494127296, changelist: 1151242},
+    // 2026.06.25 https://discord.com/channels/316459644476456962/322320603350827010/1519690084842999961
+    {display: "v20.0.3", gs_version: 4133762762, changelist: 1152606},
 ]
 
 export const LATEST_VERSION = versions[versions.length - 1];
