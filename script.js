@@ -741,7 +741,8 @@
                 DEV_O: "Tobruk",
                 DEV_P: "Juno Beach",
                 DEV_Q: "Smolensk",
-                DEV_R: "Lake Balaton"
+                DEV_R: "Lake Balaton",
+                DEV_S: "Seelow Heights",
             },
 
             determineDisplayMapName: function (server) {
