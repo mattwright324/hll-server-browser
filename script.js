@@ -1869,7 +1869,7 @@
         if (query.hasOwnProperty("filter")) {
             $(`.name-filter[data-val='${query.filter}']`).click()
         } else {
-            $(".name-filter[data-val='en']").click()
+            $(".name-filter[data-val='all']").click()
         }
 
         const filter = $(".name-filter.selected").data("val");
